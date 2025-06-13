@@ -320,26 +320,14 @@ GameObject:
   - component: {fileID: 1779939861}
   - component: {fileID: 1779939860}
   - component: {fileID: 1779939859}
-  - component: {fileID: 1779939858}
+  - component: {fileID: 1779939863}
   m_Layer: 0
-  m_Name: Player
+  m_Name: VO Numbers 1 to 9 SQC Tester
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1779939858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1779939857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 544acbc017a5d8f40ae797873666e50d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &1779939859
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -426,6 +414,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1779939863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1779939857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e255ccbcb42715f4198e6495517000ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventToTest: {fileID: 11400000, guid: 52dcfe72a2956f640985473dc63e5d18, type: 2}
 --- !u!1 &1927767781
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,6 +458,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialEvents:
   - {fileID: 11400000, guid: 9237dfc5ff3247f4abaa8429b8f93080, type: 2}
+  - {fileID: 11400000, guid: 3f457f883a5375c4d84b1d30a5ff4504, type: 2}
+  - {fileID: 11400000, guid: 52dcfe72a2956f640985473dc63e5d18, type: 2}
+  gameSwitches: []
   initialPoolSize: 10
   canPoolGrow: 1
 --- !u!4 &1927767783

@@ -60,15 +60,17 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.47f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\GameSwitch.cs" />
-    <Compile Include="Assets\Scripts\AudioEvent.cs" />
-    <Compile Include="Assets\Scripts\SwitchContainer.cs" />
-    <Compile Include="Assets\Scripts\BaseContainer.cs" />
-    <Compile Include="Assets\Scripts\SequenceContainer.cs" />
-    <Compile Include="Assets\Scripts\SimpleContainer.cs" />
-    <Compile Include="Assets\Scripts\AudioManager.cs" />
+    <Compile Include="Assets\Scripts\Audio\SequenceContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
+    <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
+    <Compile Include="Assets\Scripts\Audio\AudioEventTesterEditor.cs" />
+    <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\SimpleContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\SwitchContainer.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\RandomContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\AudioManager.cs" />
+    <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

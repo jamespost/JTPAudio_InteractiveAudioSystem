@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             // Assuming your AudioManager is a singleton accessible via an Instance property
-            AudioManager.Instance.PostEvent("Player_Jump", this.gameObject);
+            AudioManager.Instance.PostEvent("VONumbers1to9", this.gameObject);
         }
     }
 }
