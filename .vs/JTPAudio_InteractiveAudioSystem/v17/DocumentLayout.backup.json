@@ -1,0 +1,86 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|c:\\users\\james\\jtpaudio_interactiveaudiosystem\\assets\\scripts\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|c:\\users\\james\\jtpaudio_interactiveaudiosystem\\assets\\scripts\\simplecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\simplecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\audioevent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audioevent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\basecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\basecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PlayerController.cs",
+              "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\PlayerController.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\PlayerController.cs",
+              "ToolTip": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\PlayerController.cs",
+              "RelativeToolTip": "Assets\\Scripts\\PlayerController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T15:03:38.715Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SimpleContainer.cs",
+              "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SimpleContainer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\SimpleContainer.cs",
+              "ToolTip": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SimpleContainer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\SimpleContainer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T15:01:53.286Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BaseContainer.cs",
+              "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\BaseContainer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\BaseContainer.cs",
+              "ToolTip": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\BaseContainer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\BaseContainer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T15:01:24.133Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AudioEvent.cs",
+              "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioEvent.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\AudioEvent.cs",
+              "ToolTip": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioEvent.cs",
+              "RelativeToolTip": "Assets\\Scripts\\AudioEvent.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T15:00:59.539Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
