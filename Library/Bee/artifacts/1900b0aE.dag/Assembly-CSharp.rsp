@@ -355,8 +355,12 @@
 "Assets/Scripts/AudioEvent.cs"
 "Assets/Scripts/AudioManager.cs"
 "Assets/Scripts/BaseContainer.cs"
+"Assets/Scripts/GameSwitch.cs"
 "Assets/Scripts/PlayerController.cs"
+"Assets/Scripts/RandomContainer.cs"
+"Assets/Scripts/SequenceContainer.cs"
 "Assets/Scripts/SimpleContainer.cs"
+"Assets/Scripts/SwitchContainer.cs"
 -langversion:9.0
 /deterministic
 /optimize+
