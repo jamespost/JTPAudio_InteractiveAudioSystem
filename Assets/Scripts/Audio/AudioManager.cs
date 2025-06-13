@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// The central hub for all audio operations in the game. It manages a pool of AudioSources
 /// and uses ScriptableObject-based events to play sounds.
-/// This class uses the Singleton pattern to ensure only one instance exists.
+/// This version automatically finds and registers all AudioEvent assets from any 'Resources' folder.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -14,8 +14,6 @@ public class AudioManager : MonoBehaviour
 
     // --- Inspector References ---
     [Header("Data Assets")]
-    [Tooltip("A list of all AudioEvent ScriptableObjects to be loaded into the system.")]
-    [SerializeField] private List<AudioEvent> initialEvents = new List<AudioEvent>();
     [Tooltip("A list of all GameSwitch assets to initialize the switch database.")]
     [SerializeField] private List<GameSwitch> gameSwitches = new List<GameSwitch>();
 
@@ -44,8 +42,8 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
 
-        InitializeEventDatabase();
-        InitializeSwitchDatabase(); // New for Phase 2
+        InitializeEventDatabase(); // Updated for auto-registration
+        InitializeSwitchDatabase();
         InitializeAudioSourcePool();
     }
 
@@ -53,23 +51,29 @@ public class AudioManager : MonoBehaviour
 
     #region --- Initialization ---
 
+    /// <summary>
+    /// Automatically finds and loads all AudioEvent ScriptableObjects from any "Resources"
+    /// folder within the project, then populates the event dictionary.
+    /// </summary>
     private void InitializeEventDatabase()
     {
         eventDictionary = new Dictionary<string, AudioEvent>();
-        foreach (AudioEvent audioEvent in initialEvents)
+
+        // Load all AudioEvent assets from all Resources folders in the project.
+        AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>("");
+
+        foreach (AudioEvent audioEvent in allEvents)
         {
             if (eventDictionary.ContainsKey(audioEvent.eventID))
             {
-                Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting.");
+                // We use the asset path to provide a more helpful warning.
+                Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting previous entry.");
             }
             eventDictionary[audioEvent.eventID] = audioEvent;
         }
-        Debug.Log($"AudioManager: Initialized with {eventDictionary.Count} audio events.");
+        Debug.Log($"AudioManager: Automatically registered {eventDictionary.Count} audio events from Resources.");
     }
 
-    /// <summary>
-    /// Initializes the switch database with the default values from the GameSwitch assets.
-    /// </summary>
     private void InitializeSwitchDatabase()
     {
         switchDatabase = new Dictionary<string, string>();
@@ -105,7 +109,7 @@ public class AudioManager : MonoBehaviour
     {
         if (!eventDictionary.TryGetValue(eventName, out AudioEvent audioEvent))
         {
-            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'.");
+            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'. Is the asset in a Resources folder?");
             return;
         }
 
@@ -124,11 +128,6 @@ public class AudioManager : MonoBehaviour
         StartCoroutine(ReturnSourceToPoolAfterPlay(source));
     }
 
-    /// <summary>
-    /// Sets the current value for a specified Game Switch.
-    /// </summary>
-    /// <param name="switchId">The ID of the switch to change.</param>
-    /// <param name="value">The new value to set (e.g., "Grass").</param>
     public void SetSwitch(string switchId, string value)
     {
         if (switchDatabase.ContainsKey(switchId))
@@ -141,11 +140,6 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Gets the current value of a specified Game Switch. Used by SwitchContainers.
-    /// </summary>
-    /// <param name="switchId">The ID of the switch to query.</param>
-    /// <returns>The current value of the switch.</returns>
     public string GetSwitchValue(string switchId)
     {
         if (switchDatabase.TryGetValue(switchId, out string value))
@@ -207,9 +201,7 @@ public class AudioManager : MonoBehaviour
 
     private IEnumerator ReturnSourceToPoolAfterPlay(AudioSource source)
     {
-        // For simple containers, this works fine. Sequence 'PlayAll' would need a different approach.
         yield return new WaitUntil(() => !source.isPlaying);
-
         ReturnSourceToPool(source);
     }
 

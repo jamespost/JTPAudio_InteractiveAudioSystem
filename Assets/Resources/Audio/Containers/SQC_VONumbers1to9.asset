@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f559d2cf99eb7d84796cd2d43eef85f1, type: 3}
+  m_Name: SQC_VONumbers1to9
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: 21422ef7472ad7245aecc2acbffffb62, type: 3}
+  - {fileID: 8300000, guid: bfb636cff66c6ee47adedac35b7f582a, type: 3}
+  - {fileID: 8300000, guid: 6c64314400dc0f948b855f895d5baff6, type: 3}
+  - {fileID: 8300000, guid: 0eca6c5fbd0d25044a337ea1c331d6d1, type: 3}
+  - {fileID: 8300000, guid: d7394e9d1c219634f87421102edf2808, type: 3}
+  - {fileID: 8300000, guid: 5217c80aa3e24ce4e8cba6690fc738ee, type: 3}
+  - {fileID: 8300000, guid: 072526cdf2c0ffd4281323d28426bf05, type: 3}
+  - {fileID: 8300000, guid: 0a3d0ba83bf9b134cb47a43b977a712c, type: 3}
+  - {fileID: 8300000, guid: 913954ec298fa2b4899a777c7060f3ec, type: 3}
+  mode: 0
+  loop: 1
