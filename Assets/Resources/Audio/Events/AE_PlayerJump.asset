@@ -15,3 +15,5 @@ MonoBehaviour:
   eventID: Player_Jump
   container: {fileID: 11400000, guid: 13dc0a1dc6db5324fa810d2aa8c1fdf6, type: 2}
   mixerGroup: {fileID: 6441372750811160724, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
+  attachToSource: 1
+  priority: 64

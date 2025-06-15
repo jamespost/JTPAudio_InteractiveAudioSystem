@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Audio\SwitchContainer.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioManager.cs" />
+    <Compile Include="Assets\Scripts\Audio\ActiveSound.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq; // Required for functions like OrderBy() and FirstOrDefault()
 using UnityEngine;
 
 /// <summary>
-/// The central hub for all audio operations in the game. It manages a pool of AudioSources
-/// and uses ScriptableObject-based events to play sounds.
-/// This version automatically finds and registers all AudioEvent assets from any 'Resources' folder
-/// and correctly handles attaching sounds to moving GameObjects.
+/// The central hub for all audio operations. This version includes a priority system
+/// that allows more important sounds to steal voices from less important ones, ensuring
+/// critical gameplay cues are always heard.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -19,15 +19,17 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private List<GameSwitch> gameSwitches = new List<GameSwitch>();
 
     [Header("AudioSource Pooling")]
-    [Tooltip("The initial number of AudioSources to create in the pool.")]
-    [SerializeField] private int initialPoolSize = 10;
-    [Tooltip("Whether the pool can create new AudioSources if all are currently busy.")]
+    [Tooltip("The initial number of AudioSources to create in the pool. This is the max concurrent sounds before voice stealing occurs.")]
+    [SerializeField] private int initialPoolSize = 16;
+    [Tooltip("If a sound has the highest priority but all sources are busy with sounds of the same priority, can we create a new temporary source?")]
     [SerializeField] private bool canPoolGrow = true;
 
     // --- Private Fields ---
     private Dictionary<string, AudioEvent> eventDictionary;
     private Dictionary<string, string> switchDatabase;
-    private Queue<AudioSource> sourcePool;
+
+    // We now track all sources, not just the available ones, to manage priorities.
+    private List<ActiveSound> sourcePool;
     private GameObject poolParent;
 
     #region --- Unity Lifecycle Methods ---
@@ -36,7 +38,6 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogError("Found more than one AudioManager in the scene. Destroying the newest one.");
             Destroy(this.gameObject);
             return;
         }
@@ -56,16 +57,14 @@ public class AudioManager : MonoBehaviour
     {
         eventDictionary = new Dictionary<string, AudioEvent>();
         AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>("");
-
         foreach (AudioEvent audioEvent in allEvents)
         {
             if (eventDictionary.ContainsKey(audioEvent.eventID))
             {
-                Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting previous entry.");
+                Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting.");
             }
             eventDictionary[audioEvent.eventID] = audioEvent;
         }
-        Debug.Log($"AudioManager: Automatically registered {eventDictionary.Count} audio events from Resources.");
     }
 
     private void InitializeSwitchDatabase()
@@ -79,20 +78,18 @@ public class AudioManager : MonoBehaviour
             }
             switchDatabase[sw.switchID] = sw.defaultValue;
         }
-        Debug.Log($"AudioManager: Initialized with {switchDatabase.Count} game switches.");
     }
 
     private void InitializeAudioSourcePool()
     {
-        sourcePool = new Queue<AudioSource>();
+        sourcePool = new List<ActiveSound>(initialPoolSize);
         poolParent = new GameObject("AudioSourcePool");
         poolParent.transform.SetParent(this.transform);
 
         for (int i = 0; i < initialPoolSize; i++)
         {
-            CreateAndPoolSource();
+            CreatePoolObject();
         }
-        Debug.Log($"AudioManager: AudioSource pool created with {sourcePool.Count} sources.");
     }
 
     #endregion
@@ -103,129 +100,133 @@ public class AudioManager : MonoBehaviour
     {
         if (!eventDictionary.TryGetValue(eventName, out AudioEvent audioEvent))
         {
-            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'. Is the asset in a Resources folder?");
+            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'. Is it in a Resources folder?");
             return;
         }
 
-        AudioSource source = GetSourceFromPool();
-        if (source == null)
+        // Get an available source based on the event's priority.
+        ActiveSound sound = GetSourceFromPool(audioEvent.priority);
+        if (sound == null)
         {
-            Debug.LogWarning($"AudioManager: No available AudioSources to play event '{eventName}'.");
+            // This now means the new sound wasn't important enough to steal a voice.
             return;
         }
 
-        source.outputAudioMixerGroup = audioEvent.mixerGroup;
+        // Configure the source
+        sound.priority = audioEvent.priority;
+        sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
 
-        // --- NEW LOGIC: Attach to source or play at position ---
         if (audioEvent.attachToSource)
         {
-            // Parent the source and reset its local position to ensure it's centered on the parent.
-            source.transform.SetParent(sourceObject.transform);
-            source.transform.localPosition = Vector3.zero;
+            sound.transform.SetParent(sourceObject.transform);
+            sound.transform.localPosition = Vector3.zero;
         }
         else
         {
-            // Place the source at the object's position, but don't parent it.
-            source.transform.position = sourceObject.transform.position;
+            sound.transform.position = sourceObject.transform.position;
         }
-        // --- End Modification ---
 
-        audioEvent.container.Play(source);
+        // Play the sound via its container
+        audioEvent.container.Play(sound.source);
 
-        // A simple check to prevent auto-pooling looping sounds.
-        // A more robust system for looping sounds would be needed for full production.
-        if (!source.loop)
+        if (!sound.source.loop)
         {
-            StartCoroutine(ReturnSourceToPoolAfterPlay(source));
+            StartCoroutine(ReturnSourceToPoolAfterPlay(sound));
         }
     }
 
     public void SetSwitch(string switchId, string value)
     {
         if (switchDatabase.ContainsKey(switchId))
-        {
             switchDatabase[switchId] = value;
-        }
-        else
-        {
-            Debug.LogWarning($"AudioManager: Tried to set unknown switch '{switchId}'.");
-        }
     }
 
     public string GetSwitchValue(string switchId)
     {
         if (switchDatabase.TryGetValue(switchId, out string value))
-        {
             return value;
-        }
-
-        Debug.LogWarning($"AudioManager: Tried to get unknown switch '{switchId}'. Returning empty string.");
         return string.Empty;
     }
 
     #endregion
 
-    #region --- Pooling Logic ---
+    #region --- Pooling & Priority Logic ---
 
-    private AudioSource GetSourceFromPool()
+    /// <summary>
+    /// Finds an available AudioSource or steals one from a lower-priority sound.
+    /// </summary>
+    private ActiveSound GetSourceFromPool(AudioEvent.EventPriority priority)
     {
-        if (sourcePool.Count > 0)
+        // 1. Try to find a genuinely inactive source first. This is the cheapest option.
+        var inactiveSource = sourcePool.FirstOrDefault(s => !s.source.isPlaying);
+        if (inactiveSource != null)
         {
-            AudioSource source = sourcePool.Dequeue();
-            source.gameObject.SetActive(true);
-            return source;
+            return inactiveSource;
         }
 
+        // 2. If the pool is full, try to find a source to steal.
+        // We order all active sources by their priority (ascending) and then by time played (so we steal the oldest sound of the lowest priority).
+        var lowestPrioritySound = sourcePool
+            .Where(s => s.source.isPlaying) // Only consider active sources
+            .OrderBy(s => s.priority)     // Find the one with the lowest priority value
+            .ThenBy(s => s.source.time)   // If priorities are equal, pick the one that has been playing longest
+            .FirstOrDefault();            // Get the first one in the sorted list
+
+        if (lowestPrioritySound != null && priority > lowestPrioritySound.priority)
+        {
+            // If our new sound is more important, steal the source from the low-priority sound.
+            Debug.Log($"VOICE STEALING: New sound with priority '{priority}' is stealing voice from sound with priority '{lowestPrioritySound.priority}'.");
+            lowestPrioritySound.source.Stop(); // Stop the old sound
+            // Un-parent it immediately to prevent it from moving with an object it no longer belongs to.
+            lowestPrioritySound.transform.SetParent(poolParent.transform, worldPositionStays: false);
+            return lowestPrioritySound;        // Return its source for the new sound to use
+        }
+
+        // 3. If we can't find a voice to steal and the pool can grow, create a new one.
         if (canPoolGrow)
         {
-            Debug.Log("AudioManager: Pool is empty, creating a new AudioSource.");
-            return CreateAndPoolSource(pool: false);
+            Debug.LogWarning("Pool is full and no voice was available to steal. Growing pool size. Consider increasing initial pool size if this happens often.");
+            return CreatePoolObject();
         }
 
+        // 4. If all else fails, we can't play the sound.
+        Debug.LogWarning($"Could not play sound with priority '{priority}'. Pool is full and no lower-priority sounds were available to steal.");
         return null;
     }
 
-    private void ReturnSourceToPool(AudioSource source)
+    /// <summary>
+    /// This is now just a cleanup coroutine. The source is never truly "removed" from the pool list.
+    /// It simply gets its properties reset.
+    /// </summary>
+    private IEnumerator ReturnSourceToPoolAfterPlay(ActiveSound sound)
     {
-        source.Stop();
-        source.clip = null;
-        source.loop = false; // Reset loop state
+        yield return new WaitUntil(() => sound == null || !sound.source.isPlaying || !sound.gameObject.activeInHierarchy);
 
-        // --- CRITICAL CHANGE: Un-parent the source before returning to pool ---
-        source.transform.SetParent(poolParent.transform, worldPositionStays: false);
-
-        source.gameObject.SetActive(false);
-        sourcePool.Enqueue(source);
+        if (sound != null && sound.gameObject.activeInHierarchy)
+        {
+            // Un-parent the sound and reset its properties for the next use.
+            sound.transform.SetParent(poolParent.transform, worldPositionStays: false);
+            sound.source.loop = false;
+        }
     }
 
-    private AudioSource CreateAndPoolSource(bool pool = true)
+    /// <summary>
+    /// Creates a new GameObject with all necessary components and adds it to the pool list.
+    /// </summary>
+    private ActiveSound CreatePoolObject()
     {
         GameObject newSourceGO = new GameObject($"Pooled_AudioSource_{sourcePool.Count}");
         newSourceGO.transform.SetParent(poolParent.transform);
-        AudioSource newSource = newSourceGO.AddComponent<AudioSource>();
 
+        AudioSource newSource = newSourceGO.AddComponent<AudioSource>();
         newSource.spatialBlend = 1.0f;
         newSource.playOnAwake = false;
 
-        if (pool)
-        {
-            newSourceGO.SetActive(false);
-            sourcePool.Enqueue(newSource);
-        }
+        // Add our helper component to track its state.
+        ActiveSound activeSound = newSourceGO.AddComponent<ActiveSound>();
 
-        return newSource;
-    }
-
-    private IEnumerator ReturnSourceToPoolAfterPlay(AudioSource source)
-    {
-        // Wait until the source is no longer playing OR the source has been destroyed/deactivated elsewhere.
-        yield return new WaitUntil(() => source == null || !source.isPlaying || !source.gameObject.activeInHierarchy);
-
-        // Final check to ensure the source still exists and is part of our scene before trying to pool it.
-        if (source != null && source.gameObject.activeInHierarchy)
-        {
-            ReturnSourceToPool(source);
-        }
+        sourcePool.Add(activeSound);
+        return activeSound;
     }
 
     #endregion
