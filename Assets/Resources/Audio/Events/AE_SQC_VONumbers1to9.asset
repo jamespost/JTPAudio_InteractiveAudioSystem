@@ -15,3 +15,4 @@ MonoBehaviour:
   eventID: SQC_VONumbers1to9
   container: {fileID: 11400000, guid: 774acb61b164c3248a107480493fb652, type: 2}
   mixerGroup: {fileID: 1521210011436359484, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
+  attachToSource: 1

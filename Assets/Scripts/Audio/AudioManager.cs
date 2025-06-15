@@ -5,7 +5,8 @@ using UnityEngine;
 /// <summary>
 /// The central hub for all audio operations in the game. It manages a pool of AudioSources
 /// and uses ScriptableObject-based events to play sounds.
-/// This version automatically finds and registers all AudioEvent assets from any 'Resources' folder.
+/// This version automatically finds and registers all AudioEvent assets from any 'Resources' folder
+/// and correctly handles attaching sounds to moving GameObjects.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class AudioManager : MonoBehaviour
 
     // --- Private Fields ---
     private Dictionary<string, AudioEvent> eventDictionary;
-    private Dictionary<string, string> switchDatabase; // Holds the current value for each switch ID
+    private Dictionary<string, string> switchDatabase;
     private Queue<AudioSource> sourcePool;
     private GameObject poolParent;
 
@@ -42,7 +43,7 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
 
-        InitializeEventDatabase(); // Updated for auto-registration
+        InitializeEventDatabase();
         InitializeSwitchDatabase();
         InitializeAudioSourcePool();
     }
@@ -51,22 +52,15 @@ public class AudioManager : MonoBehaviour
 
     #region --- Initialization ---
 
-    /// <summary>
-    /// Automatically finds and loads all AudioEvent ScriptableObjects from any "Resources"
-    /// folder within the project, then populates the event dictionary.
-    /// </summary>
     private void InitializeEventDatabase()
     {
         eventDictionary = new Dictionary<string, AudioEvent>();
-
-        // Load all AudioEvent assets from all Resources folders in the project.
         AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>("");
 
         foreach (AudioEvent audioEvent in allEvents)
         {
             if (eventDictionary.ContainsKey(audioEvent.eventID))
             {
-                // We use the asset path to provide a more helpful warning.
                 Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting previous entry.");
             }
             eventDictionary[audioEvent.eventID] = audioEvent;
@@ -120,12 +114,30 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        source.transform.position = sourceObject.transform.position;
         source.outputAudioMixerGroup = audioEvent.mixerGroup;
+
+        // --- NEW LOGIC: Attach to source or play at position ---
+        if (audioEvent.attachToSource)
+        {
+            // Parent the source and reset its local position to ensure it's centered on the parent.
+            source.transform.SetParent(sourceObject.transform);
+            source.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            // Place the source at the object's position, but don't parent it.
+            source.transform.position = sourceObject.transform.position;
+        }
+        // --- End Modification ---
 
         audioEvent.container.Play(source);
 
-        StartCoroutine(ReturnSourceToPoolAfterPlay(source));
+        // A simple check to prevent auto-pooling looping sounds.
+        // A more robust system for looping sounds would be needed for full production.
+        if (!source.loop)
+        {
+            StartCoroutine(ReturnSourceToPoolAfterPlay(source));
+        }
     }
 
     public void SetSwitch(string switchId, string value)
@@ -177,6 +189,11 @@ public class AudioManager : MonoBehaviour
     {
         source.Stop();
         source.clip = null;
+        source.loop = false; // Reset loop state
+
+        // --- CRITICAL CHANGE: Un-parent the source before returning to pool ---
+        source.transform.SetParent(poolParent.transform, worldPositionStays: false);
+
         source.gameObject.SetActive(false);
         sourcePool.Enqueue(source);
     }
@@ -201,8 +218,14 @@ public class AudioManager : MonoBehaviour
 
     private IEnumerator ReturnSourceToPoolAfterPlay(AudioSource source)
     {
-        yield return new WaitUntil(() => !source.isPlaying);
-        ReturnSourceToPool(source);
+        // Wait until the source is no longer playing OR the source has been destroyed/deactivated elsewhere.
+        yield return new WaitUntil(() => source == null || !source.isPlaying || !source.gameObject.activeInHierarchy);
+
+        // Final check to ensure the source still exists and is part of our scene before trying to pool it.
+        if (source != null && source.gameObject.activeInHierarchy)
+        {
+            ReturnSourceToPool(source);
+        }
     }
 
     #endregion

@@ -3,11 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|c:\\users\\james\\jtpaudio_interactiveaudiosystem\\assets\\scripts\\audio\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|c:\\users\\james\\jtpaudio_interactiveaudiosystem\\assets\\scripts\\audio\\audioeventtestereditor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\audioeventtestereditor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|c:\\users\\james\\jtpaudio_interactiveaudiosystem\\assets\\scripts\\audio\\audioeventtester.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\audio\\audioeventtester.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\audio\\audioeventtester.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -15,36 +19,36 @@
       "RelativeMoniker": "D:0:0:{B2EBAF94-41E4-E7DA-3C75-9D93AFEBB407}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\playercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\gameswitch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\gameswitch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\GameSwitch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\GameSwitch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AudioManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\basecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\basecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\BaseContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\BaseContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\audioevent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\audioevent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioEvent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\AudioEvent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\switchcontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\switchcontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SwitchContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\SwitchContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\sequencecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\sequencecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SequenceContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\SequenceContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\randomcontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\randomcontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\RandomContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\RandomContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\assets\\scripts\\simplecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:assets\\scripts\\simplecontainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SimpleContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\SimpleContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -59,6 +63,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AudioManager.cs",
+              "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\Audio\\AudioManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\AudioManager.cs",
+              "ToolTip": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\Audio\\AudioManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Audio\\AudioManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T20:17:40.393Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "AudioEventTesterEditor.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\Audio\\AudioEventTesterEditor.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\AudioEventTesterEditor.cs",
@@ -71,7 +88,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "AudioEventTester.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\Audio\\AudioEventTester.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Audio\\AudioEventTester.cs",
@@ -79,12 +96,11 @@
               "RelativeToolTip": "Assets\\Scripts\\Audio\\AudioEventTester.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T20:03:22.594Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-13T20:03:22.594Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "GameSwitch.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\GameSwitch.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\GameSwitch.cs",
@@ -96,7 +112,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "SwitchContainer.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SwitchContainer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SwitchContainer.cs",
@@ -108,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "SequenceContainer.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SequenceContainer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SequenceContainer.cs",
@@ -120,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "RandomContainer.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\RandomContainer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\RandomContainer.cs",
@@ -132,7 +148,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "AudioManager.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AudioManager.cs",
@@ -144,7 +160,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "PlayerController.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\PlayerController.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\PlayerController.cs",
@@ -156,7 +172,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "SimpleContainer.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\SimpleContainer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\SimpleContainer.cs",
@@ -168,7 +184,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "BaseContainer.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\BaseContainer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BaseContainer.cs",
@@ -180,7 +196,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "AudioEvent.cs",
               "DocumentMoniker": "C:\\Users\\james\\JTPAudio_InteractiveAudioSystem\\Assets\\Scripts\\AudioEvent.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\AudioEvent.cs",
