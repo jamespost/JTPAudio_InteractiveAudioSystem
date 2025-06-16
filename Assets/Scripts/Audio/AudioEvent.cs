@@ -1,5 +1,32 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+
+/// <summary>
+/// Defines which audio property a GameParameter will modulate.
+/// </summary>
+public enum ModulationTarget
+{
+    Volume,
+    Pitch
+}
+
+/// <summary>
+/// A single rule that links a GameParameter to an audio property via a curve.
+/// As a sound designer, this curve gives you visual control over the modulation.
+/// </summary>
+[System.Serializable]
+public class ParameterModulation
+{
+    [Tooltip("The GameParameter that will drive this modulation (e.g., 'PlayerHealth').")]
+    public GameParameter parameter;
+
+    [Tooltip("The audio property of the sound that will be affected (e.g., Volume, Pitch).")]
+    public ModulationTarget targetProperty;
+
+    [Tooltip("The mapping curve. X-axis is the GameParameter's value (normalized from 0 to 1), Y-axis is the final multiplier applied to the target property.")]
+    public AnimationCurve mappingCurve = AnimationCurve.Linear(0, 1, 1, 1);
+}
 
 /// <summary>
 /// A ScriptableObject that defines a complete sound event, from what clips to play
@@ -8,18 +35,12 @@ using UnityEngine.Audio;
 [CreateAssetMenu(menuName = "Audio/Audio Event")]
 public class AudioEvent : ScriptableObject
 {
-    // Enum for defining the gameplay importance of an event.
     public enum EventPriority
     {
-        // For background loops and non-critical sounds that can be culled first.
         Ambience = 0,
-        // For the player's own Foley sounds (footsteps, jumps).
         Player = 64,
-        // The default for most world interactions and general UI.
         Standard = 128,
-        // For important gameplay cues like enemy ability "tells".
         Critical = 192,
-        // For sounds that absolutely must be heard (dialogue, immediate lethal threats).
         ImmediateThreat = 255
     }
 
@@ -36,6 +57,10 @@ public class AudioEvent : ScriptableObject
     [Tooltip("If true, the sound will follow the source GameObject.")]
     public bool attachToSource = false;
 
-    [Tooltip("The gameplay importance of this sound. Higher values will cut off lower values if the system runs out of voices.")]
+    [Tooltip("The gameplay importance of this sound.")]
     public EventPriority priority = EventPriority.Standard;
+
+    [Header("Parameter Modulation (RTPC)")]
+    [Tooltip("A list of rules that define how this sound reacts to real-time GameParameter changes.")]
+    public List<ParameterModulation> modulations = new List<ParameterModulation>();
 }

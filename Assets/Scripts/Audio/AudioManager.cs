@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; // Required for functions like OrderBy() and FirstOrDefault()
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Audio;
 
 /// <summary>
-/// The central hub for all audio operations. This version includes a priority system
-/// that allows more important sounds to steal voices from less important ones, ensuring
-/// critical gameplay cues are always heard.
+/// The central hub for all audio operations. This version includes a state system
+/// for managing global mix changes via AudioMixer Snapshots. As a sound designer,
+/// you can now call SetState() to trigger major, cross-faded changes to the entire soundscape.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -15,20 +16,29 @@ public class AudioManager : MonoBehaviour
 
     // --- Inspector References ---
     [Header("Data Assets")]
-    [Tooltip("A list of all GameSwitch assets to initialize the switch database.")]
+    [Tooltip("Drag all GameSwitch ScriptableObjects here to register them.")]
     [SerializeField] private List<GameSwitch> gameSwitches = new List<GameSwitch>();
+    [Tooltip("Drag all GameParameter ScriptableObjects here to register them.")]
+    [SerializeField] private List<GameParameter> gameParameters = new List<GameParameter>();
+    [Tooltip("Drag all AudioState ScriptableObjects here to register them.")]
+    [SerializeField] private List<AudioState> audioStates = new List<AudioState>();
+
+    [Header("Mixer")]
+    [Tooltip("The main AudioMixer for the project. Required for states and parameters to function.")]
+    [SerializeField] private AudioMixer mainMixer;
 
     [Header("AudioSource Pooling")]
-    [Tooltip("The initial number of AudioSources to create in the pool. This is the max concurrent sounds before voice stealing occurs.")]
+    [Tooltip("The maximum number of concurrent sounds before voice stealing occurs.")]
     [SerializeField] private int initialPoolSize = 16;
-    [Tooltip("If a sound has the highest priority but all sources are busy with sounds of the same priority, can we create a new temporary source?")]
+    [Tooltip("Can the pool create a new temporary source if all voices are busy?")]
     [SerializeField] private bool canPoolGrow = true;
 
-    // --- Private Fields ---
+    // --- Private Databases ---
     private Dictionary<string, AudioEvent> eventDictionary;
     private Dictionary<string, string> switchDatabase;
+    private Dictionary<string, float> parameterDatabase;
+    private Dictionary<string, AudioState> stateDatabase; // New database for states
 
-    // We now track all sources, not just the available ones, to manage priorities.
     private List<ActiveSound> sourcePool;
     private GameObject poolParent;
 
@@ -36,6 +46,7 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
+        // Null reference check for the singleton instance
         if (Instance != null && Instance != this)
         {
             Destroy(this.gameObject);
@@ -44,8 +55,11 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
 
+        // Initialize all systems
         InitializeEventDatabase();
         InitializeSwitchDatabase();
+        InitializeParameterDatabase();
+        InitializeStateDatabase(); // New initialization step
         InitializeAudioSourcePool();
     }
 
@@ -59,10 +73,9 @@ public class AudioManager : MonoBehaviour
         AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>("");
         foreach (AudioEvent audioEvent in allEvents)
         {
-            if (eventDictionary.ContainsKey(audioEvent.eventID))
-            {
-                Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found. Overwriting.");
-            }
+            // Null reference check for the asset and its ID
+            if (audioEvent == null || string.IsNullOrEmpty(audioEvent.eventID)) continue;
+            if (eventDictionary.ContainsKey(audioEvent.eventID)) { Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found."); }
             eventDictionary[audioEvent.eventID] = audioEvent;
         }
     }
@@ -72,11 +85,42 @@ public class AudioManager : MonoBehaviour
         switchDatabase = new Dictionary<string, string>();
         foreach (GameSwitch sw in gameSwitches)
         {
-            if (switchDatabase.ContainsKey(sw.switchID))
-            {
-                Debug.LogWarning($"AudioManager: Duplicate switch ID '{sw.switchID}' found. Overwriting.");
-            }
+            // Null reference check for the asset and its ID
+            if (sw == null || string.IsNullOrEmpty(sw.switchID)) continue;
+            if (switchDatabase.ContainsKey(sw.switchID)) { Debug.LogWarning($"AudioManager: Duplicate switch ID '{sw.switchID}' found."); }
             switchDatabase[sw.switchID] = sw.defaultValue;
+        }
+    }
+
+    private void InitializeParameterDatabase()
+    {
+        parameterDatabase = new Dictionary<string, float>();
+        foreach (GameParameter param in gameParameters)
+        {
+            // Null reference check for the asset and its ID
+            if (param == null || string.IsNullOrEmpty(param.parameterID)) continue;
+            if (parameterDatabase.ContainsKey(param.parameterID)) { Debug.LogWarning($"AudioManager: Duplicate parameter ID '{param.parameterID}' found."); }
+            parameterDatabase[param.parameterID] = param.defaultValue;
+            // Null reference check for the mixer before trying to set a parameter
+            if (mainMixer != null && !string.IsNullOrEmpty(param.exposedMixerParameter))
+            {
+                mainMixer.SetFloat(param.exposedMixerParameter, param.defaultValue);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Initializes the state database from the provided list of AudioState assets.
+    /// </summary>
+    private void InitializeStateDatabase()
+    {
+        stateDatabase = new Dictionary<string, AudioState>();
+        foreach (AudioState state in audioStates)
+        {
+            // Null reference check for the asset and its ID
+            if (state == null || string.IsNullOrEmpty(state.stateID)) continue;
+            if (stateDatabase.ContainsKey(state.stateID)) { Debug.LogWarning($"AudioManager: Duplicate state ID '{state.stateID}' found."); }
+            stateDatabase[state.stateID] = state;
         }
     }
 
@@ -85,34 +129,77 @@ public class AudioManager : MonoBehaviour
         sourcePool = new List<ActiveSound>(initialPoolSize);
         poolParent = new GameObject("AudioSourcePool");
         poolParent.transform.SetParent(this.transform);
-
-        for (int i = 0; i < initialPoolSize; i++)
-        {
-            CreatePoolObject();
-        }
+        for (int i = 0; i < initialPoolSize; i++) { CreatePoolObject(); }
     }
 
     #endregion
 
     #region --- Public API ---
 
+    /// <summary>
+    /// Sets the global audio state, triggering a transition to the associated AudioMixer Snapshot.
+    /// This is the primary method for making broad, sweeping changes to the mix (e.g., for pausing, combat, cutscenes).
+    /// </summary>
+    /// <param name="stateId">The unique ID of the AudioState to activate (e.g., "Combat").</param>
+    public void SetState(string stateId)
+    {
+        // Null reference check for the ID
+        if (string.IsNullOrEmpty(stateId))
+        {
+            Debug.LogError("AudioManager.SetState called with a null or empty stateId.");
+            return;
+        }
+
+        if (stateDatabase.TryGetValue(stateId, out AudioState state))
+        {
+            // Null reference check for the snapshot assigned to the state
+            if (state.snapshot != null)
+            {
+                // This is the core Unity function that transitions between snapshots.
+                state.snapshot.TransitionTo(state.transitionTime);
+            }
+            else
+            {
+                Debug.LogWarning($"AudioState '{stateId}' does not have a Snapshot assigned in the Inspector.");
+            }
+        }
+        else
+        {
+            Debug.LogError($"AudioManager: Could not find an AudioState with ID '{stateId}'. Make sure it is added to the AudioManager's list in the Inspector.");
+        }
+    }
+
     public void PostEvent(string eventName, GameObject sourceObject)
     {
+        if (string.IsNullOrEmpty(eventName) || sourceObject == null) return;
         if (!eventDictionary.TryGetValue(eventName, out AudioEvent audioEvent))
         {
-            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'. Is it in a Resources folder?");
+            Debug.LogWarning($"AudioManager: Could not find event with ID '{eventName}'.");
             return;
         }
 
-        // Get an available source based on the event's priority.
         ActiveSound sound = GetSourceFromPool(audioEvent.priority);
-        if (sound == null)
+        if (sound == null) return;
+
+        audioEvent.container.Play(sound.source);
+
+        foreach (var mod in audioEvent.modulations)
         {
-            // This now means the new sound wasn't important enough to steal a voice.
-            return;
+            if (mod.parameter == null) continue;
+            if (parameterDatabase.TryGetValue(mod.parameter.parameterID, out float currentValue))
+            {
+                float normalizedValue = Mathf.InverseLerp(mod.parameter.minValue, mod.parameter.maxValue, currentValue);
+                float multiplier = mod.mappingCurve.Evaluate(normalizedValue);
+                switch (mod.targetProperty)
+                {
+                    case ModulationTarget.Volume: sound.source.volume *= multiplier; break;
+                    case ModulationTarget.Pitch: sound.source.pitch *= multiplier; break;
+                }
+            }
         }
 
-        // Configure the source
+        sound.source.Play();
+
         sound.priority = audioEvent.priority;
         sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
 
@@ -126,105 +213,87 @@ public class AudioManager : MonoBehaviour
             sound.transform.position = sourceObject.transform.position;
         }
 
-        // Play the sound via its container
-        audioEvent.container.Play(sound.source);
-
         if (!sound.source.loop)
         {
             StartCoroutine(ReturnSourceToPoolAfterPlay(sound));
         }
     }
 
+    public void SetParameter(string parameterId, float value)
+    {
+        if (string.IsNullOrEmpty(parameterId)) return;
+        if (parameterDatabase.ContainsKey(parameterId))
+        {
+            parameterDatabase[parameterId] = value;
+            GameParameter paramAsset = gameParameters.FirstOrDefault(p => p != null && p.parameterID == parameterId);
+            if (paramAsset != null && mainMixer != null && !string.IsNullOrEmpty(paramAsset.exposedMixerParameter))
+            {
+                float clampedValue = Mathf.Clamp(value, paramAsset.minValue, paramAsset.maxValue);
+                mainMixer.SetFloat(paramAsset.exposedMixerParameter, clampedValue);
+            }
+        }
+    }
+
+    // Sets the value of a game switch by its ID, if it exists in the switch database.
     public void SetSwitch(string switchId, string value)
     {
         if (switchDatabase.ContainsKey(switchId))
             switchDatabase[switchId] = value;
     }
-
+    // Retrieves the current value of a game switch by its ID, or returns an empty string if not found.
     public string GetSwitchValue(string switchId)
     {
         if (switchDatabase.TryGetValue(switchId, out string value))
             return value;
         return string.Empty;
     }
-
-    #endregion
-
-    #region --- Pooling & Priority Logic ---
-
-    /// <summary>
-    /// Finds an available AudioSource or steals one from a lower-priority sound.
-    /// </summary>
+    // Retrieves an available (not playing) ActiveSound from the pool, or steals the lowest priority sound if needed.
+    // If the pool can grow, creates a new ActiveSound if all are busy and priorities do not allow stealing.
     private ActiveSound GetSourceFromPool(AudioEvent.EventPriority priority)
     {
-        // 1. Try to find a genuinely inactive source first. This is the cheapest option.
         var inactiveSource = sourcePool.FirstOrDefault(s => !s.source.isPlaying);
         if (inactiveSource != null)
-        {
             return inactiveSource;
-        }
 
-        // 2. If the pool is full, try to find a source to steal.
-        // We order all active sources by their priority (ascending) and then by time played (so we steal the oldest sound of the lowest priority).
         var lowestPrioritySound = sourcePool
-            .Where(s => s.source.isPlaying) // Only consider active sources
-            .OrderBy(s => s.priority)     // Find the one with the lowest priority value
-            .ThenBy(s => s.source.time)   // If priorities are equal, pick the one that has been playing longest
-            .FirstOrDefault();            // Get the first one in the sorted list
+            .Where(s => s.source.isPlaying)
+            .OrderBy(s => s.priority)
+            .ThenBy(s => s.source.time)
+            .FirstOrDefault();
 
         if (lowestPrioritySound != null && priority > lowestPrioritySound.priority)
         {
-            // If our new sound is more important, steal the source from the low-priority sound.
-            Debug.Log($"VOICE STEALING: New sound with priority '{priority}' is stealing voice from sound with priority '{lowestPrioritySound.priority}'.");
-            lowestPrioritySound.source.Stop(); // Stop the old sound
-            // Un-parent it immediately to prevent it from moving with an object it no longer belongs to.
+            lowestPrioritySound.source.Stop();
             lowestPrioritySound.transform.SetParent(poolParent.transform, worldPositionStays: false);
-            return lowestPrioritySound;        // Return its source for the new sound to use
+            return lowestPrioritySound;
         }
 
-        // 3. If we can't find a voice to steal and the pool can grow, create a new one.
         if (canPoolGrow)
         {
-            Debug.LogWarning("Pool is full and no voice was available to steal. Growing pool size. Consider increasing initial pool size if this happens often.");
             return CreatePoolObject();
         }
 
-        // 4. If all else fails, we can't play the sound.
-        Debug.LogWarning($"Could not play sound with priority '{priority}'. Pool is full and no lower-priority sounds were available to steal.");
         return null;
     }
-
-    /// <summary>
-    /// This is now just a cleanup coroutine. The source is never truly "removed" from the pool list.
-    /// It simply gets its properties reset.
-    /// </summary>
+    // Coroutine that waits until the sound finishes playing, then returns the ActiveSound to the pool.
     private IEnumerator ReturnSourceToPoolAfterPlay(ActiveSound sound)
     {
         yield return new WaitUntil(() => sound == null || !sound.source.isPlaying || !sound.gameObject.activeInHierarchy);
-
         if (sound != null && sound.gameObject.activeInHierarchy)
         {
-            // Un-parent the sound and reset its properties for the next use.
             sound.transform.SetParent(poolParent.transform, worldPositionStays: false);
             sound.source.loop = false;
         }
     }
-
-    /// <summary>
-    /// Creates a new GameObject with all necessary components and adds it to the pool list.
-    /// </summary>
+    // Creates a new pooled AudioSource GameObject, adds it to the pool, and returns the ActiveSound component.
     private ActiveSound CreatePoolObject()
     {
         GameObject newSourceGO = new GameObject($"Pooled_AudioSource_{sourcePool.Count}");
         newSourceGO.transform.SetParent(poolParent.transform);
-
         AudioSource newSource = newSourceGO.AddComponent<AudioSource>();
         newSource.spatialBlend = 1.0f;
         newSource.playOnAwake = false;
-
-        // Add our helper component to track its state.
         ActiveSound activeSound = newSourceGO.AddComponent<ActiveSound>();
-
         sourcePool.Add(activeSound);
         return activeSound;
     }
