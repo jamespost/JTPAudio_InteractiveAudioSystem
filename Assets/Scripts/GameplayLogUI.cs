@@ -25,8 +25,29 @@ public class GameplayLogUI : MonoBehaviour
     [Tooltip("The maximum number of messages to keep in the log. Helps prevent performance issues.")]
     [SerializeField] private int maxMessages = 100;
 
-    // A queue is a more efficient data structure for this task than a list.
+    // A queue is a more efficient data structure for tracking active messages.
     private readonly Queue<GameObject> messageQueue = new Queue<GameObject>();
+
+    // A simple pool to reuse log entry objects instead of destroying them.
+    private readonly Queue<GameObject> objectPool = new Queue<GameObject>();
+
+    private void Awake()
+    {
+        // Optionally pre-warm the pool with up to maxMessages objects.
+        // This ensures we have enough objects in common use cases.
+        for (int i = 0; i < maxMessages; i++)
+        {
+            GameObject pooledObj = Instantiate(logEntryPrefab);
+            pooledObj.SetActive(false);
+            objectPool.Enqueue(pooledObj);
+        }
+
+        // Ensure the log panel is hidden when the game starts.
+        if (logPanel != null)
+        {
+            logPanel.SetActive(false);
+        }
+    }
 
     private void OnEnable()
     {
@@ -57,22 +78,35 @@ public class GameplayLogUI : MonoBehaviour
     }
 
     /// <summary>
-    /// This method is now responsible for instantiating a new prefab for each log message.
+    /// This method now retrieves a prefab instance from the pool for each log message.
     /// </summary>
     private void HandleNewLog(LogEntry entry)
     {
         // Null reference checks for required components
         if (contentParent == null || scrollRect == null) return;
 
-        // If we have too many messages, destroy the oldest one and remove it from the queue.
+        // If we have too many messages, move the oldest one back to the pool and out of the UI.
         if (messageQueue.Count >= maxMessages)
         {
             GameObject oldestMessage = messageQueue.Dequeue();
-            Destroy(oldestMessage);
+            oldestMessage.SetActive(false);
+            objectPool.Enqueue(oldestMessage);
         }
 
-        // Create a new instance of our prefab.
-        GameObject newEntryObject = Instantiate(logEntryPrefab, contentParent);
+        // Acquire an object from the pool or instantiate one if the pool is empty.
+        GameObject newEntryObject;
+        if (objectPool.Count > 0)
+        {
+            newEntryObject = objectPool.Dequeue();
+            newEntryObject.SetActive(true);
+        }
+        else
+        {
+            newEntryObject = Instantiate(logEntryPrefab);
+        }
+
+        // Parent it properly under the content area and reset transform as needed.
+        newEntryObject.transform.SetParent(contentParent, false);
 
         // Find the Text component on our new prefab instance.
         Text textComponent = newEntryObject.GetComponent<Text>();
