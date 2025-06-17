@@ -5,10 +5,8 @@ using UnityEngine;
 using UnityEngine.Audio;
 
 /// <summary>
-/// The central hub for all audio operations. This version is fully integrated
-/// with the GameplayLogger to provide real-time debugging information. As a sound
-/// designer, you can use the on-screen log to see exactly what the audio system is
-/// doing at any moment.
+/// The central hub for all audio operations. This version includes a smooth crossfade
+/// during voice stealing to prevent audio clicks and pops, giving you a cleaner mix.
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
@@ -31,6 +29,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private int initialPoolSize = 16;
     [Tooltip("Can the pool create a new temporary source if all voices are busy?")]
     [SerializeField] private bool canPoolGrow = true;
+    [Tooltip("The time in seconds to fade out a stolen voice to prevent clicks. A very small value between 0.02s to 0.05s is recommended.")]
+    [SerializeField] private float voiceStealFadeTime = 0.02f;
+
 
     private Dictionary<string, AudioEvent> eventDictionary;
     private Dictionary<string, string> switchDatabase;
@@ -59,14 +60,13 @@ public class AudioManager : MonoBehaviour
         InitializeAudioSourcePool();
     }
 
-    #region Initialization (No changes here)
+    #region Initialization
     private void InitializeEventDatabase()
     {
         eventDictionary = new Dictionary<string, AudioEvent>();
         AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>("");
         foreach (AudioEvent audioEvent in allEvents)
         {
-            // Null reference check for the asset and its ID
             if (audioEvent == null || string.IsNullOrEmpty(audioEvent.eventID)) continue;
             if (eventDictionary.ContainsKey(audioEvent.eventID)) { Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found."); }
             eventDictionary[audioEvent.eventID] = audioEvent;
@@ -77,7 +77,6 @@ public class AudioManager : MonoBehaviour
         switchDatabase = new Dictionary<string, string>();
         foreach (GameSwitch sw in gameSwitches)
         {
-            // Null reference check for the asset and its ID
             if (sw == null || string.IsNullOrEmpty(sw.switchID)) continue;
             if (switchDatabase.ContainsKey(sw.switchID)) { Debug.LogWarning($"AudioManager: Duplicate switch ID '{sw.switchID}' found."); }
             switchDatabase[sw.switchID] = sw.defaultValue;
@@ -88,11 +87,9 @@ public class AudioManager : MonoBehaviour
         parameterDatabase = new Dictionary<string, float>();
         foreach (GameParameter param in gameParameters)
         {
-            // Null reference check for the asset and its ID
             if (param == null || string.IsNullOrEmpty(param.parameterID)) continue;
             if (parameterDatabase.ContainsKey(param.parameterID)) { Debug.LogWarning($"AudioManager: Duplicate parameter ID '{param.parameterID}' found."); }
             parameterDatabase[param.parameterID] = param.defaultValue;
-            // Null reference check for the mixer before trying to set a parameter
             if (mainMixer != null && !string.IsNullOrEmpty(param.exposedMixerParameter))
             {
                 mainMixer.SetFloat(param.exposedMixerParameter, param.defaultValue);
@@ -104,7 +101,6 @@ public class AudioManager : MonoBehaviour
         stateDatabase = new Dictionary<string, AudioState>();
         foreach (AudioState state in audioStates)
         {
-            // Null reference check for the asset and its ID
             if (state == null || string.IsNullOrEmpty(state.stateID)) continue;
             if (stateDatabase.ContainsKey(state.stateID)) { Debug.LogWarning($"AudioManager: Duplicate state ID '{state.stateID}' found."); }
             stateDatabase[state.stateID] = state;
@@ -119,18 +115,15 @@ public class AudioManager : MonoBehaviour
     }
     #endregion
 
-    #region Public API (with Logging)
+    #region Public API
 
     public void SetState(string stateId)
     {
-        // Null reference check for the ID
         if (string.IsNullOrEmpty(stateId)) return;
         if (stateDatabase.TryGetValue(stateId, out AudioState state))
         {
-            // Null reference check for the snapshot assigned to the state
             if (state.snapshot != null)
             {
-                // --- LOGGING ---
                 GameplayLogger.Log($"Setting Audio State to '{stateId}'. Transitioning to snapshot '{state.snapshot.name}' over {state.transitionTime}s.", LogCategory.Audio);
                 state.snapshot.TransitionTo(state.transitionTime);
             }
@@ -146,35 +139,23 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        // --- LOGGING ---
         GameplayLogger.Log($"Received PostEvent request for '{eventName}' on object '{sourceObject.name}'. Priority: {audioEvent.priority}.", LogCategory.Audio);
 
         ActiveSound sound = GetSourceFromPool(audioEvent.priority);
         if (sound == null) return;
 
-        sound.priority = audioEvent.priority;
-        sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
-
-        if (audioEvent.attachToSource) { sound.transform.SetParent(sourceObject.transform); sound.transform.localPosition = Vector3.zero; }
-        else { sound.transform.position = sourceObject.transform.position; }
-
-        audioEvent.container.Play(sound.source);
-        foreach (var mod in audioEvent.modulations)
+        // --- NEW LOGIC: Check if the voice was stolen ---
+        if (sound.source.isPlaying)
         {
-            if (mod.parameter == null) continue;
-            if (parameterDatabase.TryGetValue(mod.parameter.parameterID, out float currentValue))
-            {
-                float normalizedValue = Mathf.InverseLerp(mod.parameter.minValue, mod.parameter.maxValue, currentValue);
-                float multiplier = mod.mappingCurve.Evaluate(normalizedValue);
-                switch (mod.targetProperty)
-                {
-                    case ModulationTarget.Volume: sound.source.volume *= multiplier; break;
-                    case ModulationTarget.Pitch: sound.source.pitch *= multiplier; break;
-                }
-            }
+            // If the source is already playing, it's a stolen voice.
+            // We start a coroutine to handle the crossfade.
+            StartCoroutine(FadeOutAndPlayNew(sound, audioEvent, sourceObject));
         }
-        sound.source.Play();
-        if (!sound.source.loop) { StartCoroutine(ReturnSourceToPoolAfterPlay(sound)); }
+        else
+        {
+            // If the source was free, we can configure and play it immediately.
+            ConfigureAndPlay(sound, audioEvent, sourceObject);
+        }
     }
 
     public void SetParameter(string parameterId, float value)
@@ -182,7 +163,6 @@ public class AudioManager : MonoBehaviour
         if (string.IsNullOrEmpty(parameterId)) return;
         if (parameterDatabase.ContainsKey(parameterId))
         {
-            // --- LOGGING ---
             GameplayLogger.Log($"Setting Parameter '{parameterId}' to value '{value}'.", LogCategory.Audio);
             parameterDatabase[parameterId] = value;
             GameParameter paramAsset = gameParameters.FirstOrDefault(p => p != null && p.parameterID == parameterId);
@@ -199,7 +179,6 @@ public class AudioManager : MonoBehaviour
         if (string.IsNullOrEmpty(switchId)) return;
         if (switchDatabase.ContainsKey(switchId))
         {
-            // --- LOGGING ---
             GameplayLogger.Log($"Setting Switch '{switchId}' to value '{value}'.", LogCategory.Audio);
             switchDatabase[switchId] = value;
         }
@@ -207,25 +186,27 @@ public class AudioManager : MonoBehaviour
 
     #endregion
 
-    #region Pooling & Priority Logic (with Logging)
+    #region Pooling & Priority Logic
     public string GetSwitchValue(string switchId) { if (switchDatabase.TryGetValue(switchId, out string value)) return value; return string.Empty; }
+
     private ActiveSound GetSourceFromPool(AudioEvent.EventPriority priority)
     {
+        // First, try to find a truly inactive source.
         var inactiveSource = sourcePool.FirstOrDefault(s => !s.source.isPlaying);
         if (inactiveSource != null) return inactiveSource;
 
+        // If none are free, find the lowest-priority sound to steal.
         var lowestPrioritySound = sourcePool.Where(s => s.source.isPlaying).OrderBy(s => s.priority).ThenBy(s => s.source.time).FirstOrDefault();
 
-        // Null reference check for lowestPrioritySound
+        // Check if we can steal this voice.
         if (lowestPrioritySound != null && priority >= lowestPrioritySound.priority)
         {
-            // --- LOGGING (This is the most important log for you as a sound designer) ---
             GameplayLogger.Log($"VOICE STEALING: New sound (Priority: {priority}) is culling existing sound (Priority: {lowestPrioritySound.priority}).", LogCategory.Audio);
-            lowestPrioritySound.source.Stop();
-            lowestPrioritySound.transform.SetParent(poolParent.transform, worldPositionStays: false);
+            // We don't stop it here. We return it to be faded out.
             return lowestPrioritySound;
         }
 
+        // If we can't steal and the pool can grow, create a new source.
         if (canPoolGrow)
         {
             GameplayLogger.Log("Pool is full and no voice was available to steal. Growing pool size.", LogCategory.System);
@@ -235,9 +216,90 @@ public class AudioManager : MonoBehaviour
         GameplayLogger.Log($"Could not play sound (Priority: {priority}). Pool is full and no lower-priority sounds were available.", LogCategory.Error);
         return null;
     }
+
+    /// <summary>
+    /// Configures and plays a sound on a free (non-playing) AudioSource.
+    /// </summary>
+    private void ConfigureAndPlay(ActiveSound sound, AudioEvent audioEvent, GameObject sourceObject)
+    {
+        // Set up all properties on the ActiveSound and its AudioSource
+        sound.priority = audioEvent.priority;
+        sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
+
+        if (audioEvent.attachToSource)
+        {
+            sound.transform.SetParent(sourceObject.transform, false);
+            sound.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            sound.transform.SetParent(poolParent.transform, false);
+            sound.transform.position = sourceObject.transform.position;
+        }
+
+        // Get the base settings from the container
+        audioEvent.container.Play(sound.source);
+
+        // Apply any parameter modulations
+        foreach (var mod in audioEvent.modulations)
+        {
+            if (mod.parameter == null) continue;
+            if (parameterDatabase.TryGetValue(mod.parameter.parameterID, out float currentValue))
+            {
+                float normalizedValue = Mathf.InverseLerp(mod.parameter.minValue, mod.parameter.maxValue, currentValue);
+                float multiplier = mod.mappingCurve.Evaluate(normalizedValue);
+                switch (mod.targetProperty)
+                {
+                    case ModulationTarget.Volume: sound.source.volume *= multiplier; break;
+                    case ModulationTarget.Pitch: sound.source.pitch *= multiplier; break;
+                }
+            }
+        }
+
+        // Play the sound with all new settings.
+        sound.source.Play();
+
+        // If the sound isn't looping, start the process to return it to the pool when finished.
+        if (!sound.source.loop)
+        {
+            StartCoroutine(ReturnSourceToPoolAfterPlay(sound));
+        }
+    }
+
+    /// <summary>
+    /// A new coroutine that handles the fade-out of a stolen voice before playing the new sound.
+    /// This is the core of the click-prevention system.
+    /// </summary>
+    private IEnumerator FadeOutAndPlayNew(ActiveSound sound, AudioEvent newEvent, GameObject sourceObject)
+    {
+        float startingVolume = sound.source.volume;
+        float fadeTimer = 0f;
+
+        // Part 1: Fade out the old sound
+        while (fadeTimer < voiceStealFadeTime)
+        {
+            // Null check inside the loop in case the object is destroyed mid-fade
+            if (sound == null || sound.source == null) yield break;
+
+            fadeTimer += Time.unscaledDeltaTime;
+            sound.source.volume = Mathf.Lerp(startingVolume, 0f, fadeTimer / voiceStealFadeTime);
+            yield return null;
+        }
+
+        // Ensure fade completes and stop the source
+        if (sound != null && sound.source != null)
+        {
+            sound.source.Stop();
+            // Reset volume to 1 so the next sound isn't silent.
+            sound.source.volume = 1f;
+        }
+
+        // Part 2: Configure and play the new sound using the now-free source.
+        ConfigureAndPlay(sound, newEvent, sourceObject);
+    }
+
     private IEnumerator ReturnSourceToPoolAfterPlay(ActiveSound sound)
     {
-        // Null reference check for the sound object
         yield return new WaitUntil(() => sound == null || !sound.source.isPlaying || !sound.gameObject.activeInHierarchy);
         if (sound != null && sound.gameObject.activeInHierarchy)
         {

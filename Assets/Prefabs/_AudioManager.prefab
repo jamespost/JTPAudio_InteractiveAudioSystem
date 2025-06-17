@@ -48,5 +48,6 @@ MonoBehaviour:
   gameParameters: []
   audioStates: []
   mainMixer: {fileID: 24100000, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
-  initialPoolSize: 5
+  initialPoolSize: 1
   canPoolGrow: 0
+  voiceStealFadeTime: 0.02
