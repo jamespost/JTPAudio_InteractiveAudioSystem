@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Audio\SequenceContainer.cs" />
+    <Compile Include="Assets\Scripts\IAudioThreat.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTesterEditor.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Assets\Scripts\Audio\ActiveSound.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioState.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
+    <Compile Include="Assets\Scripts\ExampleThreatSource.cs" />
     <Compile Include="Assets\Scripts\GameplayLogUI.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -365,8 +365,10 @@
 "Assets/Scripts/Audio/SequenceContainer.cs"
 "Assets/Scripts/Audio/SimpleContainer.cs"
 "Assets/Scripts/Audio/SwitchContainer.cs"
+"Assets/Scripts/ExampleThreatSource.cs"
 "Assets/Scripts/GameplayLogger.cs"
 "Assets/Scripts/GameplayLogUI.cs"
+"Assets/Scripts/IAudioThreat.cs"
 "Assets/Scripts/PlayerController.cs"
 -langversion:9.0
 /deterministic

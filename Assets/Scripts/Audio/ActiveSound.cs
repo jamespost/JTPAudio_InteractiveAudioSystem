@@ -2,19 +2,23 @@ using UnityEngine;
 
 /// <summary>
 /// A small helper component attached to pooled AudioSource GameObjects at runtime.
-/// It holds runtime data about the sound currently being played, like its priority,
-/// so the AudioManager can make intelligent decisions about voice stealing.
+/// It holds runtime data about the sound currently being played, including its
+/// final, calculated priority after considering any dynamic threat.
 /// </summary>
 public class ActiveSound : MonoBehaviour
 {
-    // The AudioSource component on this same GameObject.
+    [Tooltip("The AudioSource component on this same GameObject.")]
     public AudioSource source;
 
-    // The priority of the AudioEvent currently being played.
-    public AudioEvent.EventPriority priority;
+    [Tooltip("The final priority of the sound, calculated by combining the event's base priority with any dynamic threat value.")]
+    public int finalPriority;
 
     private void Awake()
     {
-        source = GetComponent<AudioSource>();
+        // Null reference check for the source component
+        if (source == null)
+        {
+            source = GetComponent<AudioSource>();
+        }
     }
 }
