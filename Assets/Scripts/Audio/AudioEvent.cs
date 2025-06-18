@@ -37,11 +37,11 @@ public class AudioEvent : ScriptableObject
 {
     public enum EventPriority
     {
-        Ambience = 0,
-        Player = 64,
+        LeastImportantCull = 0,
+        Low = 64,
         Standard = 128,
         Critical = 192,
-        ImmediateThreat = 255
+        MostImportantVIP = 255
     }
 
     [Tooltip("The unique string ID used to call this event from code.")]
@@ -57,7 +57,7 @@ public class AudioEvent : ScriptableObject
     [Tooltip("If true, the sound will follow the source GameObject.")]
     public bool attachToSource = false;
 
-    [Tooltip("The gameplay importance of this sound.")]
+    [Tooltip("Sets the importance of this sound for playback prioritization. Lower values (e.g., 'LeastImportantCull') are for ambient or background sounds that can be culled if too many sounds are playing. Higher values (e.g., 'MostImportantVIP') are for critical sounds like UI alerts or player actions that should always play.")]
     public EventPriority priority = EventPriority.Standard;
 
     [Header("Parameter Modulation (RTPC)")]
