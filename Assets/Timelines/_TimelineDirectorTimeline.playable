@@ -1190,7 +1190,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.36666667
+    m_StopTime: 0.98333335
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -1299,7 +1299,42 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.16666667
+    functionName: PlaySound
+    data: Enemy_HissSoldierBasic_Footstep_Sand
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.36666667
+    functionName: PlaySound
+    data: Enemy_HissSoldierBasic_Footstep_Sand
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.55
+    functionName: PlaySound
+    data: Enemy_HissSoldierBasic_Footstep_Sand
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.76666665
+    functionName: PlaySound
+    data: Enemy_HissSoldierBasic_Footstep_Sand
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.98333335
+    functionName: PlaySound
+    data: Enemy_HissSoldierBasic_Footstep_Sand
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
 --- !u!114 &1806162088146720377
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1620,7 +1655,7 @@ MonoBehaviour:
     m_size: 2009914
   m_timelineBGColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_version: 3
-  m_time: 0
+  m_time: 0.046052634716033936
   m_textureFilterMode: 1
   Folder: 
   m_timelineDefaultAsset: {fileID: 102900000, guid: a8c1190f708237a4aabd4fb97730e5e0, type: 3}
