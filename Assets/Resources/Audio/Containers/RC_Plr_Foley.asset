@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a2584dada5cefa4c9c3230785c10d91, type: 3}
+  m_Name: RC_Plr_Foley
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: 8370e988da6a6154695f5dea211eb8bf, type: 3}
+  - {fileID: 8300000, guid: 7a478b3676eefea4ebdfd4911984a1d9, type: 3}
+  - {fileID: 8300000, guid: bea8259e3959dda48b141c80d2f98efd, type: 3}
+  - {fileID: 8300000, guid: d366ff0618fc58947ab35cf1efef3b07, type: 3}
+  - {fileID: 8300000, guid: 780eec4cd78d0b14c9db3d7ae971c7a9, type: 3}
+  - {fileID: 8300000, guid: 724168166aacc54408803193b4537d39, type: 3}
+  - {fileID: 8300000, guid: f0ca1f79349dc4545923079a10e18fff, type: 3}
+  - {fileID: 8300000, guid: 79ee03409506a6a4aa896b8ecd889bbe, type: 3}
+  - {fileID: 8300000, guid: eebaa2817fbfb6f40977a130349e7db7, type: 3}
+  - {fileID: 8300000, guid: 4629a3cc0b276e0479b2243df0883563, type: 3}
+  avoidRepeat: 1
+  minVolumeDB: -3
+  maxVolumeDB: 0
+  minPitchSemitones: -1
+  maxPitchSemitones: 1
