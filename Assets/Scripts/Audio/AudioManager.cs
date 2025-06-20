@@ -134,8 +134,25 @@ public class AudioManager : MonoBehaviour
         return null;
     }
 
+    private void ApplyAudioSourceSettings(AudioSource source, AudioSourceSettings settings)
+    {
+        source.volume = settings.volume;
+        source.pitch = settings.pitch;
+        source.spatialBlend = settings.spatialBlend;
+        source.loop = settings.loop;
+        source.dopplerLevel = settings.dopplerLevel;
+        source.spread = settings.spread;
+        source.rolloffMode = settings.rolloffMode;
+        source.minDistance = settings.minDistance;
+        source.maxDistance = settings.maxDistance;
+        source.priority = settings.priority;
+    }
+
     private void ConfigureAndPlay(ActiveSound sound, AudioEvent audioEvent, GameObject sourceObject)
     {
+        // Apply base settings first
+        ApplyAudioSourceSettings(sound.source, audioEvent.sourceSettings);
+
         // Note: The ActiveSound's finalPriority is set in PostEvent now.
         sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
 
@@ -151,6 +168,7 @@ public class AudioManager : MonoBehaviour
         }
 
         audioEvent.container.Play(sound.source);
+
 
         foreach (var mod in audioEvent.modulations)
         {

@@ -28,6 +28,40 @@ public class ParameterModulation
     public AnimationCurve mappingCurve = AnimationCurve.Linear(0, 1, 1, 1);
 }
 
+[System.Serializable]
+public class AudioSourceSettings
+{
+    [Tooltip("The volume of the audio source.")]
+    public float volume = 1.0f;
+
+    [Tooltip("The pitch of the audio source.")]
+    public float pitch = 1.0f;
+
+    [Tooltip("The spatial blend of the audio source (0 = 2D, 1 = 3D).")]
+    public float spatialBlend = 1.0f;
+
+    [Tooltip("Whether the audio source should loop.")]
+    public bool loop = false;
+
+    [Tooltip("The Doppler level of the audio source.")]
+    public float dopplerLevel = 1.0f;
+
+    [Tooltip("The spread angle (in degrees) of a 3D stereo or multichannel sound.")]
+    public float spread = 0.0f;
+
+    [Tooltip("The rolloff mode of the audio source.")]
+    public AudioRolloffMode rolloffMode = AudioRolloffMode.Logarithmic;
+
+    [Tooltip("The minimum distance at which the audio source will be heard at full volume.")]
+    public float minDistance = 1.0f;
+
+    [Tooltip("The maximum distance at which the audio source will no longer be heard.")]
+    public float maxDistance = 500.0f;
+
+    [Tooltip("The priority of the audio source (0 = highest priority, 256 = lowest priority).")]
+    public int priority = 128;
+}
+
 /// <summary>
 /// A ScriptableObject that defines a complete sound event, from what clips to play
 /// to how it behaves in the game world.
@@ -63,4 +97,8 @@ public class AudioEvent : ScriptableObject
     [Header("Parameter Modulation (RTPC)")]
     [Tooltip("A list of rules that define how this sound reacts to real-time GameParameter changes.")]
     public List<ParameterModulation> modulations = new List<ParameterModulation>();
+
+    [Header("Audio Source Settings")]
+    [Tooltip("Settings to apply to the audio source when this event is played.")]
+    public AudioSourceSettings sourceSettings = new AudioSourceSettings();
 }

@@ -18,3 +18,14 @@ MonoBehaviour:
   attachToSource: 1
   priority: 192
   modulations: []
+  sourceSettings:
+    volume: 1
+    pitch: 1
+    spatialBlend: 1
+    loop: 0
+    dopplerLevel: 1
+    spread: 0
+    rolloffMode: 0
+    minDistance: 10
+    maxDistance: 500
+    priority: 128
