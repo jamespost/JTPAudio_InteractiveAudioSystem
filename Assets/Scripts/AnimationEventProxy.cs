@@ -8,16 +8,45 @@ using UnityEngine;
 public class AnimationEventProxy : MonoBehaviour
 {
     /// <summary>
-    /// This is the public function that you will select from the dropdown menu
-    /// when creating an Animation Event in the Timeline or Animation window.
+    /// This is the recommended, designer-friendly way to play a sound from an
+    /// Animation Event. Drag the AudioEvent ScriptableObject directly into the
+    /// event field in the Animation window.
+    /// </summary>
+    /// <param name="audioEvent">The AudioEvent asset to play.</param>
+    public void PlaySound(AudioEvent audioEvent)
+    {
+        // Null reference check for the event itself.
+        if (audioEvent == null)
+        {
+            Debug.LogWarning("PlaySound animation event was called with a null AudioEvent.", this.gameObject);
+            return;
+        }
+
+        // Null reference check for the AudioManager instance.
+        if (AudioManager.Instance != null)
+        {
+            // Post the event to the AudioManager, using the AudioEvent's ID
+            // and this component's GameObject as the source of the sound.
+            AudioManager.Instance.PostEvent(audioEvent.eventID, this.gameObject);
+        }
+        else
+        {
+            Debug.LogError("AudioManager instance not found! Cannot play sound from animation event.", this.gameObject);
+        }
+    }
+
+    /// <summary>
+    /// [Legacy] This method plays a sound based on its string ID. 
+    /// It is kept for backward compatibility. For new work, please use the 
+    /// PlaySound method that accepts an AudioEvent object directly.
     /// </summary>
     /// <param name="eventID">The unique string ID of the AudioEvent you want to play.</param>
-    public void PlaySound(string eventID)
+    public void PlaySoundByID(string eventID)
     {
         // Null reference check for the event ID to prevent errors.
         if (string.IsNullOrEmpty(eventID))
         {
-            Debug.LogWarning("PlaySound animation event was called with an empty event ID.", this.gameObject);
+            Debug.LogWarning("PlaySoundByID animation event was called with an empty event ID.", this.gameObject);
             return;
         }
 

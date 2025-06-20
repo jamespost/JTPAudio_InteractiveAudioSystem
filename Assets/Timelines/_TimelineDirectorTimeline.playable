@@ -15,7 +15,7 @@ MonoBehaviour:
   m_Version: 3
   m_AnimClip: {fileID: 0}
   m_Locked: 0
-  m_Muted: 0
+  m_Muted: 1
   m_CustomPlayableFullTypename: 
   m_Curves: {fileID: 0}
   m_Parent: {fileID: 11400000}
@@ -323,7 +323,28 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0.35
+    functionName: PlaySound
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.7
+    functionName: PlaySound
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.93333334
+    functionName: PlaySound
+    data: 
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
 --- !u!114 &-3260669388995575669
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1303,35 +1324,35 @@ AnimationClip:
   - time: 0.16666667
     functionName: PlaySound
     data: Enemy_HissSoldierBasic_Footstep_Sand
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.36666667
     functionName: PlaySound
     data: Enemy_HissSoldierBasic_Footstep_Sand
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.55
     functionName: PlaySound
     data: Enemy_HissSoldierBasic_Footstep_Sand
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.76666665
     functionName: PlaySound
     data: Enemy_HissSoldierBasic_Footstep_Sand
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.98333335
     functionName: PlaySound
     data: Enemy_HissSoldierBasic_Footstep_Sand
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
