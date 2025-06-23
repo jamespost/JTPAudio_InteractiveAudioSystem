@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\IAudioThreat.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
+    <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTesterEditor.cs" />
     <Compile Include="Assets\Scripts\Audio\GameParameter.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
