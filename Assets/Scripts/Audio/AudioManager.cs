@@ -33,13 +33,49 @@ public class AudioManager : MonoBehaviour
     [Tooltip("The time in seconds to fade out a stolen voice to prevent clicks. A very small value between 0.01s to 0.02s is recommended for responsive games.")]
     [SerializeField] private float voiceStealFadeTime = 0.02f;
 
+    [Header("Reflection System Settings")]
+    [Tooltip("The number of dedicated audio sources to reserve for reflections.")]
+    [SerializeField] private int numberOfReflectionSources = 3;
+    [Tooltip("The minimum cutoff frequency for the low-pass filter on reflected sounds.")]
+    [SerializeField] private float reflectionLowPassCutoffMin = 500f;
+    [Tooltip("The maximum cutoff frequency for the low-pass filter on reflected sounds.")]
+    [SerializeField] private float reflectionLowPassCutoffMax = 22000f;
+    [Tooltip("The speed of sound in meters per second, used for calculating reflection delays.")]
+    [SerializeField] private float speedOfSound = 343f;
+
+    [Tooltip("Enable to draw debug visualizations for audio reflections in the scene view.")]
+    [SerializeField] private bool enableReflectionDebug = false;
+
+    [Header("Reflection System Tuning")]
+    [Tooltip("How much to reduce the volume of the original sound and its reflections to prevent clipping.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float reflectionVolumeDuck = 0.75f;
+    [Tooltip("A multiplier to exaggerate or reduce the calculated delay of reflections.")]
+    [SerializeField] private float reflectionDelayMultiplier = 1.0f;
+    [Tooltip("Maps the normalized distance of a reflection to its low-pass filter cutoff frequency.")]
+    [SerializeField] private AnimationCurve reflectionCutoffCurve = AnimationCurve.EaseInOut(0, 22000, 1, 500);
+
+    [Header("Distance-Based Reverb Settings")]
+    [Tooltip("The distance at which reverb starts to be applied.")]
+    [SerializeField] private float reverbMinDistance = 2f;
+    [Tooltip("The distance at which reverb is at its maximum level.")]
+    [SerializeField] private float reverbMaxDistance = 20f;
+    [Tooltip("The minimum reverb send level.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float minReverbLevel = 0.1f;
+    [Tooltip("The maximum reverb send level.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float maxReverbLevel = 1.0f;
+
     // --- Private Databases & Pools ---
     private Dictionary<string, AudioEvent> eventDictionary;
     private Dictionary<string, string> switchDatabase;
     private Dictionary<string, float> parameterDatabase;
     private Dictionary<string, AudioState> stateDatabase;
     private List<ActiveSound> sourcePool;
+    private List<ActiveSound> reflectionSourcePool;
     private GameObject poolParent;
+    private AudioListener audioListener;
 
     #region Initialization
     private void Awake()
@@ -53,13 +89,31 @@ public class AudioManager : MonoBehaviour
         InitializeParameterDatabase();
         InitializeStateDatabase();
         InitializeAudioSourcePool();
+        audioListener = FindObjectOfType<AudioListener>();
     }
 
     private void InitializeEventDatabase() { eventDictionary = new Dictionary<string, AudioEvent>(); AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>(""); foreach (AudioEvent audioEvent in allEvents) { if (audioEvent == null || string.IsNullOrEmpty(audioEvent.eventID)) continue; if (eventDictionary.ContainsKey(audioEvent.eventID)) { Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found."); } eventDictionary[audioEvent.eventID] = audioEvent; } }
     private void InitializeSwitchDatabase() { switchDatabase = new Dictionary<string, string>(); foreach (GameSwitch sw in gameSwitches) { if (sw == null || string.IsNullOrEmpty(sw.switchID)) continue; if (switchDatabase.ContainsKey(sw.switchID)) { Debug.LogWarning($"AudioManager: Duplicate switch ID '{sw.switchID}' found."); } switchDatabase[sw.switchID] = sw.defaultValue; } }
     private void InitializeParameterDatabase() { parameterDatabase = new Dictionary<string, float>(); foreach (GameParameter param in gameParameters) { if (param == null || string.IsNullOrEmpty(param.parameterID)) continue; if (parameterDatabase.ContainsKey(param.parameterID)) { Debug.LogWarning($"AudioManager: Duplicate parameter ID '{param.parameterID}' found."); } parameterDatabase[param.parameterID] = param.defaultValue; if (mainMixer != null && !string.IsNullOrEmpty(param.exposedMixerParameter)) { mainMixer.SetFloat(param.exposedMixerParameter, param.defaultValue); } } }
     private void InitializeStateDatabase() { stateDatabase = new Dictionary<string, AudioState>(); foreach (AudioState state in audioStates) { if (state == null || string.IsNullOrEmpty(state.stateID)) continue; if (stateDatabase.ContainsKey(state.stateID)) { Debug.LogWarning($"AudioManager: Duplicate state ID '{state.stateID}' found."); } stateDatabase[state.stateID] = state; } }
-    private void InitializeAudioSourcePool() { sourcePool = new List<ActiveSound>(initialPoolSize); poolParent = new GameObject("AudioSourcePool"); poolParent.transform.SetParent(this.transform); for (int i = 0; i < initialPoolSize; i++) { CreatePoolObject(); } }
+    private void InitializeAudioSourcePool()
+    {
+        sourcePool = new List<ActiveSound>(initialPoolSize);
+        reflectionSourcePool = new List<ActiveSound>(numberOfReflectionSources);
+        poolParent = new GameObject("AudioSourcePool");
+        poolParent.transform.SetParent(this.transform);
+
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            CreatePoolObject(sourcePool, $"Pooled_AudioSource_{i}");
+        }
+
+        for (int i = 0; i < numberOfReflectionSources; i++)
+        {
+            var reflectionSource = CreatePoolObject(reflectionSourcePool, $"Reflection_AudioSource_{i}");
+            reflectionSource.gameObject.AddComponent<AudioLowPassFilter>();
+        }
+    }
     #endregion
 
     #region Public API
@@ -94,13 +148,20 @@ public class AudioManager : MonoBehaviour
 
         sound.finalPriority = finalPriority; // Store the final calculated priority on the ActiveSound component.
 
+        float volumeMultiplier = 1.0f;
+        if (audioEvent.enableReflectionSystem)
+        {
+            volumeMultiplier = reflectionVolumeDuck;
+            HandleReflections(audioEvent, sourceObject, sound);
+        }
+
         if (sound.source.isPlaying)
         {
-            StartCoroutine(FadeOutAndPlayNew(sound, audioEvent, sourceObject));
+            StartCoroutine(FadeOutAndPlayNew(sound, audioEvent, sourceObject, volumeMultiplier));
         }
         else
         {
-            ConfigureAndPlay(sound, audioEvent, sourceObject);
+            ConfigureAndPlay(sound, audioEvent, sourceObject, volumeMultiplier);
         }
     }
 
@@ -127,16 +188,16 @@ public class AudioManager : MonoBehaviour
         if (canPoolGrow)
         {
             GameplayLogger.Log("Pool is full and no voice was available to steal. Growing pool size.", LogCategory.System);
-            return CreatePoolObject();
+            return CreatePoolObject(sourcePool, $"Pooled_AudioSource_{sourcePool.Count}");
         }
 
         GameplayLogger.Log($"Could not play sound (Priority: {priority}). Pool full.", LogCategory.Error);
         return null;
     }
 
-    private void ApplyAudioSourceSettings(AudioSource source, AudioSourceSettings settings)
+    private void ApplyAudioSourceSettings(AudioSource source, AudioSourceSettings settings, float volumeMultiplier = 1.0f)
     {
-        source.volume = settings.volume;
+        source.volume = settings.volume * volumeMultiplier;
         source.pitch = settings.pitch;
         source.spatialBlend = settings.spatialBlend;
         source.loop = settings.loop;
@@ -148,10 +209,10 @@ public class AudioManager : MonoBehaviour
         source.priority = settings.priority;
     }
 
-    private void ConfigureAndPlay(ActiveSound sound, AudioEvent audioEvent, GameObject sourceObject)
+    private void ConfigureAndPlay(ActiveSound sound, AudioEvent audioEvent, GameObject sourceObject, float volumeMultiplier = 1.0f)
     {
         // Apply base settings first
-        ApplyAudioSourceSettings(sound.source, audioEvent.sourceSettings);
+        ApplyAudioSourceSettings(sound.source, audioEvent.sourceSettings, volumeMultiplier);
 
         // Note: The ActiveSound's finalPriority is set in PostEvent now.
         sound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
@@ -184,6 +245,16 @@ public class AudioManager : MonoBehaviour
                 }
             }
         }
+
+        if (audioEvent.enableDistanceBasedReverb)
+        {
+            StartCoroutine(UpdateDistanceBasedReverb(sound));
+        }
+        else
+        {
+            sound.source.reverbZoneMix = 1.0f; // Use default reverb settings
+        }
+
         sound.source.Play();
 
         if (!sound.source.loop)
@@ -192,8 +263,136 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeOutAndPlayNew(ActiveSound sound, AudioEvent newEvent, GameObject sourceObject) { float startingVolume = sound.source.volume; float fadeTimer = 0f; while (fadeTimer < voiceStealFadeTime) { if (sound == null || sound.source == null) yield break; fadeTimer += Time.unscaledDeltaTime; sound.source.volume = Mathf.Lerp(startingVolume, 0f, fadeTimer / voiceStealFadeTime); yield return null; } if (sound != null && sound.source != null) { sound.source.Stop(); sound.source.volume = 1f; } ConfigureAndPlay(sound, newEvent, sourceObject); }
+    private void HandleReflections(AudioEvent audioEvent, GameObject sourceObject, ActiveSound originalSound)
+    {
+        if (audioListener == null) return;
+
+        var reflectors = FindObjectsOfType<AudioReflector>();
+        if (reflectors.Length == 0) return;
+
+        var listenerPosition = audioListener.transform.position;
+        var listenerForward = audioListener.transform.forward;
+        var sourcePosition = sourceObject.transform.position;
+
+        var potentialReflections = new List<(AudioReflector reflector, float pathLength, Vector3 reflectionPoint, float score)>();
+
+        foreach (var reflector in reflectors)
+        {
+            Collider col = reflector.GetComponent<Collider>();
+            if (col == null) continue;
+
+            Vector3 reflectionPoint = col.ClosestPoint(sourcePosition);
+            float sourceToReflector = Vector3.Distance(sourcePosition, reflectionPoint);
+            float reflectorToListener = Vector3.Distance(reflectionPoint, listenerPosition);
+            float pathLength = sourceToReflector + reflectorToListener;
+
+            // --- New Scoring Logic ---
+            // Score based on being to the sides of the listener
+            Vector3 toReflectionDir = (reflectionPoint - listenerPosition).normalized;
+            float sideFactor = 1f - Mathf.Abs(Vector3.Dot(toReflectionDir, listenerForward)); // 1 for sides, 0 for front/back
+
+            // Score based on distance
+            float distanceFactor = Mathf.Clamp01(pathLength / (audioEvent.sourceSettings.maxDistance * 1.5f)); // Normalize distance
+
+            // Combine scores, prioritizing side reflections
+            float finalScore = (sideFactor * 0.7f) + (distanceFactor * 0.3f);
+            // --- End New Scoring Logic ---
+
+            potentialReflections.Add((reflector, pathLength, reflectionPoint, finalScore));
+        }
+
+        var sortedReflectors = potentialReflections.OrderByDescending(r => r.score).Take(numberOfReflectionSources).ToList();
+
+        for (int i = 0; i < sortedReflectors.Count; i++)
+        {
+            var reflection = sortedReflectors[i];
+            ActiveSound reflectionSound = reflectionSourcePool[i];
+
+            if (reflectionSound.source.isPlaying)
+            {
+                reflectionSound.source.Stop();
+            }
+
+            reflectionSound.transform.position = reflection.reflectionPoint;
+            ApplyAudioSourceSettings(reflectionSound.source, audioEvent.sourceSettings, reflectionVolumeDuck);
+            reflectionSound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
+
+            float sourceToListenerDistance = Vector3.Distance(sourcePosition, listenerPosition);
+            float delay = ((reflection.pathLength - sourceToListenerDistance) / speedOfSound) * reflectionDelayMultiplier;
+
+            if (delay < 0) delay = 0;
+
+            float distanceAttenuation = 1f / (1f + reflection.pathLength - sourceToListenerDistance);
+            reflectionSound.source.volume *= distanceAttenuation;
+
+            var lowpass = reflectionSound.GetComponent<AudioLowPassFilter>();
+            if (lowpass)
+            {
+                float normalizedDistance = Mathf.Clamp01(reflection.pathLength / (audioEvent.sourceSettings.maxDistance * 2));
+                float cutoff = reflectionCutoffCurve.Evaluate(normalizedDistance);
+                lowpass.cutoffFrequency = cutoff;
+            }
+
+            audioEvent.container.Play(reflectionSound.source);
+            reflectionSound.source.PlayDelayed(delay);
+
+            if (enableReflectionDebug)
+            {
+                float markerSize = 0.25f;
+                Debug.DrawLine(reflection.reflectionPoint - Vector3.up * markerSize, reflection.reflectionPoint + Vector3.up * markerSize, Color.cyan, 2f);
+                Debug.DrawLine(reflection.reflectionPoint - Vector3.right * markerSize, reflection.reflectionPoint + Vector3.right * markerSize, Color.cyan, 2f);
+                Debug.DrawLine(reflection.reflectionPoint - Vector3.forward * markerSize, reflection.reflectionPoint + Vector3.forward * markerSize, Color.cyan, 2f);
+            }
+        }
+    }
+
+    private IEnumerator UpdateDistanceBasedReverb(ActiveSound activeSound)
+    {
+        if (audioListener == null) yield break;
+
+        AudioSource source = activeSound.source;
+        Transform listenerTransform = audioListener.transform;
+
+        while (source != null && source.isPlaying)
+        {
+            float distance = Vector3.Distance(source.transform.position, listenerTransform.position);
+            float normalizedDistance = Mathf.InverseLerp(reverbMinDistance, reverbMaxDistance, distance);
+            float reverbLevel = Mathf.Lerp(minReverbLevel, maxReverbLevel, normalizedDistance);
+            source.reverbZoneMix = reverbLevel;
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator FadeOutAndPlayNew(ActiveSound sound, AudioEvent newEvent, GameObject sourceObject, float volumeMultiplier)
+    { 
+        float startingVolume = sound.source.volume; 
+        float fadeTimer = 0f; 
+        while (fadeTimer < voiceStealFadeTime) 
+        { 
+            if (sound == null || sound.source == null) yield break; 
+            fadeTimer += Time.unscaledDeltaTime; 
+            sound.source.volume = Mathf.Lerp(startingVolume, 0f, fadeTimer / voiceStealFadeTime); 
+            yield return null; 
+        } 
+        if (sound != null && sound.source != null) 
+        { 
+            sound.source.Stop(); 
+            sound.source.volume = 1f; 
+        } 
+        ConfigureAndPlay(sound, newEvent, sourceObject, volumeMultiplier); 
+    }
     private IEnumerator ReturnSourceToPoolAfterPlay(ActiveSound sound) { yield return new WaitUntil(() => sound == null || !sound.source.isPlaying || !sound.gameObject.activeInHierarchy); if (sound != null && sound.gameObject.activeInHierarchy) { sound.transform.SetParent(poolParent.transform, worldPositionStays: false); sound.source.loop = false; } }
-    private ActiveSound CreatePoolObject() { GameObject newSourceGO = new GameObject($"Pooled_AudioSource_{sourcePool.Count}"); newSourceGO.transform.SetParent(poolParent.transform); AudioSource newSource = newSourceGO.AddComponent<AudioSource>(); newSource.spatialBlend = 1.0f; newSource.playOnAwake = false; ActiveSound activeSound = newSourceGO.AddComponent<ActiveSound>(); sourcePool.Add(activeSound); return activeSound; }
+    private ActiveSound CreatePoolObject(List<ActiveSound> pool, string name)
+    {
+        GameObject newSourceGO = new GameObject(name);
+        newSourceGO.transform.SetParent(poolParent.transform);
+        AudioSource newSource = newSourceGO.AddComponent<AudioSource>();
+        newSource.spatialBlend = 1.0f;
+        newSource.playOnAwake = false;
+        ActiveSound activeSound = newSourceGO.AddComponent<ActiveSound>();
+        pool.Add(activeSound);
+        return activeSound;
+    }
     #endregion
 }

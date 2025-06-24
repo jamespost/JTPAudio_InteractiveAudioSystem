@@ -94,6 +94,13 @@ public class AudioEvent : ScriptableObject
     [Tooltip("Sets the importance of this sound for playback prioritization. Lower values (e.g., 'LeastImportantCull') are for ambient or background sounds that can be culled if too many sounds are playing. Higher values (e.g., 'MostImportantVIP') are for critical sounds like UI alerts or player actions that should always play.")]
     public EventPriority priority = EventPriority.Standard;
 
+    [Header("Reflection System")]
+    [Tooltip("If true, this sound will attempt to generate reflections off nearby surfaces marked with the AudioReflector script.")]
+    public bool enableReflectionSystem = false;
+
+    [Tooltip("If true, the amount of reverb applied to this sound will increase as it gets farther from the listener.")]
+    public bool enableDistanceBasedReverb = false;
+
     [Header("Parameter Modulation (RTPC)")]
     [Tooltip("A list of rules that define how this sound reacts to real-time GameParameter changes.")]
     public List<ParameterModulation> modulations = new List<ParameterModulation>();

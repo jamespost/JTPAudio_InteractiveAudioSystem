@@ -17,6 +17,8 @@ MonoBehaviour:
   mixerGroup: {fileID: -4598920354315240767, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
   attachToSource: 1
   priority: 192
+  enableReflectionSystem: 1
+  enableDistanceBasedReverb: 1
   modulations: []
   sourceSettings:
     volume: 1
@@ -26,6 +28,6 @@ MonoBehaviour:
     dopplerLevel: 1
     spread: 0
     rolloffMode: 0
-    minDistance: 10
+    minDistance: 5
     maxDistance: 500
     priority: 128
