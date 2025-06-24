@@ -98,6 +98,9 @@ public class AudioEvent : ScriptableObject
     [Tooltip("If true, this sound will attempt to generate reflections off nearby surfaces marked with the AudioReflector script.")]
     public bool enableReflectionSystem = false;
 
+    [Tooltip("Use the new Dynamic Echo System instead of the old reflection system.")]
+    public bool useDynamicEchoSystem = false;
+
     [Tooltip("If true, the amount of reverb applied to this sound will increase as it gets farther from the listener.")]
     public bool enableDistanceBasedReverb = false;
 

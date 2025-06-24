@@ -18,6 +18,7 @@ MonoBehaviour:
   attachToSource: 1
   priority: 192
   enableReflectionSystem: 1
+  useDynamicEchoSystem: 1
   enableDistanceBasedReverb: 1
   modulations: []
   sourceSettings:

@@ -153,6 +153,129 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &148097169
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 148097174}
+  - component: {fileID: 148097173}
+  - component: {fileID: 148097172}
+  - component: {fileID: 148097171}
+  - component: {fileID: 148097170}
+  m_Layer: 0
+  m_Name: Audio Test Sphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &148097170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148097169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e255ccbcb42715f4198e6495517000ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventToTest: {fileID: 11400000, guid: 56ca283103877f441a8b82fe0bb22c01, type: 2}
+  enableRepeat: 1
+  repeatInterval: 6
+  isRepeating: 0
+  nextPlayTime: 2140.8461221000002
+--- !u!135 &148097171
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148097169}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &148097172
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148097169}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &148097173
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148097169}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &148097174
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148097169}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.3, y: 5.47, z: 17.148342}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &165435421
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,7 +571,7 @@ GameObject:
   - component: {fileID: 351426577}
   - component: {fileID: 351426576}
   - component: {fileID: 351426575}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -685,7 +808,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 493530915}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -760,7 +883,7 @@ GameObject:
   - component: {fileID: 588792217}
   - component: {fileID: 588792216}
   - component: {fileID: 588792215}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -878,7 +1001,7 @@ GameObject:
   - component: {fileID: 601288839}
   - component: {fileID: 601288838}
   - component: {fileID: 601288837}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -996,7 +1119,7 @@ GameObject:
   - component: {fileID: 635631304}
   - component: {fileID: 635631303}
   - component: {fileID: 635631302}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1192,25 +1315,108 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: speedOfSound
+      value: 343
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: minReverbLevel
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
       propertyPath: initialPoolSize
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionJitter
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reverbMaxDistance
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reverbMinDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionVolumeDuck
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
       propertyPath: enableReflectionDebug
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
-      propertyPath: numberOfReflectionSources
+      propertyPath: reflectionPitchJitter
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: dynamicEchoMaxDistance
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: dynamicEchoRaysPerEvent
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: dynamicEchoMaxTotalEchoes
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: numberOfReflectionSources
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
       propertyPath: reflectionDelayMultiplier
-      value: 1000
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionLayerMask.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionLowPassCutoffMax
+      value: 12000
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: enableDynamicReflectionMovement
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[1].time
+      value: 1.0041809
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[0].inSlope
+      value: -59632.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[1].inSlope
+      value: -5100.455
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[0].outSlope
+      value: -59632.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[1].inWeight
+      value: 0.5643215
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[1].outSlope
+      value: -5100.455
+      objectReference: {fileID: 0}
+    - target: {fileID: 8527816871323536780, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      propertyPath: reflectionCutoffCurve.m_Curve.Array.data[0].outWeight
+      value: 0.04149319
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1486466861701304083, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1310662972}
   m_SourcePrefab: {fileID: 100100000, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
 --- !u!1 &983688480
 GameObject:
@@ -1225,7 +1431,7 @@ GameObject:
   - component: {fileID: 983688483}
   - component: {fileID: 983688482}
   - component: {fileID: 983688485}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1373,15 +1579,15 @@ AudioReverbZone:
   m_Enabled: 1
   m_MinDistance: 10
   m_MaxDistance: 60
-  m_ReverbPreset: 9
+  m_ReverbPreset: 6
   m_Room: -1000
-  m_RoomHF: 0
-  m_DecayTime: 2.91
-  m_DecayHFRatio: 1.3
-  m_Reflections: -602
-  m_ReflectionsDelay: 0.015
-  m_Reverb: -302
-  m_ReverbDelay: 0.022
+  m_RoomHF: -300
+  m_DecayTime: 2.31
+  m_DecayHFRatio: 0.64
+  m_Reflections: -711
+  m_ReflectionsDelay: 0.012
+  m_Reverb: 83
+  m_ReverbDelay: 0.017
   m_HFReference: 5000
   m_Diffusion: 100
   m_Density: 100
@@ -1548,6 +1754,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1310662969 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1486466861701304083, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+  m_PrefabInstance: {fileID: 822702243}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1310662972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310662969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8de92fe393fa49340bccade27edfa602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  raysPerEvent: 3
+  maxReflections: 2
+  maxTotalEchoes: 4
+  maxDistance: 500
+  distanceToCutoff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 18000
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 800
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  energyLossPerMeter: 100
+  minReflectionDistanceFromListener: 20
+  debugEchoCount: 0
 --- !u!1 &1541761779
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,7 +2271,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1724518130}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2063,7 +2317,7 @@ GameObject:
   - component: {fileID: 1707405952}
   - component: {fileID: 1707405951}
   - component: {fileID: 1707405950}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2168,216 +2422,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1707405948}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!213 &1724518130
-Sprite:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_Rect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 2048
-    height: 1024
-  m_Offset: {x: 0, y: 0}
-  m_Border: {x: 0, y: 0, z: 0, w: 0}
-  m_PixelsToUnits: 100
-  m_Pivot: {x: 0.5, y: 0.5}
-  m_Extrude: 1
-  m_IsPolygon: 0
-  m_AtlasName: 
-  m_PackingTag: 
-  m_RenderDataKey:
-    00000000000000000000000000000000: 0
-  m_AtlasTags: []
-  m_SpriteAtlas: {fileID: 0}
-  m_RD:
-    serializedVersion: 3
-    texture: {fileID: 0}
-    alphaTexture: {fileID: 0}
-    secondaryTextures: []
-    m_SubMeshes:
-    - serializedVersion: 2
-      firstByte: 0
-      indexCount: 6
-      topology: 0
-      baseVertex: 0
-      firstVertex: 0
-      vertexCount: 4
-      localAABB:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
-    m_IndexBuffer: 000001000200020001000300
-    m_VertexData:
-      serializedVersion: 3
-      m_VertexCount: 4
-      m_Channels:
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 3
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 1
-        offset: 0
-        format: 0
-        dimension: 2
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      m_DataSize: 80
-      _typelessdata: 0ad723c10ad7a340000000000ad723410ad7a340000000000ad723c10ad7a3c0000000000ad723410ad7a3c0000000000000000000000000000000000000000000000000000000000000000000000000
-    m_Bindpose: []
-    textureRect:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 2048
-      height: 1024
-    textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 0
-    uvTransform: {x: 100, y: 1024, z: 100, w: 512}
-    downscaleMultiplier: 1
-  m_AtlasRD:
-    serializedVersion: 3
-    texture: {fileID: 0}
-    alphaTexture: {fileID: 0}
-    secondaryTextures: []
-    m_SubMeshes:
-    - serializedVersion: 2
-      firstByte: 0
-      indexCount: 6
-      topology: 0
-      baseVertex: 0
-      firstVertex: 0
-      vertexCount: 4
-      localAABB:
-        m_Center: {x: 0, y: 0, z: 0}
-        m_Extent: {x: 0, y: 0, z: 0}
-    m_IndexBuffer: 000001000200020001000300
-    m_VertexData:
-      serializedVersion: 3
-      m_VertexCount: 4
-      m_Channels:
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 3
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 1
-        offset: 0
-        format: 0
-        dimension: 2
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      - stream: 0
-        offset: 0
-        format: 0
-        dimension: 0
-      m_DataSize: 80
-      _typelessdata: 0ad723c10ad7a340000000000ad723410ad7a340000000000ad723c10ad7a3c0000000000ad723410ad7a3c0000000000000000000000000000000000000000000000000000000000000000000000000
-    m_Bindpose: []
-    textureRect:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 2048
-      height: 1024
-    textureRectOffset: {x: 0, y: 0}
-    atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 0
-    uvTransform: {x: 100, y: 1024, z: 100, w: 512}
-    downscaleMultiplier: 1
-  m_PhysicsShape: []
-  m_Bones: []
-  m_SpriteID: 
 --- !u!1 &1735898902
 GameObject:
   m_ObjectHideFlags: 0
@@ -2391,7 +2435,7 @@ GameObject:
   - component: {fileID: 1735898906}
   - component: {fileID: 1735898905}
   - component: {fileID: 1735898904}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2540,7 +2584,7 @@ GameObject:
   - component: {fileID: 1898357168}
   - component: {fileID: 1898357167}
   - component: {fileID: 1898357166}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2811,3 +2855,4 @@ SceneRoots:
   - {fileID: 1121483108}
   - {fileID: 493530915}
   - {fileID: 1552604527}
+  - {fileID: 148097174}

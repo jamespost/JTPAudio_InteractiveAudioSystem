@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\SimpleContainer.cs" />
+    <Compile Include="Assets\Scripts\Audio\DynamicEchoSystem.cs" />
     <Compile Include="Assets\Scripts\Audio\SwitchContainer.cs" />
     <Compile Include="Assets\Scripts\GameplayLogger.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />

@@ -51,9 +51,28 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float reflectionVolumeDuck = 0.75f;
     [Tooltip("A multiplier to exaggerate or reduce the calculated delay of reflections.")]
+    [Range(0.1f, 100f)]
     [SerializeField] private float reflectionDelayMultiplier = 1.0f;
+    [Tooltip("How much to randomly offset the reflection point on the reflector surface to make it less static and predictable.")]
+    [Range(0f, 5f)]
+    [SerializeField] private float reflectionJitter = 1.0f;
+    [Tooltip("How much to randomly vary the pitch of reflections to reduce phasing.")]
+    [Range(0f, 0.5f)]
+    [SerializeField] private float reflectionPitchJitter = 0.05f;
     [Tooltip("Maps the normalized distance of a reflection to its low-pass filter cutoff frequency.")]
     [SerializeField] private AnimationCurve reflectionCutoffCurve = AnimationCurve.EaseInOut(0, 22000, 1, 500);
+
+    [Header("Reflection System - Dynamic Movement")]
+    [Tooltip("Enables a mode where reflection sources move towards or away from the player at the speed of sound.")]
+    [SerializeField] private bool enableDynamicReflectionMovement = false;
+
+    [Header("Dynamic Echo System")]
+    [Tooltip("The layer mask for surfaces that will reflect sound for the dynamic echo system.")]
+    [SerializeField] private LayerMask reflectionLayerMask;
+
+    [Header("Dynamic Echo System (Raycast Reflections)")]
+    [Tooltip("Maximum distance for a single ray.")]
+    [SerializeField] private float dynamicEchoMaxDistance = 50f;
 
     [Header("Distance-Based Reverb Settings")]
     [Tooltip("The distance at which reverb starts to be applied.")]
@@ -76,6 +95,9 @@ public class AudioManager : MonoBehaviour
     private List<ActiveSound> reflectionSourcePool;
     private GameObject poolParent;
     private AudioListener audioListener;
+    private DynamicEchoSystem dynamicEchoSystem;
+
+    public AudioListener Listener => audioListener;
 
     #region Initialization
     private void Awake()
@@ -90,6 +112,13 @@ public class AudioManager : MonoBehaviour
         InitializeStateDatabase();
         InitializeAudioSourcePool();
         audioListener = FindObjectOfType<AudioListener>();
+        // dynamicEchoSystem = gameObject.AddComponent<DynamicEchoSystem>();
+        dynamicEchoSystem = GetComponent<DynamicEchoSystem>();
+        if (dynamicEchoSystem == null)
+        {
+            Debug.LogError("DynamicEchoSystem component is missing! Please add it to the AudioManager GameObject.");
+        }
+        dynamicEchoSystem.Initialize(this, reflectionLayerMask);
     }
 
     private void InitializeEventDatabase() { eventDictionary = new Dictionary<string, AudioEvent>(); AudioEvent[] allEvents = Resources.LoadAll<AudioEvent>(""); foreach (AudioEvent audioEvent in allEvents) { if (audioEvent == null || string.IsNullOrEmpty(audioEvent.eventID)) continue; if (eventDictionary.ContainsKey(audioEvent.eventID)) { Debug.LogWarning($"AudioManager: Duplicate event ID '{audioEvent.eventID}' found."); } eventDictionary[audioEvent.eventID] = audioEvent; } }
@@ -119,6 +148,7 @@ public class AudioManager : MonoBehaviour
     #region Public API
     public void PostEvent(string eventName, GameObject sourceObject)
     {
+        Debug.Log($"[AudioManager] PostEvent called for event: {eventName} on {sourceObject?.name}");
         if (string.IsNullOrEmpty(eventName) || sourceObject == null) return;
         if (!eventDictionary.TryGetValue(eventName, out AudioEvent audioEvent))
         {
@@ -152,7 +182,16 @@ public class AudioManager : MonoBehaviour
         if (audioEvent.enableReflectionSystem)
         {
             volumeMultiplier = reflectionVolumeDuck;
-            HandleReflections(audioEvent, sourceObject, sound);
+            //Decide which reflection system to use
+            if (audioEvent.useDynamicEchoSystem)
+            {
+                Debug.Log($"[AudioManager] Using DynamicEchoSystem for event: {audioEvent.name}");
+                dynamicEchoSystem.GenerateEchoes(audioEvent, sourceObject.transform.position);
+            }
+            else
+            {
+                HandleReflections(audioEvent, sourceObject, sound);
+            }
         }
 
         if (sound.source.isPlaying)
@@ -263,6 +302,75 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void PlayEcho(AudioEvent audioEvent, Vector3 position, float delay, float attenuation)
+    {
+        ActiveSound echoSound = GetSourceFromPool((int)audioEvent.priority);
+        if (echoSound == null) return;
+
+        echoSound.transform.position = position;
+        ApplyAudioSourceSettings(echoSound.source, audioEvent.sourceSettings, attenuation);
+        echoSound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
+
+        // Apply low-pass filter based on distance (similar to old system)
+        var lowpass = echoSound.GetComponent<AudioLowPassFilter>();
+        if (lowpass)
+        {
+            float distance = Vector3.Distance(position, audioListener.transform.position);
+            float normalizedDistance = Mathf.Clamp01(distance / audioEvent.sourceSettings.maxDistance);
+            float cutoff = reflectionCutoffCurve.Evaluate(normalizedDistance);
+            lowpass.cutoffFrequency = cutoff;
+        }
+
+        audioEvent.container.Play(echoSound.source);
+        echoSound.source.PlayDelayed(delay);
+
+        StartCoroutine(ReturnSourceToPoolAfterPlay(echoSound));
+    }
+
+    public void PlayEchoWithFilter(AudioEvent audioEvent, Vector3 position, float delay, float attenuation, float cutoff)
+    {
+        ActiveSound echoSound = GetSourceFromPool((int)audioEvent.priority);
+        if (echoSound == null) return;
+
+        echoSound.transform.position = position;
+        // Calculate spatial attenuation using the rolloff curve
+        float listenerDistance = Vector3.Distance(position, audioListener.transform.position);
+        float spatialAttenuation = 1.0f;
+        var settings = audioEvent.sourceSettings;
+        switch (settings.rolloffMode)
+        {
+            case AudioRolloffMode.Logarithmic:
+                if (listenerDistance < settings.minDistance) spatialAttenuation = 1.0f;
+                else if (listenerDistance > settings.maxDistance) spatialAttenuation = 0.0f;
+                else spatialAttenuation = settings.minDistance / (settings.minDistance + 1.0f * (listenerDistance - settings.minDistance));
+                break;
+            case AudioRolloffMode.Linear:
+                if (listenerDistance < settings.minDistance) spatialAttenuation = 1.0f;
+                else if (listenerDistance > settings.maxDistance) spatialAttenuation = 0.0f;
+                else spatialAttenuation = 1.0f - ((listenerDistance - settings.minDistance) / (settings.maxDistance - settings.minDistance));
+                break;
+            case AudioRolloffMode.Custom:
+                // If you use a custom curve, you may want to expose it and evaluate here
+                spatialAttenuation = 1.0f; // Placeholder
+                break;
+        }
+        // Ensure the reflection is always quieter than the direct sound
+        float finalAttenuation = Mathf.Min(attenuation * spatialAttenuation, 0.95f * settings.volume);
+        ApplyAudioSourceSettings(echoSound.source, settings, finalAttenuation);
+        echoSound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
+
+        var lowpass = echoSound.GetComponent<AudioLowPassFilter>();
+        if (lowpass)
+        {
+            lowpass.cutoffFrequency = cutoff;
+        }
+
+        audioEvent.container.Play(echoSound.source);
+        echoSound.source.PlayDelayed(delay);
+
+        StartCoroutine(ReturnSourceToPoolAfterPlay(echoSound));
+    }
+
     private void HandleReflections(AudioEvent audioEvent, GameObject sourceObject, ActiveSound originalSound)
     {
         if (audioListener == null) return;
@@ -282,6 +390,14 @@ public class AudioManager : MonoBehaviour
             if (col == null) continue;
 
             Vector3 reflectionPoint = col.ClosestPoint(sourcePosition);
+
+            // Jitter the reflection point to make it less static and predictable
+            if (reflectionJitter > 0)
+            {
+                Vector3 randomOffset = Random.insideUnitSphere * reflectionJitter;
+                reflectionPoint = col.ClosestPoint(reflectionPoint + randomOffset);
+            }
+
             float sourceToReflector = Vector3.Distance(sourcePosition, reflectionPoint);
             float reflectorToListener = Vector3.Distance(reflectionPoint, listenerPosition);
             float pathLength = sourceToReflector + reflectorToListener;
@@ -296,7 +412,7 @@ public class AudioManager : MonoBehaviour
 
             // Combine scores, prioritizing side reflections
             float finalScore = (sideFactor * 0.7f) + (distanceFactor * 0.3f);
-            // --- End New Scoring Logic ---
+            finalScore *= Random.Range(0.75f, 1.25f); // Add some variance to the selection
 
             potentialReflections.Add((reflector, pathLength, reflectionPoint, finalScore));
         }
@@ -317,12 +433,19 @@ public class AudioManager : MonoBehaviour
             ApplyAudioSourceSettings(reflectionSound.source, audioEvent.sourceSettings, reflectionVolumeDuck);
             reflectionSound.source.outputAudioMixerGroup = audioEvent.mixerGroup;
 
-            float sourceToListenerDistance = Vector3.Distance(sourcePosition, listenerPosition);
-            float delay = ((reflection.pathLength - sourceToListenerDistance) / speedOfSound) * reflectionDelayMultiplier;
+            if (reflectionPitchJitter > 0)
+            {
+                reflectionSound.source.pitch *= 1.0f + Random.Range(-reflectionPitchJitter, reflectionPitchJitter);
+            }
+
+            // The delay is the total time it takes for the sound to travel from the source,
+            // bounce off the reflector, and reach the listener. This provides a more intuitive and controllable delay.
+            float delay = (reflection.pathLength / speedOfSound) * reflectionDelayMultiplier;
 
             if (delay < 0) delay = 0;
 
-            float distanceAttenuation = 1f / (1f + reflection.pathLength - sourceToListenerDistance);
+            // Attenuation should be based on the total distance the reflected sound travels.
+            float distanceAttenuation = 1f / (1f + reflection.pathLength);
             reflectionSound.source.volume *= distanceAttenuation;
 
             var lowpass = reflectionSound.GetComponent<AudioLowPassFilter>();
@@ -336,6 +459,22 @@ public class AudioManager : MonoBehaviour
             audioEvent.container.Play(reflectionSound.source);
             reflectionSound.source.PlayDelayed(delay);
 
+            if (enableDynamicReflectionMovement)
+            {
+                StartCoroutine(MoveReflectionSource(reflectionSound, listenerPosition));
+            }
+
+            // Apply distance-based reverb to reflections if enabled for the event
+            if (audioEvent.enableDistanceBasedReverb)
+            {
+                StartCoroutine(UpdateDistanceBasedReverb(reflectionSound));
+            }
+            else
+            {
+                // If not enabled, ensure reverb is set to the default value
+                reflectionSound.source.reverbZoneMix = 1.0f;
+            }
+
             if (enableReflectionDebug)
             {
                 float markerSize = 0.25f;
@@ -343,6 +482,31 @@ public class AudioManager : MonoBehaviour
                 Debug.DrawLine(reflection.reflectionPoint - Vector3.right * markerSize, reflection.reflectionPoint + Vector3.right * markerSize, Color.cyan, 2f);
                 Debug.DrawLine(reflection.reflectionPoint - Vector3.forward * markerSize, reflection.reflectionPoint + Vector3.forward * markerSize, Color.cyan, 2f);
             }
+        }
+    }
+
+    private IEnumerator MoveReflectionSource(ActiveSound reflectionSound, Vector3 listenerPosition)
+    {
+        // Decide randomly to move towards or away from the listener
+        bool moveTowards = Random.value > 0.5f;
+        Vector3 direction;
+
+        if (moveTowards)
+        {
+            direction = (listenerPosition - reflectionSound.transform.position).normalized;
+        }
+        else
+        {
+            direction = (reflectionSound.transform.position - listenerPosition).normalized;
+        }
+
+        // If the direction is zero (e.g., at the listener), stop moving.
+        if (direction == Vector3.zero) yield break;
+
+        while (reflectionSound != null && reflectionSound.source != null && reflectionSound.source.isPlaying)
+        {
+            reflectionSound.transform.position += direction * speedOfSound * Time.deltaTime;
+            yield return null;
         }
     }
 
