@@ -92,6 +92,7 @@
     <Compile Include="Assets\Scripts\Audio\AudioState.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
     <Compile Include="Assets\Scripts\ExampleThreatSource.cs" />
+    <Compile Include="Assets\Scripts\ObjectPooler.cs" />
     <Compile Include="Assets\Scripts\GameplayLogUI.cs" />
   </ItemGroup>
   <ItemGroup>
