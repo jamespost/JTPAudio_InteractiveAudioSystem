@@ -18,7 +18,7 @@
         1.  **Implementation:** For any entity with unique stats (weapons, enemies, pickups), create a corresponding ScriptableObject data container.
         2.  **Examples:** WeaponData (damage, fire rate, clip size, reload speed), EnemyData (move speed, health, attack damage, attack range).
         3.  **Designer Rationale:** This is the primary method for achieving a designer-friendly workflow. It allows for creating endless variations of game content by simply creating new assets in the Project window. A designer can balance the entire game without writing a line of code.
-    3.  **Object Pooling**
+    3.  **Object Pooling [COMPLETED]**
         1.  **Implementation:** Create a generic ObjectPooler class early on. It will manage the lifecycle of frequently instantiated objects like projectiles, impact VFX, and shell casings.
         2.  **Rationale:** Drastically reduces garbage collection and CPU overhead from repeated Instantiate() and Destroy() calls, which is critical for maintaining a smooth framerate during intense waves.
 
