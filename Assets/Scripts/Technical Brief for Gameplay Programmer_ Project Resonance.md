@@ -14,7 +14,7 @@
         1.  **Implementation:** Create a static EventManager class or use C# Action events within individual components. This will be the primary method of cross-system communication.
         2.  **Example Events:** OnPlayerDamaged(float damage), OnEnemyDied(Vector3 position), OnWaveStateChanged(WaveState newState), OnAmmoChanged(int current, int max).
         3.  **Designer Rationale:** This is critical for roles like sound design. It allows an AudioManager to subscribe to any gameplay event and play the appropriate sound without ever needing to modify player, weapon, or enemy code. A sound designer can wire up the entire game's soundscape from one central location.
-    2.  **Data-Centric ScriptableObjects**
+    2.  **Data-Centric ScriptableObjects [COMPLETED]**
         1.  **Implementation:** For any entity with unique stats (weapons, enemies, pickups), create a corresponding ScriptableObject data container.
         2.  **Examples:** WeaponData (damage, fire rate, clip size, reload speed), EnemyData (move speed, health, attack damage, attack range).
         3.  **Designer Rationale:** This is the primary method for achieving a designer-friendly workflow. It allows for creating endless variations of game content by simply creating new assets in the Project window. A designer can balance the entire game without writing a line of code.
