@@ -24,7 +24,7 @@
 
 4.  **Milestone 1: Core Systems Implementation (1-2 Weeks)**
     1.  **Goal:** Build the foundational, data-driven, and designer-accessible systems.
-    2.  **Player Controller (PlayerController.cs) [PARTIALLY COMPLETED]**
+    2.  **Player Controller (PlayerController.cs) [PARTIALLY COMPLETED still need to hook up inputs in unity and create player gameobject with script attached to begin testing]**
         1.  **Movement:** Utilize Unity's CharacterController.
         2.  **Input Handling:** Isolate input polling to its own function or script.
         3.  **Inspector Cleanup:** Use [Header("Movement Stats")] and [Tooltip("...")] attributes to clearly organize and explain variables like walkSpeed, sprintSpeed, and jumpHeight in the Inspector.
