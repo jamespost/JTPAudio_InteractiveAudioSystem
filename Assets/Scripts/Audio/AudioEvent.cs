@@ -18,6 +18,7 @@ public enum ModulationTarget
 [System.Serializable]
 public class ParameterModulation
 {
+    [Header("Parameter Modulation Settings")]
     [Tooltip("The GameParameter that will drive this modulation (e.g., 'PlayerHealth').")]
     public GameParameter parameter;
 
@@ -31,6 +32,7 @@ public class ParameterModulation
 [System.Serializable]
 public class AudioSourceSettings
 {
+    [Header("Basic Settings")]
     [Tooltip("The volume of the audio source.")]
     public float volume = 1.0f;
 
@@ -40,6 +42,7 @@ public class AudioSourceSettings
     [Tooltip("The spatial blend of the audio source (0 = 2D, 1 = 3D).")]
     public float spatialBlend = 1.0f;
 
+    [Header("Advanced Settings")]
     [Tooltip("Whether the audio source should loop.")]
     public bool loop = false;
 
@@ -78,6 +81,7 @@ public class AudioEvent : ScriptableObject
         MostImportantVIP = 255
     }
 
+    [Header("General Settings")]
     [Tooltip("The unique string ID used to call this event from code.")]
     public string eventID;
 
