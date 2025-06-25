@@ -66,15 +66,23 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Audio\SequenceContainer.cs" />
     <Compile Include="Assets\Scripts\IAudioThreat.cs" />
+    <Compile Include="Assets\Scripts\EventManager.cs" />
+    <Compile Include="Assets\Scripts\Data\PickupData.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
+    <Compile Include="Assets\Scripts\WaveState.cs" />
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
+    <Compile Include="Assets\Scripts\Data\WeaponData.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTesterEditor.cs" />
     <Compile Include="Assets\Scripts\Audio\GameParameter.cs" />
+    <Compile Include="Assets\Scripts\Data\SpawnGroup.cs" />
+    <Compile Include="Assets\Scripts\Data\WaveData.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\SimpleContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\DynamicEchoSystem.cs" />
+    <Compile Include="Assets\Scripts\Data\EntityData.cs" />
+    <Compile Include="Assets\Scripts\Data\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Audio\SwitchContainer.cs" />
     <Compile Include="Assets\Scripts\GameplayLogger.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
