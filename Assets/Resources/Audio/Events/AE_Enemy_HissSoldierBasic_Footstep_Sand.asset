@@ -15,7 +15,7 @@ MonoBehaviour:
   eventID: Enemy_HissSoldierBasic_Footstep_Sand
   container: {fileID: 11400000, guid: f370be6765a59b8468a2df8195d5bd1c, type: 2}
   mixerGroup: {fileID: -1445916570858435706, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
-  attachToSource: 0
+  attachToSource: 1
   priority: 64
   enableReflectionSystem: 0
   useDynamicEchoSystem: 0
