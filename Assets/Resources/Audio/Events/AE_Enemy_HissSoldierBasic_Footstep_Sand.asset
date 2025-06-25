@@ -17,8 +17,8 @@ MonoBehaviour:
   mixerGroup: {fileID: -1445916570858435706, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
   attachToSource: 0
   priority: 64
-  enableReflectionSystem: 1
-  useDynamicEchoSystem: 1
+  enableReflectionSystem: 0
+  useDynamicEchoSystem: 0
   enableDistanceBasedReverb: 1
   modulations: []
   sourceSettings:

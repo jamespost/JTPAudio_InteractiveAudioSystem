@@ -17,8 +17,8 @@ MonoBehaviour:
   mixerGroup: {fileID: -4598920354315240767, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
   attachToSource: 1
   priority: 192
-  enableReflectionSystem: 1
-  useDynamicEchoSystem: 1
+  enableReflectionSystem: 0
+  useDynamicEchoSystem: 0
   enableDistanceBasedReverb: 1
   modulations: []
   sourceSettings:
@@ -27,7 +27,7 @@ MonoBehaviour:
     spatialBlend: 1
     loop: 0
     dopplerLevel: 1
-    spread: 0
+    spread: 90
     rolloffMode: 0
     minDistance: 5
     maxDistance: 500
