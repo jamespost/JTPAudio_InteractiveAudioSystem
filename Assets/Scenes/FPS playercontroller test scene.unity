@@ -1324,6 +1324,11 @@ MonoBehaviour:
   sprintSpeed: 10
   jumpHeight: 2
   gravity: -9.81
+  mouseSensitivityX: 300
+  mouseSensitivityY: 300
+  mouseSmoothing: 0.05
+  minVerticalAngle: -60
+  maxVerticalAngle: 60
 --- !u!143 &1541701951
 CharacterController:
   m_ObjectHideFlags: 0

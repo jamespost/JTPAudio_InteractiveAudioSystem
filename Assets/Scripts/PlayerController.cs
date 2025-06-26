@@ -77,6 +77,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 currentMouseDelta; // Smoothed mouse delta
     private Vector2 currentMouseVelocity; // Velocity for smoothing
 
+
+
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
     /// </summary>
@@ -95,8 +97,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         HandleInput(); // Polls player input
-        HandleMovement(); // Handles horizontal movement
-        HandleJump(); // Handles jumping and gravity
+        HandleMovementAndJump(); // Handles all movement in one integrated method
         HandleMouseLook(); // Handles mouse look
         HandleAudio(); // Placeholder for audio logic
     }
@@ -113,44 +114,39 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles player movement based on input and applies it to the CharacterController.
+    /// Handles all movement including horizontal movement, jumping, and gravity in one integrated method.
     /// </summary>
-    private void HandleMovement()
+    private void HandleMovementAndJump()
     {
-        isGrounded = controller.isGrounded; // Check if the player is grounded
+        // Check grounded state FIRST, before any movement
+        isGrounded = controller.isGrounded;
 
-        // Reset vertical velocity if grounded
-        if (isGrounded && playerVelocity.y < 0)
-        {
-            playerVelocity.y = 0f;
-        }
-
-        // Calculate movement direction based on input
-        Vector3 move = transform.right * horizontalInput + transform.forward * verticalInput;
-
-        // Determine movement speed (sprint or walk)
-        float currentSpeed = sprintPressed ? sprintSpeed : walkSpeed;
-
-        // Apply movement to the CharacterController
-        controller.Move(move * currentSpeed * Time.deltaTime);
-    }
-
-    /// <summary>
-    /// Handles jumping and applies gravity to the player.
-    /// </summary>
-    private void HandleJump()
-    {
-        // Apply jump force if jump is pressed and player is grounded
+        // Handle jumping BEFORE horizontal movement to ensure grounded state is accurate
         if (jumpPressed && isGrounded)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravity);
+            playerVelocity.y = Mathf.Sqrt(jumpHeight * -2.0f * gravity);
+        }
+
+        // Reset vertical velocity if grounded and falling (but not if we just jumped)
+        if (isGrounded && playerVelocity.y < 0)
+        {
+            playerVelocity.y = -2f; // Small downward force to keep grounded
         }
 
         // Apply gravity to vertical velocity
         playerVelocity.y += gravity * Time.deltaTime;
 
-        // Apply vertical movement to the CharacterController
-        controller.Move(playerVelocity * Time.deltaTime);
+        // Calculate horizontal movement direction based on input
+        Vector3 horizontalMove = transform.right * horizontalInput + transform.forward * verticalInput;
+
+        // Determine movement speed (sprint or walk)
+        float currentSpeed = sprintPressed ? sprintSpeed : walkSpeed;
+
+        // Combine horizontal and vertical movement
+        Vector3 totalMovement = (horizontalMove * currentSpeed * Time.deltaTime) + (playerVelocity * Time.deltaTime);
+
+        // Apply all movement to the CharacterController in one call
+        controller.Move(totalMovement);
     }
 
     /// <summary>
