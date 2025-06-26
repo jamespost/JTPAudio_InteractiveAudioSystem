@@ -9,7 +9,7 @@
     3.  **Performance by Design:** Prioritize efficient algorithms and memory management from the start. We will be spawning many enemies, so performance is key.
     4.  **Designer-Friendly Inspector:** All key gameplay variables must be exposed and clearly labeled in the Unity Inspector. A designer should never need to open a code file to tweak game balance, timing, or "game feel" elements.
 
-3.  **Core Architectural Mandates**
+3.  **Core Architectural Mandates [COMPLETED]**
     1.  **Event-Driven Architecture [COMPLETED]**
         1.  **Implementation:** Create a static EventManager class or use C# Action events within individual components. This will be the primary method of cross-system communication.
         2.  **Example Events:** OnPlayerDamaged(float damage), OnEnemyDied(Vector3 position), OnWaveStateChanged(WaveState newState), OnAmmoChanged(int current, int max).
@@ -28,13 +28,13 @@
         1.  **Movement:** Utilize Unity's CharacterController.
         2.  **Input Handling:** Isolate input polling to its own function or script.
         3.  **Inspector Cleanup:** Use [Header("Movement Stats")] and [Tooltip("...")] attributes to clearly organize and explain variables like walkSpeed, sprintSpeed, and jumpHeight in the Inspector.
-    3.  **Universal Health & Damage System (Health.cs)**
+    3.  **Universal Health & Damage System (Health.cs) [COMPLETED]**
         1.  **Component:** A single Health.cs script for both Player and Enemies.
         2.  **Data:** It must reference a ScriptableObject (e.g., EntityData) to set its maxHealth.
         3.  **API:** A public TakeDamage(float amount) method.
         4.  **Events:** It must fire off events: public event Action<float> OnDamaged; and public event Action OnDied;.
         5.  **Inspector Cleanup:** Clearly expose the EntityData slot and any damage multipliers for easy tweaking.
-    4.  **Weapon System (WeaponController.cs)**
+    4.  **Weapon System (WeaponController.cs) [COMPLETED]**
         1.  **Data-Driven:** The controller must be a lightweight "shell" that gets all its core stats (damage, fire rate, clip size, reload speed, audio clips) from an assigned WeaponData ScriptableObject.
         2.  **Events:** It must fire events for other systems to consume: OnFire(), OnReload(), OnHit(bool isEnemy).
         3.  **Inspector Cleanup:** The only thing a designer should need to do to this component is drag in a WeaponData asset.
