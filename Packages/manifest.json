@@ -2,6 +2,7 @@
   "dependencies": {
     "com.unity.collab-proxy": "2.8.2",
     "com.unity.feature.development": "1.0.1",
+    "com.unity.inputsystem": "1.7.0",
     "com.unity.streaming-image-sequence": "0.17.3-preview",
     "com.unity.textmeshpro": "3.0.7",
     "com.unity.timeline": "1.7.7",
