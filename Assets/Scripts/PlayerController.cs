@@ -61,6 +61,13 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The maximum vertical angle the camera can look.")]
     public float maxVerticalAngle = 60.0f; // Maximum vertical look angle
 
+    // --- Jump Forgiveness Settings ---
+    [Header("Jump Forgiveness Settings")]
+    [Tooltip("The time window after leaving a ledge where the player can still jump.")]
+    public float coyoteTime = 0.2f; // Time allowed to jump after leaving a ledge
+    [Tooltip("The time window before landing where a jump input is buffered.")]
+    public float jumpBufferTime = 0.2f; // Time to buffer jump input before landing
+
     // --- Internal Variables ---
     private CharacterController controller; // Reference to the CharacterController component
     private Vector3 playerVelocity; // Tracks the player's velocity for gravity and jumping
@@ -76,6 +83,17 @@ public class PlayerController : MonoBehaviour
     // --- Internal Variables for Mouse Look ---
     private Vector2 currentMouseDelta; // Smoothed mouse delta
     private Vector2 currentMouseVelocity; // Velocity for smoothing
+
+    // --- Internal Variables for Jump Forgiveness ---
+    private float coyoteTimeCounter; // Tracks remaining coyote time
+    private float jumpBufferCounter; // Tracks remaining jump buffer time
+
+    // --- Variable Jump Settings ---
+    [Header("Variable Jump Settings")]
+    [Tooltip("Multiplier for gravity when the jump button is released early.")]
+    public float lowJumpMultiplier = 2.0f; // Stronger gravity for short jumps
+    [Tooltip("Multiplier for gravity during descent.")]
+    public float fallMultiplier = 2.5f; // Stronger gravity for falling
 
 
 
@@ -114,6 +132,23 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Calculates the initial velocity required to reach the specified jump height under custom gravity.
+    /// </summary>
+    /// <param name="jumpHeight">The desired jump height.</param>
+    /// <param name="gravity">The base gravity value.</param>
+    /// <param name="fallMultiplier">The multiplier for gravity during descent.</param>
+    /// <returns>The required initial velocity.</returns>
+    private float CalculateJumpVelocity(float jumpHeight, float gravity, float fallMultiplier)
+    {
+        // Adjust gravity to account for the fall multiplier
+        float adjustedGravity = gravity * fallMultiplier;
+
+        // Use the kinematic equation: v^2 = u^2 + 2as (where u = 0 at the peak)
+        // Rearrange to solve for initial velocity (v): v = sqrt(2 * -adjustedGravity * jumpHeight)
+        return Mathf.Sqrt(2 * -adjustedGravity * jumpHeight);
+    }
+
+    /// <summary>
     /// Handles all movement including horizontal movement, jumping, and gravity in one integrated method.
     /// </summary>
     private void HandleMovementAndJump()
@@ -121,10 +156,44 @@ public class PlayerController : MonoBehaviour
         // Check grounded state FIRST, before any movement
         isGrounded = controller.isGrounded;
 
-        // Handle jumping BEFORE horizontal movement to ensure grounded state is accurate
-        if (jumpPressed && isGrounded)
+        // Update coyote time counter
+        if (isGrounded)
         {
-            playerVelocity.y = Mathf.Sqrt(jumpHeight * -2.0f * gravity);
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        // Update jump buffer counter
+        if (jumpPressed)
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
+        // Handle jumping with coyote time and jump buffering
+        if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+        {
+            // Calculate the required initial velocity for the jump
+            playerVelocity.y = CalculateJumpVelocity(jumpHeight, gravity, fallMultiplier);
+            jumpBufferCounter = 0; // Consume the buffered jump
+        }
+
+        // Apply custom gravity curves
+        if (playerVelocity.y > 0 && !jumpPressed)
+        {
+            // Apply stronger gravity for short jumps
+            playerVelocity.y += gravity * (lowJumpMultiplier - 1) * Time.deltaTime;
+        }
+        else if (playerVelocity.y < 0)
+        {
+            // Apply stronger gravity for falling
+            playerVelocity.y += gravity * (fallMultiplier - 1) * Time.deltaTime;
         }
 
         // Reset vertical velocity if grounded and falling (but not if we just jumped)
