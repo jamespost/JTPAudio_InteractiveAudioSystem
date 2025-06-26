@@ -46,6 +46,13 @@ public class WeaponController : MonoBehaviour
         if (currentAmmo <= 0)
         {
             Debug.Log("Out of ammo!");
+
+            // Play out of ammo sound
+            if (weaponData.outOfAmmoSound != null)
+            {
+                AudioManager.Instance.PostEvent(weaponData.outOfAmmoSound.eventID, this.gameObject);
+            }
+
             return;
         }
 

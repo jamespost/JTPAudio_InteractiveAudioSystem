@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e698bdb953d837748bed447f3e9cb637, type: 3}
+  m_Name: AE_Weap_Pistol_OutOfAmmo
+  m_EditorClassIdentifier: 
+  eventID: Weap_Pistol_OutOfAmmo
+  container: {fileID: 11400000, guid: 2f04c14430e46824b829159aabf11c9c, type: 2}
+  mixerGroup: {fileID: -4598920354315240767, guid: b851d692a3bd21d48ba7209dd1c213c1, type: 2}
+  attachToSource: 1
+  priority: 192
+  enableReflectionSystem: 0
+  useDynamicEchoSystem: 0
+  enableDistanceBasedReverb: 0
+  modulations: []
+  sourceSettings:
+    volume: 1
+    pitch: 1
+    spatialBlend: 1
+    loop: 0
+    dopplerLevel: 1
+    spread: 0
+    rolloffMode: 0
+    minDistance: 1
+    maxDistance: 500
+    priority: 128

@@ -20,3 +20,4 @@ MonoBehaviour:
   reloadSound: {fileID: 11400000, guid: e9bb2d4fbe40adb4c81afda767fbcb34, type: 2}
   hitEnemySound: {fileID: 0}
   hitOtherSound: {fileID: 0}
+  outOfAmmoSound: {fileID: 11400000, guid: e50fdcb447168034881add7aa4875d44, type: 2}

@@ -29,4 +29,7 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Sound played when the weapon hits something else.")]
     public AudioEvent hitOtherSound;
+
+    [Tooltip("Sound played when out of ammo.")]
+    public AudioEvent outOfAmmoSound;
 }
