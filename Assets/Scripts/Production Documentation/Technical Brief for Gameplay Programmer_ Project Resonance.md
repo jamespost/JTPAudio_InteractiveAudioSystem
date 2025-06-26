@@ -38,6 +38,7 @@
         1.  **Data-Driven:** The controller must be a lightweight "shell" that gets all its core stats (damage, fire rate, clip size, reload speed, audio clips) from an assigned WeaponData ScriptableObject.
         2.  **Events:** It must fire events for other systems to consume: OnFire(), OnReload(), OnHit(bool isEnemy).
         3.  **Inspector Cleanup:** The only thing a designer should need to do to this component is drag in a WeaponData asset.
+        4.  **Extendable:** The weapon system needs to be able to handle any new type of weapon designers come up with, including switching between different weapon types during gameplay. This milestone only needs to focus on the player using one weapon, but designers should be able to add an arbitrary number of new weapons over time
     5.  **Enemy AI (EnemyAI.cs)**
         1.  **State Machine:** Implement a formal state machine (CHASING, ATTACKING, IDLE).
         2.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
