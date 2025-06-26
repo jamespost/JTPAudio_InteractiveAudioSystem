@@ -48,10 +48,24 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The gravity applied to the player.")]
     public float gravity = -9.81f; // Gravity force applied to the player
 
+    // --- Mouse Look Settings ---
+    [Header("Mouse Look Settings")]
+    [Tooltip("The sensitivity of the mouse movement on the X axis.")]
+    public float mouseSensitivityX = 300.0f; // Horizontal sensitivity multiplier
+    [Tooltip("The sensitivity of the mouse movement on the Y axis.")]
+    public float mouseSensitivityY = 300.0f; // Vertical sensitivity multiplier
+    [Tooltip("The smoothing factor for mouse movement.")]
+    public float mouseSmoothing = 0.05f; // Smoothing factor for mouse movement
+    [Tooltip("The minimum vertical angle the camera can look.")]
+    public float minVerticalAngle = -60.0f; // Minimum vertical look angle
+    [Tooltip("The maximum vertical angle the camera can look.")]
+    public float maxVerticalAngle = 60.0f; // Maximum vertical look angle
+
     // --- Internal Variables ---
     private CharacterController controller; // Reference to the CharacterController component
     private Vector3 playerVelocity; // Tracks the player's velocity for gravity and jumping
     private bool isGrounded; // Checks if the player is on the ground
+    private float verticalRotation = 0.0f; // Tracks the vertical rotation of the camera
 
     // --- Input Variables ---
     private float horizontalInput; // Horizontal movement input (A/D or Left/Right arrows)
@@ -59,12 +73,20 @@ public class PlayerController : MonoBehaviour
     private bool jumpPressed; // Tracks if the jump button was pressed
     private bool sprintPressed; // Tracks if the sprint key is being held
 
+    // --- Internal Variables for Mouse Look ---
+    private Vector2 currentMouseDelta; // Smoothed mouse delta
+    private Vector2 currentMouseVelocity; // Velocity for smoothing
+
     /// <summary>
-    /// Initializes the CharacterController component.
+    /// Initializes the CharacterController component and locks the cursor.
     /// </summary>
     private void Start()
     {
         controller = GetComponent<CharacterController>();
+
+        // Lock and hide the cursor
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     /// <summary>
@@ -75,6 +97,7 @@ public class PlayerController : MonoBehaviour
         HandleInput(); // Polls player input
         HandleMovement(); // Handles horizontal movement
         HandleJump(); // Handles jumping and gravity
+        HandleMouseLook(); // Handles mouse look
         HandleAudio(); // Placeholder for audio logic
     }
 
@@ -128,6 +151,30 @@ public class PlayerController : MonoBehaviour
 
         // Apply vertical movement to the CharacterController
         controller.Move(playerVelocity * Time.deltaTime);
+    }
+
+    /// <summary>
+    /// Handles mouse look for rotating the camera and player with smoothing.
+    /// </summary>
+    private void HandleMouseLook()
+    {
+        // Get raw mouse input
+        float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivityX * Time.deltaTime;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * mouseSensitivityY * Time.deltaTime;
+
+        // Smooth the mouse input
+        Vector2 targetMouseDelta = new Vector2(mouseX, mouseY);
+        currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseVelocity, mouseSmoothing);
+
+        // Adjust vertical rotation and clamp it
+        verticalRotation -= currentMouseDelta.y;
+        verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+
+        // Apply vertical rotation to the camera
+        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+
+        // Rotate the player horizontally
+        transform.Rotate(Vector3.up * currentMouseDelta.x);
     }
 
     /// <summary>
