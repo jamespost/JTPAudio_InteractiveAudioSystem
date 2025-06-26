@@ -40,9 +40,10 @@
         3.  **Inspector Cleanup:** The only thing a designer should need to do to this component is drag in a WeaponData asset.
         4.  **Extendable:** The weapon system needs to be able to handle any new type of weapon designers come up with, including switching between different weapon types during gameplay. This milestone only needs to focus on the player using one weapon, but designers should be able to add an arbitrary number of new weapons over time
     5.  **Enemy AI (EnemyAI.cs)**
-        1.  **State Machine:** Implement a formal state machine (CHASING, ATTACKING, IDLE).
-        2.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
-        3.  **Inspector Cleanup:** Expose key variables from its EnemyData like attackRange, attackSpeed, and stoppingDistance. Use [Header("AI Behavior")] to separate these from other component variables.
+        1.  **Goal:** Implement a simple 3D object (e.g., a colored capsule or cube) as a stand-in enemy prefab. This stand-in must demonstrate fully functional AI covering all features below, allowing designers and programmers to test and iterate on enemy behavior before final art is available.
+        2.  **State Machine:** Implement a formal state machine (CHASING, ATTACKING, IDLE).
+        3.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
+        4.  **Inspector Cleanup:** Expose key variables from its EnemyData like attackRange, attackSpeed, and stoppingDistance (and movement related info). Use [Header("AI Behavior")] to separate these from other component variables.
 
 5.  **Milestone 2: Game Loop Architecture (1 Week)**
     1.  **Goal:** Structure the gameplay flow with a focus on designer-editable waves.
