@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8a9b979a9812c46b31910b8e2b4f1a, type: 3}
   m_Name: WD_Pistol
   m_EditorClassIdentifier: 
-  damage: 10
+  damage: 100
   fireRate: 0.1
   clipSize: 12
   reloadSpeed: 1.5
+  range: 50
   fireSound: {fileID: 11400000, guid: 27a1ea62798ea9c44b43b96f2f4a90c2, type: 2}
   reloadSound: {fileID: 11400000, guid: e9bb2d4fbe40adb4c81afda767fbcb34, type: 2}
   hitEnemySound: {fileID: 0}
   hitOtherSound: {fileID: 0}
   outOfAmmoSound: {fileID: 11400000, guid: e50fdcb447168034881add7aa4875d44, type: 2}
+  impactSound: {fileID: 0}

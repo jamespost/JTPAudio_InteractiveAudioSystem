@@ -21,6 +21,10 @@ public class WeaponController : MonoBehaviour
     [Tooltip("LayerMask for hit detection.")]
     public LayerMask hitLayers;
 
+    [Header("Debug Settings")]
+    [Tooltip("Enable debug mode to visualize hit points and log additional information.")]
+    public bool debugMode = false;
+
     private int currentAmmo;
     private bool isReloading;
     private float nextFireTime;
@@ -31,6 +35,10 @@ public class WeaponController : MonoBehaviour
     {
         // Initialize Object Pooler for VFX
         vfxPooler = FindObjectOfType<ObjectPooler>();
+        if (vfxPooler == null)
+        {
+            Debug.LogWarning("[WeaponController] ObjectPooler not found in the scene. VFX pooling may not work as expected.");
+        }
 
         // Cache the main camera
         mainCamera = Camera.main;
@@ -99,6 +107,12 @@ public class WeaponController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(firePoint.position, firePoint.forward, out hit, weaponData.range, hitLayers))
         {
+            // Log hit information
+            if (debugMode)
+            {
+                Debug.Log($"[WeaponController] Hit object: {hit.collider.name} at position: {hit.point}");
+            }
+
             // Apply damage if the hit object has a Health component
             Health health = hit.collider.GetComponent<Health>();
             if (health != null)
@@ -116,12 +130,30 @@ public class WeaponController : MonoBehaviour
                     vfx.transform.rotation = Quaternion.LookRotation(hit.normal);
                     vfx.SetActive(true);
                 }
+                else
+                {
+                    Debug.LogWarning("[WeaponController] No pooled object available for impact VFX. Check ObjectPooler configuration.");
+                }
+            }
+            else if (impactVFX == null)
+            {
+                Debug.LogWarning("[WeaponController] Impact VFX prefab is not assigned. Visual feedback will not be shown.");
+            }
+            else if (vfxPooler == null)
+            {
+                Debug.LogWarning("[WeaponController] ObjectPooler is not initialized. VFX pooling will not work.");
             }
 
             // Play impact sound
             if (weaponData.impactSound != null)
             {
                 AudioManager.Instance.PostEvent(weaponData.impactSound.eventID, hit.collider.gameObject);
+            }
+
+            // Draw debug gizmo if debug mode is enabled
+            if (debugMode)
+            {
+                DebugDrawHitPoint(hit.point);
             }
         }
     }
@@ -143,5 +175,14 @@ public class WeaponController : MonoBehaviour
 
         currentAmmo = weaponData.clipSize;
         isReloading = false;
+    }
+
+    private void DebugDrawHitPoint(Vector3 position)
+    {
+        GameObject debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        debugSphere.transform.position = position;
+        debugSphere.transform.localScale = Vector3.one; // 1m sphere
+        debugSphere.GetComponent<Collider>().enabled = false; // Disable collider
+        Destroy(debugSphere, 2f); // Destroy after 2 seconds
     }
 }
