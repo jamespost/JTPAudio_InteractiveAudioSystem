@@ -85,4 +85,25 @@ public class ObjectPooler : MonoBehaviour
 
         return objectToSpawn;
     }
+
+    /// <summary>
+    /// Retrieves a pooled object by prefab reference.
+    /// </summary>
+    /// <param name="prefab">The prefab to retrieve from the pool.</param>
+    /// <returns>The pooled GameObject, or null if no pool exists for the prefab.</returns>
+    public GameObject GetPooledObject(GameObject prefab)
+    {
+        foreach (var pool in pools)
+        {
+            if (pool.prefab == prefab && poolDictionary.ContainsKey(pool.tag))
+            {
+                GameObject objectToSpawn = poolDictionary[pool.tag].Dequeue();
+                poolDictionary[pool.tag].Enqueue(objectToSpawn);
+                return objectToSpawn;
+            }
+        }
+
+        Debug.LogWarning("No pool found for the specified prefab.");
+        return null;
+    }
 }

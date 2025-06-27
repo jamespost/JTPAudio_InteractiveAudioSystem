@@ -275,7 +275,7 @@ Camera:
   m_GameObject: {fileID: 411785517}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -326,7 +326,7 @@ Transform:
   m_GameObject: {fileID: 411785517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1085,6 +1085,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponData: {fileID: 11400000, guid: 00df03fd1fde46e45b29e71c62a2bb6f, type: 2}
   firePoint: {fileID: 0}
+  impactVFX: {fileID: 0}
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &983688480
 GameObject:
   m_ObjectHideFlags: 0
@@ -1571,6 +1575,7 @@ MonoBehaviour:
   jumpBufferTime: 0.2
   lowJumpMultiplier: 2
   fallMultiplier: 2.5
+  startupDelay: 1
 --- !u!143 &1541701951
 CharacterController:
   m_ObjectHideFlags: 0

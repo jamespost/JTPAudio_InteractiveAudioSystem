@@ -17,6 +17,9 @@ public class WeaponData : ScriptableObject
     [Tooltip("Time it takes to reload.")]
     public float reloadSpeed = 1.5f;
 
+    [Tooltip("Maximum range of the weapon.")]
+    public float range = 50f;
+
     [Header("Audio")]
     [Tooltip("Sound played when firing.")]
     public AudioEvent fireSound;
@@ -32,4 +35,7 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Sound played when out of ammo.")]
     public AudioEvent outOfAmmoSound;
+
+    [Tooltip("Sound played on impact.")]
+    public AudioEvent impactSound;
 }

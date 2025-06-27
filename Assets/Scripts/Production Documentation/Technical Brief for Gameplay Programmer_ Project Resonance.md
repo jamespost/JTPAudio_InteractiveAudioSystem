@@ -1,5 +1,16 @@
 # **Project Resonance: Technical Brief & Programming Guidelines**
 
+## **Code Style & Best Practices**
+
+- **Consistency:** Follow C# naming conventions (PascalCase for classes/methods, camelCase for variables).
+- **Comments:** Use XML documentation for public APIs and concise inline comments for complex logic.
+- **Events & Audio:** Always reference our existing EventManager and AudioManager systems for event handling and audio playback. Do not implement new event or audio systems—extend or use the established patterns.
+- **Inspector Exposure:** Use `[Header]`, `[Tooltip]`, and `[SerializeField]` to keep the Inspector organized and designer-friendly.
+- **Single Responsibility:** Each script/class should have one clear purpose.
+- **Avoid Hardcoding:** Use ScriptableObjects for all tunable data.
+
+> **Note:** Before introducing new patterns or systems, review how similar functionality is handled in our current architecture, especially for events and audio, to maintain project cohesion.
+
 1.  **Objective**
     1.  This document outlines the technical implementation strategy for *Project Resonance*. The primary goal is to build a robust, performant, and scalable foundation for a wave-based FPS.
 
@@ -8,6 +19,7 @@
     2.  **Data-Driven Design:** Game variables (weapon stats, enemy health, wave composition) must be handled through ScriptableObjects. This empowers rapid design iteration without code changes.
     3.  **Performance by Design:** Prioritize efficient algorithms and memory management from the start. We will be spawning many enemies, so performance is key.
     4.  **Designer-Friendly Inspector:** All key gameplay variables must be exposed and clearly labeled in the Unity Inspector. A designer should never need to open a code file to tweak game balance, timing, or "game feel" elements.
+
 
 3.  **Core Architectural Mandates [COMPLETED]**
     1.  **Event-Driven Architecture [COMPLETED]**
@@ -59,7 +71,7 @@
                 - Spawn impact VFX (e.g., sparks, blood splatter) at the hit location.
                 - Use Object Pooling for VFX to optimize performance.
             - **Audio Feedback:**
-                - Play appropriate sound effects (e.g., bullet impact, ricochet) based on the material of the hit object.
+                - Play appropriate sound effects (e.g., bullet impact, ricochet) based on the material of the hit object. Always use AudioManager.PostEvent for triggering ANY audio
     3.  **Testing and Debugging:**
         - Ensure the system works seamlessly with existing Health, EventManager, and AudioManager systems.
         - Test with various object types (e.g., enemies, environment props) to verify functionality.
