@@ -18,3 +18,15 @@ This document serves as a catch-all for new features and ideas that arise during
   - Allow designers to assign taunt audio clips via `EnemyData`.
   - Should also include updates to state machine for enemies and handling of taunt animations
 - **Rationale:** Adds personality to enemies and makes combat more engaging.
+
+
+## Screenshake System
+
+- **Description:** Implement an event-based, data-driven screenshake system that can be triggered by various gameplay events such as firing weapons, explosions, taking damage, or landing from high falls.
+- **Implementation:**
+  - Define a `ScreenshakeEvent` data structure that specifies shake intensity, duration, and curve.
+  - Expose screenshake parameters in relevant data assets (e.g., `WeaponData`, `EnemyData`, `EnvironmentData`).
+  - Utilize the `EventManager` to listen for gameplay events and trigger screenshake with the appropriate parameters.
+  - Allow designers to configure which events cause screenshake and customize their effects without writing custom code for each case.
+  - Allow for experimentation with audio events being able to define the 'impact' of a sound to also drive screenshake.
+- **Rationale:** Provides consistent and easily tunable feedback for impactful events, improving immersion and reducing code duplication.
