@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ED_Enemy_Test
   m_EditorClassIdentifier: 
   maxHealth: 100
-  healthDisplaySize: 2
+  healthDisplaySize: 0.25
   moveSpeed: 3.5
   attackDamage: 10
   attackRange: 1.5
