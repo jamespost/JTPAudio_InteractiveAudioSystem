@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8a9b979a9812c46b31910b8e2b4f1a, type: 3}
   m_Name: WD_Pistol
   m_EditorClassIdentifier: 
-  damage: 100
+  damage: 10
   fireRate: 0.1
   clipSize: 12
   reloadSpeed: 1.5

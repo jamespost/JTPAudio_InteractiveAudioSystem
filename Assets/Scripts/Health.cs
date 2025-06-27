@@ -23,7 +23,7 @@ public class Health : MonoBehaviour
     // --- Private State ---
     private float currentHealth;
     private GameObject debugTextObject;
-    private TextMesh debugTextMesh;
+    private Text debugTextMesh;
 
     /// <summary>
     /// Initializes the health component.
@@ -45,16 +45,42 @@ public class Health : MonoBehaviour
         if (debugMode)
         {
             // Create a new GameObject for the debug text
-            debugTextObject = new GameObject("HealthDebugText");
+            debugTextObject = new GameObject("HealthDebugCanvas");
             debugTextObject.transform.SetParent(transform);
             debugTextObject.transform.localPosition = new Vector3(0, 2, 0); // Position above the entity
 
-            // Add a TextMesh component for displaying text
-            debugTextMesh = debugTextObject.AddComponent<TextMesh>();
-            debugTextMesh.fontSize = 32;
-            debugTextMesh.alignment = TextAlignment.Center;
-            debugTextMesh.anchor = TextAnchor.MiddleCenter;
-            debugTextMesh.color = Color.green; // Default color
+            // Add a Canvas component for UI rendering
+            Canvas canvas = debugTextObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            CanvasScaler canvasScaler = debugTextObject.AddComponent<CanvasScaler>();
+            canvasScaler.dynamicPixelsPerUnit = 100f; // Adjust for crispness
+
+            // Add a Text component for displaying health
+            GameObject textObject = new GameObject("HealthText");
+            textObject.transform.SetParent(debugTextObject.transform);
+            Text text = textObject.AddComponent<Text>();
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.green; // Default color
+            text.fontSize = 32;
+
+            // Load the ShareTechMono-Regular font from the Fonts folder
+            Font shareTechMonoFont = Resources.Load<Font>("Fonts/ShareTechMono-Regular");
+            if (shareTechMonoFont != null)
+            {
+                text.font = shareTechMonoFont;
+            }
+            else
+            {
+                Debug.LogError("ShareTechMono-Regular font not found in Resources/Fonts folder.");
+            }
+
+            // Adjust RectTransform for proper scaling based on EntityData
+            RectTransform rectTransform = text.GetComponent<RectTransform>();
+            float sizeMultiplier = entityData != null ? entityData.healthDisplaySize : 1f; // Default to 1 if not set
+            rectTransform.sizeDelta = new Vector2(200 * sizeMultiplier, 50 * sizeMultiplier);
+            rectTransform.localPosition = Vector3.zero;
+
+            debugTextMesh = text;
         }
     }
 
@@ -118,25 +144,10 @@ public class Health : MonoBehaviour
     {
         if (debugMode && debugTextMesh != null)
         {
-            // Update the text to display current health
-            debugTextMesh.text = $"Health: {currentHealth}/{entityData.maxHealth}";
+            // Update the health text to represent current health
+            debugTextMesh.text = Mathf.Ceil(currentHealth).ToString();
 
-            // Change color based on health percentage
-            float healthPercentage = currentHealth / entityData.maxHealth;
-            if (healthPercentage > 0.5f)
-            {
-                debugTextMesh.color = Color.green;
-            }
-            else if (healthPercentage > 0.2f)
-            {
-                debugTextMesh.color = Color.yellow;
-            }
-            else
-            {
-                debugTextMesh.color = Color.red;
-            }
-
-            // Ensure the text faces the camera
+            // Ensure the debug text canvas faces the camera
             if (Camera.main != null)
             {
                 debugTextObject.transform.rotation = Quaternion.LookRotation(debugTextObject.transform.position - Camera.main.transform.position);
