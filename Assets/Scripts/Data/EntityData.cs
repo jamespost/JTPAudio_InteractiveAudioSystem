@@ -10,5 +10,5 @@ public class EntityData : ScriptableObject
 
     [Header("Health Display")]
     [Tooltip("Size multiplier for the health display element.")]
-    public float healthDisplaySize = 1f;
+    public float healthDisplaySize = 0.25f; //good feeling default value
 }

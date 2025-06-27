@@ -77,8 +77,11 @@ public class Health : MonoBehaviour
             // Adjust RectTransform for proper scaling based on EntityData
             RectTransform rectTransform = text.GetComponent<RectTransform>();
             float sizeMultiplier = entityData != null ? entityData.healthDisplaySize : 1f; // Default to 1 if not set
-            rectTransform.sizeDelta = new Vector2(200 * sizeMultiplier, 50 * sizeMultiplier);
+            rectTransform.sizeDelta = new Vector2(200, 50); // Keep sizeDelta fixed
             rectTransform.localPosition = Vector3.zero;
+
+            // Apply sizeMultiplier to the localScale of the debugTextObject
+            debugTextObject.transform.localScale = Vector3.one * sizeMultiplier;
 
             debugTextMesh = text;
         }
