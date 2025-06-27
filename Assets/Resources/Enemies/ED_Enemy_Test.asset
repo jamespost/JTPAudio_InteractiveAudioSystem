@@ -20,3 +20,4 @@ MonoBehaviour:
   stoppingDistance: 1
   patrolSpeed: 2
   aggressionLevel: 1
+  detectionRange: 5

@@ -36,6 +36,17 @@ public class EnemyAI : MonoBehaviour
     // Reference to the Health component for damage handling and death events.
     private Health healthComponent;
 
+    // Add an enum for the state machine
+    private enum EnemyState
+    {
+        IDLE,
+        CHASING,
+        ATTACKING
+    }
+
+    // Current state of the enemy
+    private EnemyState currentState = EnemyState.IDLE;
+
     private void Start()
     {
         // Initialize NavMeshAgent and find the player by tag.
@@ -70,22 +81,61 @@ public class EnemyAI : MonoBehaviour
         // Exit if the player is not found.
         if (player == null) return;
 
-        // Continuously set the destination to the player's position.
+        // State machine logic
+        switch (currentState)
+        {
+            case EnemyState.IDLE:
+                HandleIdleState();
+                break;
+
+            case EnemyState.CHASING:
+                HandleChasingState();
+                break;
+
+            case EnemyState.ATTACKING:
+                HandleAttackingState();
+                break;
+        }
+    }
+
+    private void HandleIdleState()
+    {
+        // Transition to CHASING if the player is within detection range
+        if (Vector3.Distance(transform.position, player.position) <= enemyData.detectionRange)
+        {
+            currentState = EnemyState.CHASING;
+        }
+    }
+
+    private void HandleChasingState()
+    {
+        // Continuously set the destination to the player's position
         navMeshAgent.SetDestination(player.position);
 
-        // Check if the enemy is within attack range of the player.
+        // Transition to ATTACKING if within attack range
         if (Vector3.Distance(transform.position, player.position) <= enemyData.attackRange)
         {
-            // Attack if the cooldown has elapsed.
-            if (attackCooldown <= 0f)
-            {
-                Attack();
-                attackCooldown = 1f / enemyData.attackSpeed; // Reset the cooldown based on attack speed.
-            }
+            currentState = EnemyState.ATTACKING;
+        }
+    }
+
+    private void HandleAttackingState()
+    {
+        // Attack if the cooldown has elapsed
+        if (attackCooldown <= 0f)
+        {
+            Attack();
+            attackCooldown = 1f / enemyData.attackSpeed; // Reset the cooldown based on attack speed
         }
 
-        // Decrease the cooldown timer over time.
+        // Decrease the cooldown timer over time
         attackCooldown -= Time.deltaTime;
+
+        // Transition back to CHASING if the player moves out of attack range
+        if (Vector3.Distance(transform.position, player.position) > enemyData.attackRange)
+        {
+            currentState = EnemyState.CHASING;
+        }
     }
 
     private void Attack()

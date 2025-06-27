@@ -26,4 +26,8 @@ public class EnemyData : EntityData
 
     [Tooltip("Aggression level of the enemy.")]
     public int aggressionLevel = 1;
+
+    [Header("Detection")]
+    [Tooltip("Range within which the enemy detects the player.")]
+    public float detectionRange = 10f;
 }
