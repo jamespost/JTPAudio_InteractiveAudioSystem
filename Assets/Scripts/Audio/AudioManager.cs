@@ -148,7 +148,7 @@ public class AudioManager : MonoBehaviour
     #region Public API
     public void PostEvent(string eventName, GameObject sourceObject)
     {
-        Debug.Log($"[AudioManager] PostEvent called for event: {eventName} on {sourceObject?.name}");
+        //Debug.Log($"[AudioManager] PostEvent called for event: {eventName} on {sourceObject?.name}");
         if (string.IsNullOrEmpty(eventName) || sourceObject == null) return;
         if (!eventDictionary.TryGetValue(eventName, out AudioEvent audioEvent))
         {
