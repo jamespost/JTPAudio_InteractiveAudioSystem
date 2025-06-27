@@ -153,7 +153,7 @@ public class EnemyAI : MonoBehaviour
         // Transition to ATTACKING if within attack range
         if (Vector3.Distance(transform.position, player.position) <= enemyData.attackRange)
         {
-            Debug.Log("Transitioning to ATTACKING state.");
+            //Debug.Log("Transitioning to ATTACKING state.");
             currentState = EnemyState.ATTACKING;
         }
     }
@@ -163,7 +163,7 @@ public class EnemyAI : MonoBehaviour
         // Attack if the cooldown has elapsed
         if (attackCooldown <= 0f)
         {
-            Debug.Log("Cooldown elapsed. Attacking player.");
+            //Debug.Log("Cooldown elapsed. Attacking player.");
             Attack();
             attackCooldown = 1f / enemyData.attackSpeed; // Reset the cooldown based on attack speed
         }
@@ -174,7 +174,7 @@ public class EnemyAI : MonoBehaviour
         // Transition back to CHASING if the player moves out of attack range
         if (Vector3.Distance(transform.position, player.position) > enemyData.attackRange)
         {
-            Debug.Log("Player moved out of attack range. Transitioning to CHASING state.");
+            //Debug.Log("Player moved out of attack range. Transitioning to CHASING state.");
             currentState = EnemyState.CHASING;
         }
     }
@@ -185,16 +185,16 @@ public class EnemyAI : MonoBehaviour
         Health playerHealth = player.GetComponent<Health>();
         if (playerHealth != null)
         {
-            Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
+            //Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
             playerHealth.TakeDamage(enemyData.attackDamage); // Deal damage to the player.
         }
         else
         {
-            Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
+            //Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
         }
 
         // Log the attack and trigger any related animations or sounds.
-        Debug.Log("Enemy attacked the player!");
+        //Debug.Log("Enemy attacked the player!");
     }
 
     public void TakeDamage(float damage)

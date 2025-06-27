@@ -17,8 +17,6 @@ public class GameManager : MonoBehaviour
     public enum GameState { MAIN_MENU, PLAYING, GAME_OVER }
     public GameState CurrentState { get; private set; }
 
-    public event Action<GameState> OnGameStateChanged;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -67,7 +65,7 @@ public class GameManager : MonoBehaviour
     public void SetGameState(GameState newState)
     {
         CurrentState = newState;
-        OnGameStateChanged?.Invoke(newState);
+        EventManager.TriggerGameStateChanged(newState);
 
         if (newState == GameState.PLAYING)
         {

@@ -185,4 +185,26 @@ public class WeaponController : MonoBehaviour
         debugSphere.GetComponent<Collider>().enabled = false; // Disable collider
         Destroy(debugSphere, 2f); // Destroy after 2 seconds
     }
+
+    private void OnEnable()
+    {
+        EventManager.OnGameStateChanged += HandleGameStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnGameStateChanged -= HandleGameStateChanged;
+    }
+
+    private void HandleGameStateChanged(GameManager.GameState newState)
+    {
+        if (newState == GameManager.GameState.GAME_OVER)
+        {
+            enabled = false;
+        }
+        else if (newState == GameManager.GameState.PLAYING)
+        {
+            enabled = true;
+        }
+    }
 }

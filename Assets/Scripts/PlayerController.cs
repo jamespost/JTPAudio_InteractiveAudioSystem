@@ -283,4 +283,26 @@ public class PlayerController : MonoBehaviour
     {
         // Placeholder for audio handling logic
     }
+
+    private void OnEnable()
+    {
+        EventManager.OnGameStateChanged += HandleGameStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnGameStateChanged -= HandleGameStateChanged;
+    }
+
+    private void HandleGameStateChanged(GameManager.GameState newState)
+    {
+        if (newState == GameManager.GameState.GAME_OVER)
+        {
+            controlsEnabled = false;
+        }
+        else if (newState == GameManager.GameState.PLAYING)
+        {
+            controlsEnabled = true;
+        }
+    }
 }

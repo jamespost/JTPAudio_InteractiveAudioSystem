@@ -137,4 +137,18 @@ public static class EventManager
     {
         OnGameOver?.Invoke();
     }
+
+    /// <summary>
+    /// Called when the game state changes.
+    /// </summary>
+    public static event Action<GameManager.GameState> OnGameStateChanged;
+
+    /// <summary>
+    /// Invokes the OnGameStateChanged event.
+    /// </summary>
+    /// <param name="newState">The new game state.</param>
+    public static void TriggerGameStateChanged(GameManager.GameState newState)
+    {
+        OnGameStateChanged?.Invoke(newState);
+    }
 }
