@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/FPS playercontroller test scene.unity
+    guid: ffabac048e2a59742bba1f5dcc102896
   m_configObjects: {}
