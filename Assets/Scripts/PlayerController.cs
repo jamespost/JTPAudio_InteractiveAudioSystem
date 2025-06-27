@@ -69,6 +69,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The time window before landing where a jump input is buffered.")]
     public float jumpBufferTime = 0.2f; // Time to buffer jump input before landing
 
+    // --- Multi-Jump Settings ---
+    [Header("Multi-Jump Settings")]
+    [Tooltip("The maximum number of jumps the player can perform before landing.")]
+    public int maxJumps = 1; // Default to single jump
+
     // --- Internal Variables ---
     private CharacterController controller; // Reference to the CharacterController component
     private Vector3 playerVelocity; // Tracks the player's velocity for gravity and jumping
@@ -103,6 +108,7 @@ public class PlayerController : MonoBehaviour
     public float startupDelay = 1.0f; // Default delay of 1 second
 
     private bool controlsEnabled = false; // Tracks whether controls are enabled
+    private int currentJumpCount = 0; // Tracks the number of jumps performed
 
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
@@ -190,10 +196,11 @@ public class PlayerController : MonoBehaviour
         // Check grounded state FIRST, before any movement
         isGrounded = controller.isGrounded;
 
-        // Update coyote time counter
+        // Reset jump count if grounded
         if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
+            currentJumpCount = 0; // Reset jump count when grounded
         }
         else
         {
@@ -210,12 +217,13 @@ public class PlayerController : MonoBehaviour
             jumpBufferCounter -= Time.deltaTime;
         }
 
-        // Handle jumping with coyote time and jump buffering
-        if (jumpBufferCounter > 0 && coyoteTimeCounter > 0)
+        // Handle jumping with coyote time, jump buffering, and multi-jump logic
+        if (jumpBufferCounter > 0 && (coyoteTimeCounter > 0 || currentJumpCount < maxJumps))
         {
             // Calculate the required initial velocity for the jump
             playerVelocity.y = CalculateJumpVelocity(jumpHeight, gravity, fallMultiplier);
             jumpBufferCounter = 0; // Consume the buffered jump
+            currentJumpCount++; // Increment jump count
         }
 
         // Apply custom gravity curves
