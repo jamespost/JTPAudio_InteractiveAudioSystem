@@ -45,6 +45,28 @@
         3.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
         4.  **Inspector Cleanup:** Expose key variables from its EnemyData like attackRange, attackSpeed, and stoppingDistance (and movement related info). Use [Header("AI Behavior")] to separate these from other component variables.
 
+**Sub-Milestone 1.5: Weapon Hit Detection and Feedback (1 Week)**
+    1.  **Goal:** Enhance the WeaponController to detect hits, apply damage to objects with a Health component, and provide visual and audio feedback.
+    2.  **WeaponController Enhancements:**
+        1.  **Hit Detection:**
+            - Implement raycasting or projectile-based hit detection.
+            - Ensure accurate detection of objects hit by the weapon.
+        2.  **Damage Application:**
+            - Check if the hit object has a Health component.
+            - Apply damage to the Health component of the hit object.
+        3.  **Feedback Systems:**
+            - **Visual Feedback:**
+                - Spawn impact VFX (e.g., sparks, blood splatter) at the hit location.
+                - Use Object Pooling for VFX to optimize performance.
+            - **Audio Feedback:**
+                - Play appropriate sound effects (e.g., bullet impact, ricochet) based on the material of the hit object.
+    3.  **Testing and Debugging:**
+        - Ensure the system works seamlessly with existing Health and EventManager systems.
+        - Test with various object types (e.g., enemies, environment props) to verify functionality.
+    4.  **Designer Accessibility:**
+        - Expose VFX and SFX settings in the Inspector for easy customization.
+        - Allow designers to assign different feedback assets for different materials or object types.
+
 5.  **Milestone 2: Game Loop Architecture (1 Week)**
     1.  **Goal:** Structure the gameplay flow with a focus on designer-editable waves.
     2.  **Game Manager (GameManager.cs)**
@@ -73,3 +95,5 @@
     3.  **Systems Refinement:**
         1.  **Weapon Switching (WeaponManager.cs):** Should have a simple list in the Inspector where a designer can drag-and-drop the starting WeaponData assets for the player.
         2.  **Pickup System (Pickup.cs):** Pickups must be data-driven via a PickupData ScriptableObject that defines their type, value, model, and sound effects. A designer can create new pickup types just by creating new assets.
+        
+  
