@@ -85,7 +85,7 @@
         1.  **Singleton:** A persistent singleton managing the overall application state (MAIN_MENU, PLAYING, GAME_OVER).
     3.  **Wave System (WaveManager.cs)**
         1.  **Data-Driven Waves:** Create a WaveData ScriptableObject. This asset will contain a list of spawn groups (whatToSpawn, count, spawnPoint, delay). **This is essential.** It turns wave design into a visual, data-entry task in the Inspector.
-        2.  **Spawning:** The WaveManager reads the WaveData asset for the current level, spawns enemies accordingly, and subscribes to their OnDied events to track progress.
+        2.  **Spawning:** The WaveManager reads the WaveData asset for the current level, spawns enemies accordingly, and subscribes to their OnDied events to track progress. **All enemy spawning must be handled through the ObjectPooler to ensure optimal performance and avoid unnecessary instantiation.**
         3.  **Inspector Cleanup:** The WaveManager component itself should have a single, clear slot for the designer to drag the WaveData asset for that level.
     4.  **UI System (UIManager.cs)**
         1.  **Event-Driven:** The UIManager is entirely reactive, subscribing to events from other systems. It has no knowledge of game logic. This means a designer can change what a UI element does just by changing what event it listens to.
@@ -107,5 +107,4 @@
     3.  **Systems Refinement:**
         1.  **Weapon Switching (WeaponManager.cs):** Should have a simple list in the Inspector where a designer can drag-and-drop the starting WeaponData assets for the player.
         2.  **Pickup System (Pickup.cs):** Pickups must be data-driven via a PickupData ScriptableObject that defines their type, value, model, and sound effects. A designer can create new pickup types just by creating new assets.
-        
-  
+

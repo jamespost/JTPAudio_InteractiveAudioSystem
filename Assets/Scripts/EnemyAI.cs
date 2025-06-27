@@ -79,6 +79,11 @@ public class EnemyAI : MonoBehaviour
         {
             Debug.LogError("Health component is missing on " + gameObject.name);
         }
+        else
+        {
+            // Subscribe to the OnDied event
+            healthComponent.OnDied += HandleDeath;
+        }
 
         // Apply movement and stopping distance settings from EnemyData.
         if (enemyData != null)
@@ -92,6 +97,21 @@ public class EnemyAI : MonoBehaviour
     {
         // Reset enemy state when reactivated from the pool
         ResetEnemyState();
+
+        // Subscribe to the OnDied event of the Health component
+        if (healthComponent != null)
+        {
+            healthComponent.OnDied += HandleDeath;
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from the OnDied event to avoid memory leaks
+        if (healthComponent != null)
+        {
+            healthComponent.OnDied -= HandleDeath;
+        }
     }
 
     private void Update()
