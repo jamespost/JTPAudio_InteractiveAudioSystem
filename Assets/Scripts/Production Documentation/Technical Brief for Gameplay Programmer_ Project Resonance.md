@@ -22,7 +22,7 @@
         1.  **Implementation:** Create a generic ObjectPooler class early on. It will manage the lifecycle of frequently instantiated objects like projectiles, impact VFX, and shell casings.
         2.  **Rationale:** Drastically reduces garbage collection and CPU overhead from repeated Instantiate() and Destroy() calls, which is critical for maintaining a smooth framerate during intense waves.
 
-4.  **Milestone 1: Core Systems Implementation (1-2 Weeks)**
+4.  **Milestone 1: Core Systems Implementation (1-2 Weeks) [COMPLETED]**
     1.  **Goal:** Build the foundational, data-driven, and designer-accessible systems.
     2.  **Player Controller (PlayerController.cs) [COMPLETED]**
         1.  **Movement:** Utilize Unity's CharacterController.
@@ -39,7 +39,7 @@
         2.  **Events:** It must fire events for other systems to consume: OnFire(), OnReload(), OnHit(bool isEnemy).
         3.  **Inspector Cleanup:** The only thing a designer should need to do to this component is drag in a WeaponData asset.
         4.  **Extendable:** The weapon system needs to be able to handle any new type of weapon designers come up with, including switching between different weapon types during gameplay. This milestone only needs to focus on the player using one weapon, but designers should be able to add an arbitrary number of new weapons over time
-    5.  **Enemy AI (EnemyAI.cs)**
+    5.  **Enemy AI (EnemyAI.cs) [COMPLETED]**
         1.  **Goal:** Implement a simple 3D object (e.g., a colored capsule or cube) as a stand-in enemy prefab. This stand-in must demonstrate fully functional AI covering all features below, allowing designers and programmers to test and iterate on enemy behavior before final art is available.
         2.  **State Machine:** Implement a formal state machine (CHASING, ATTACKING, IDLE).
         3.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
