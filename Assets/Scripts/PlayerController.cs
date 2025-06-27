@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections; // Required for IEnumerator
 
 /// <summary>
 /// Handles player movement, input, and interactions using Unity's CharacterController.
@@ -51,9 +52,9 @@ public class PlayerController : MonoBehaviour
     // --- Mouse Look Settings ---
     [Header("Mouse Look Settings")]
     [Tooltip("The sensitivity of the mouse movement on the X axis.")]
-    public float mouseSensitivityX = 300.0f; // Horizontal sensitivity multiplier
+    public float mouseSensitivityX = 400.0f; // Horizontal sensitivity multiplier
     [Tooltip("The sensitivity of the mouse movement on the Y axis.")]
-    public float mouseSensitivityY = 300.0f; // Vertical sensitivity multiplier
+    public float mouseSensitivityY = 400.0f; // Vertical sensitivity multiplier
     [Tooltip("The smoothing factor for mouse movement.")]
     public float mouseSmoothing = 0.05f; // Smoothing factor for mouse movement
     [Tooltip("The minimum vertical angle the camera can look.")]
@@ -95,7 +96,13 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Multiplier for gravity during descent.")]
     public float fallMultiplier = 2.5f; // Stronger gravity for falling
 
+    // --- Startup Settings ---
+    [Header("Startup Settings")]
+    [Tooltip("The delay in seconds before player controls are enabled after the game starts. This helps prevent inputs being stored before the game is ready.")]
+    [Range(0, 5)]
+    public float startupDelay = 1.0f; // Default delay of 1 second
 
+    private bool controlsEnabled = false; // Tracks whether controls are enabled
 
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
@@ -107,6 +114,24 @@ public class PlayerController : MonoBehaviour
         // Lock and hide the cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Zero out the mouse delta to prevent initial jump in view
+        currentMouseDelta = Vector2.zero;
+        currentMouseVelocity = Vector2.zero;
+        verticalRotation = 0.0f;
+        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+
+        // Start the delay timer to enable controls
+        StartCoroutine(EnableControlsAfterDelay());
+    }
+
+    /// <summary>
+    /// Coroutine to enable controls after the specified startup delay.
+    /// </summary>
+    private IEnumerator EnableControlsAfterDelay()
+    {
+        yield return new WaitForSeconds(startupDelay);
+        controlsEnabled = true;
     }
 
     /// <summary>
@@ -114,6 +139,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Update()
     {
+        if (!controlsEnabled) return; // Skip input handling if controls are disabled
+
         HandleInput(); // Polls player input
         HandleMovementAndJump(); // Handles all movement in one integrated method
         HandleMouseLook(); // Handles mouse look
