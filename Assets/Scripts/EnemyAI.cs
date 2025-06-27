@@ -40,7 +40,15 @@ public class EnemyAI : MonoBehaviour
     {
         // Initialize NavMeshAgent and find the player by tag.
         navMeshAgent = GetComponent<NavMeshAgent>();
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogError("Player GameObject with tag 'Player' not found in the scene.");
+        }
 
         // Initialize Health component.
         healthComponent = GetComponent<Health>();
