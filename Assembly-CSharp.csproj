@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\Data\WaveData.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\EnemyAI.cs" />
     <Compile Include="Assets\Scripts\Audio\SimpleContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\DynamicEchoSystem.cs" />

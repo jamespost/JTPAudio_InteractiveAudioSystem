@@ -154,4 +154,9 @@ public class Health : MonoBehaviour
             }
         }
     }
+
+    public float CurrentHealth
+    {
+        get { return currentHealth; }
+    }
 }

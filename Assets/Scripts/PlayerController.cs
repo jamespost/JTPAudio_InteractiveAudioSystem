@@ -141,6 +141,13 @@ public class PlayerController : MonoBehaviour
     {
         if (!controlsEnabled) return; // Skip input handling if controls are disabled
 
+        // Check if the player is dead
+        Health healthComponent = GetComponent<Health>();
+        if (healthComponent != null && healthComponent.CurrentHealth <= 0)
+        {
+            return; // Stop all movement and interactions if the player is dead
+        }
+
         HandleInput(); // Polls player input
         HandleMovementAndJump(); // Handles all movement in one integrated method
         HandleMouseLook(); // Handles mouse look
