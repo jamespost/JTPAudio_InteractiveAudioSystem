@@ -19,4 +19,11 @@ public class EnemyData : EntityData
 
     [Tooltip("How close the enemy gets to the player.")]
     public float stoppingDistance = 1f;
+
+    [Header("Additional Behavior")]
+    [Tooltip("Patrol speed for the enemy.")]
+    public float patrolSpeed = 2f;
+
+    [Tooltip("Aggression level of the enemy.")]
+    public int aggressionLevel = 1;
 }

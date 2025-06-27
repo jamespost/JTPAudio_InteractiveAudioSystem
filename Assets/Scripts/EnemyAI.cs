@@ -33,11 +33,21 @@ public class EnemyAI : MonoBehaviour
     // Cooldown timer to manage attack intervals.
     private float attackCooldown;
 
+    // Reference to the Health component for damage handling and death events.
+    private Health healthComponent;
+
     private void Start()
     {
         // Initialize NavMeshAgent and find the player by tag.
         navMeshAgent = GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        // Initialize Health component.
+        healthComponent = GetComponent<Health>();
+        if (healthComponent == null)
+        {
+            Debug.LogError("Health component is missing on " + gameObject.name);
+        }
 
         // Apply movement and stopping distance settings from EnemyData.
         if (enemyData != null)
@@ -85,10 +95,18 @@ public class EnemyAI : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        // Log the damage taken and handle enemy destruction if health is depleted.
-        Debug.Log($"Enemy took {damage} damage!");
+        // Delegate damage handling to the Health component.
+        if (healthComponent != null)
+        {
+            healthComponent.TakeDamage(damage);
+            healthComponent.OnDied += HandleDeath;
+        }
+    }
 
-        // If health reaches 0, destroy the enemy GameObject.
+    private void HandleDeath()
+    {
+        // Trigger death event and destroy the enemy.
+        EventManager.TriggerEnemyDied(transform.position);
         Destroy(gameObject);
     }
 }

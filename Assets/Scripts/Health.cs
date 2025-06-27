@@ -7,7 +7,8 @@ using System;
 /// </summary>
 public class Health : MonoBehaviour
 {
-    [Header("Data")][Tooltip("The EntityData that defines the stats for this entity.")]
+    [Header("Data")]
+    [Tooltip("The EntityData that defines the stats for this entity.")]
     public EntityData entityData;
 
     // --- Public Events ---
