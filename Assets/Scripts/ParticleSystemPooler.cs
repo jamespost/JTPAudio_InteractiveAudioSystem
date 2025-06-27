@@ -16,11 +16,14 @@ public class ParticleSystemPooler : MonoBehaviour
     private string poolTag;
     private ObjectPooler objectPooler;
 
+    [SerializeField]
+    private bool enableDebugLogs = false; // Controls whether debug logs are enabled, disabled by default
+
     private void Awake()
     {
         // Initialize the ObjectPooler reference
         objectPooler = FindObjectOfType<ObjectPooler>();
-        if (objectPooler == null)
+        if (objectPooler == null && enableDebugLogs)
         {
             Debug.LogError("[ParticleSystemPooler] ObjectPooler not found in the scene. Ensure an ObjectPooler is set up.");
         }
@@ -43,13 +46,19 @@ public class ParticleSystemPooler : MonoBehaviour
     {
         if (objectPooler != null)
         {
-            Debug.Log($"[ParticleSystemPooler] Returning particle system with tag '{poolTag}' to the pool.");
+            if (enableDebugLogs)
+            {
+                Debug.Log($"[ParticleSystemPooler] Returning particle system with tag '{poolTag}' to the pool.");
+            }
             // Return the particle system to the pool when it stops playing.
             objectPooler.ReturnToPool(poolTag, gameObject);
         }
         else
         {
-            Debug.LogWarning("[ParticleSystemPooler] ObjectPooler is not initialized. Cannot return particle system to pool.");
+            if (enableDebugLogs)
+            {
+                Debug.LogWarning("[ParticleSystemPooler] ObjectPooler is not initialized. Cannot return particle system to pool.");
+            }
         }
     }
 }
