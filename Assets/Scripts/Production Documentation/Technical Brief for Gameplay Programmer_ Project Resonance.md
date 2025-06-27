@@ -61,11 +61,11 @@
             - **Audio Feedback:**
                 - Play appropriate sound effects (e.g., bullet impact, ricochet) based on the material of the hit object.
     3.  **Testing and Debugging:**
-        - Ensure the system works seamlessly with existing Health and EventManager systems.
+        - Ensure the system works seamlessly with existing Health, EventManager, and AudioManager systems.
         - Test with various object types (e.g., enemies, environment props) to verify functionality.
     4.  **Designer Accessibility:**
         - Expose VFX and SFX settings in the Inspector for easy customization.
-        - Allow designers to assign different feedback assets for different materials or object types.
+        - Allow designers to assign different feedback assets (both VFX and SFX) for different materials or object types.
 
 5.  **Milestone 2: Game Loop Architecture (1 Week)**
     1.  **Goal:** Structure the gameplay flow with a focus on designer-editable waves.
