@@ -106,4 +106,22 @@ public class ObjectPooler : MonoBehaviour
         Debug.LogWarning("No pool found for the specified prefab.");
         return null;
     }
+
+    /// <summary>
+    /// Returns an object to the pool by deactivating it and re-enqueuing it.
+    /// </summary>
+    /// <param name="tag">The tag of the pool to return the object to.</param>
+    /// <param name="objectToReturn">The GameObject to return to the pool.</param>
+    public void ReturnToPool(string tag, GameObject objectToReturn)
+    {
+        if (!poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning($"Pool with tag {tag} doesn't exist. Cannot return object to pool.");
+            return;
+        }
+
+        // Deactivate the object and re-enqueue it.
+        objectToReturn.SetActive(false);
+        poolDictionary[tag].Enqueue(objectToReturn);
+    }
 }

@@ -99,6 +99,21 @@ public class Health : MonoBehaviour
         return currentHealth;
     }
 
+    /// <summary>
+    /// Resets the entity's health to its maximum value.
+    /// </summary>
+    public void ResetHealth()
+    {
+        if (entityData != null)
+        {
+            currentHealth = entityData.maxHealth;
+        }
+        else
+        {
+            Debug.LogError("EntityData is not assigned on " + gameObject.name, this);
+        }
+    }
+
     private void Update()
     {
         if (debugMode && debugTextMesh != null)

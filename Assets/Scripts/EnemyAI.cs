@@ -47,6 +47,18 @@ public class EnemyAI : MonoBehaviour
     // Current state of the enemy
     private EnemyState currentState = EnemyState.IDLE;
 
+    private ObjectPooler enemyPooler;
+
+    private void Awake()
+    {
+        // Initialize the ObjectPooler for enemies
+        enemyPooler = FindObjectOfType<ObjectPooler>();
+        if (enemyPooler == null)
+        {
+            Debug.LogError("[EnemyAI] ObjectPooler not found in the scene. Ensure an ObjectPooler is set up for enemies.");
+        }
+    }
+
     private void Start()
     {
         // Initialize NavMeshAgent and find the player by tag.
@@ -74,6 +86,12 @@ public class EnemyAI : MonoBehaviour
             navMeshAgent.speed = enemyData.moveSpeed;
             navMeshAgent.stoppingDistance = enemyData.stoppingDistance;
         }
+    }
+
+    private void OnEnable()
+    {
+        // Reset enemy state when reactivated from the pool
+        ResetEnemyState();
     }
 
     private void Update()
@@ -163,8 +181,35 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleDeath()
     {
-        // Trigger death event and destroy the enemy.
-        EventManager.TriggerEnemyDied(transform.position);
-        Destroy(gameObject);
+        // TODO: Trigger death VFX (e.g., explosion, blood splatter)
+        // TODO: Play death SFX using AudioManager
+
+        // Return the enemy to the pool
+        if (enemyPooler != null)
+        {
+            gameObject.SetActive(false);
+            enemyPooler.ReturnToPool(gameObject.tag, gameObject);
+        }
+        else
+        {
+            Debug.LogWarning("[EnemyAI] ObjectPooler is not initialized. Destroying enemy instead.");
+            Destroy(gameObject);
+        }
+    }
+
+    private void ResetEnemyState()
+    {
+        // Reset any necessary variables or states for the enemy
+        // Example: Reset health, position, or AI state
+        currentState = EnemyState.IDLE;
+        attackCooldown = 0f;
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.ResetPath();
+        }
+        if (healthComponent != null)
+        {
+            healthComponent.ResetHealth();
+        }
     }
 }

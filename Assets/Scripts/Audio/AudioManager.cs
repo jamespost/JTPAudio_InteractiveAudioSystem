@@ -36,10 +36,10 @@ public class AudioManager : MonoBehaviour
     [Header("Reflection System Settings")]
     [Tooltip("The number of dedicated audio sources to reserve for reflections.")]
     [SerializeField] private int numberOfReflectionSources = 3;
-    [Tooltip("The minimum cutoff frequency for the low-pass filter on reflected sounds.")]
-    [SerializeField] private float reflectionLowPassCutoffMin = 500f;
-    [Tooltip("The maximum cutoff frequency for the low-pass filter on reflected sounds.")]
-    [SerializeField] private float reflectionLowPassCutoffMax = 22000f;
+    // [Tooltip("The minimum cutoff frequency for the low-pass filter on reflected sounds.")]
+    // [SerializeField] private float reflectionLowPassCutoffMin = 500f;
+    // [Tooltip("The maximum cutoff frequency for the low-pass filter on reflected sounds.")]
+    // [SerializeField] private float reflectionLowPassCutoffMax = 22000f;
     [Tooltip("The speed of sound in meters per second, used for calculating reflection delays.")]
     [SerializeField] private float speedOfSound = 343f;
 
@@ -70,9 +70,9 @@ public class AudioManager : MonoBehaviour
     [Tooltip("The layer mask for surfaces that will reflect sound for the dynamic echo system.")]
     [SerializeField] private LayerMask reflectionLayerMask;
 
-    [Header("Dynamic Echo System (Raycast Reflections)")]
-    [Tooltip("Maximum distance for a single ray.")]
-    [SerializeField] private float dynamicEchoMaxDistance = 50f;
+    // [Header("Dynamic Echo System (Raycast Reflections)")]
+    // [Tooltip("Maximum distance for a single ray.")]
+    // [SerializeField] private float dynamicEchoMaxDistance = 50f;
 
     [Header("Distance-Based Reverb Settings")]
     [Tooltip("The distance at which reverb starts to be applied.")]
