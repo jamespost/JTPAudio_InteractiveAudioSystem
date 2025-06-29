@@ -20,10 +20,10 @@
 
 **Objective:** Create a `GameManager` to control the overall flow of the application between different states (Menu, Gameplay, Game Over).
 
-1.  **Create Scenes:**
+1.  **Create Scenes: [COMPLETED]**
     *   Create three new Unity scenes: `MainMenu`, `Game`, and `GameOver`.
 
-2.  **Implement `GameManager.cs`:**
+2.  **Implement `GameManager.cs`: [COMPLETED]**
     *   Create the `GameManager.cs` script.
     *   Implement it as a persistent singleton (using `DontDestroyOnLoad`) to ensure it exists across all scenes.
     *   Define an `enum` for game states: `MainMenu`, `Playing`, `GameOver`.

@@ -83,6 +83,19 @@ public class GameManager : MonoBehaviour
         CurrentState = newState;
         EventManager.TriggerGameStateChanged(newState);
 
+        if (newState == GameState.MAIN_MENU)
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+        else if (newState == GameState.PLAYING)
+        {
+            SceneManager.LoadScene("GameScene");
+        }
+        else if (newState == GameState.GAME_OVER)
+        {
+            SceneManager.LoadScene("GameOver");
+        }
+
         if (newState == GameState.PLAYING)
         {
             ResetPlayer();
