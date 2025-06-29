@@ -1,12 +1,11 @@
 // GameManager.cs
-// Summary: This script manages the overall game state, including transitions between MAIN_MENU, PLAYING, and GAME_OVER states. It is responsible for resetting the player, handling player death, and triggering game state changes. Future features include managing wave-based gameplay and integrating designer-editable waves via WaveData assets.
+// Summary: This script manages the overall game state, including transitions between MAIN_MENU, PLAYING, and GAME_OVER states. It is responsible for resetting the player, handling player death, and triggering game state changes. This version integrates wave-based gameplay management using WaveManager and supports designer-editable waves via LevelData assets.
 //
-// TODO: Integrate wave-based gameplay management using WaveManager.
-// TODO: Add support for designer-editable WaveData assets to define spawn groups and wave composition.
 // TODO: Ensure all enemy spawning is handled through the ObjectPooler for performance optimization.
 
 using UnityEngine;
 using System;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,6 +19,11 @@ public class GameManager : MonoBehaviour
     [Tooltip("Initial position to reset the player to.")]
     [SerializeField] private Vector3 initialPlayerPosition;
 
+    [Tooltip("Reference to the WaveManager for managing waves.")]
+    [SerializeField] private WaveManager waveManager;
+
+    [Tooltip("Level data containing wave configurations.")]
+    [SerializeField] private LevelData levelData;
     
     public enum GameState { MAIN_MENU, PLAYING, GAME_OVER }
     public GameState CurrentState { get; private set; }
@@ -58,6 +62,11 @@ public class GameManager : MonoBehaviour
             playerHealth.OnDied += HandlePlayerDeath;
         }
 
+        if (waveManager != null && levelData != null)
+        {
+            waveManager.Initialize(levelData);
+        }
+
         SetGameState(GameState.MAIN_MENU);
     }
 
@@ -77,6 +86,17 @@ public class GameManager : MonoBehaviour
         if (newState == GameState.PLAYING)
         {
             ResetPlayer();
+            if (waveManager != null)
+            {
+                waveManager.StartWaves();
+            }
+        }
+        else if (newState == GameState.GAME_OVER)
+        {
+            if (waveManager != null)
+            {
+                waveManager.StopWaves();
+            }
         }
     }
 
