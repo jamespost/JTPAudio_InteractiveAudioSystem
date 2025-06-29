@@ -1,0 +1,1 @@
+- Simulated Subsurface Scattering for Deep-Sea Creature Skin: A shader designed for Unity's Built-in Render Pipeline, focusing on translucent, bioluminescent skin with high performance.

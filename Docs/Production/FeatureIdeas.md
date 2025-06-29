@@ -30,3 +30,9 @@ This document serves as a catch-all for new features and ideas that arise during
   - Allow designers to configure which events cause screenshake and customize their effects without writing custom code for each case.
   - Allow for experimentation with audio events being able to define the 'impact' of a sound to also drive screenshake.
 - **Rationale:** Provides consistent and easily tunable feedback for impactful events, improving immersion and reducing code duplication.
+
+## Shader Ideas
+- **Description:** New shaders to be developed for various visual effects.
+- **Implementation:**
+  - Simulated Subsurface Scattering for Deep-Sea Creature Skin: A shader designed for Unity's Built-in Render Pipeline, focusing on translucent, bioluminescent skin with high performance. See the [Shader Brief](./SimulatedSubsurfaceScatteringShader.md) for more details.
+- **Rationale:** To create more visually stunning and immersive environments and characters.
