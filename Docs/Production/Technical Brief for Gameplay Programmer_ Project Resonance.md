@@ -57,7 +57,7 @@
         3.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
         4.  **Inspector Cleanup:** Expose key variables from its EnemyData like attackRange, attackSpeed, and stoppingDistance (and movement related info). Use [Header("AI Behavior")] to separate these from other component variables.
 
-**Sub-Milestone 1.5: Weapon Hit Detection and Feedback (1 Week)**
+**Sub-Milestone 1.5: Weapon Hit Detection and Feedback (1 Week) [COMPLETED]**
     1.  **Goal:** Enhance the WeaponController to detect hits, apply damage to objects with a Health component, and provide visual and audio feedback.
     2.  **WeaponController Enhancements:**
         1.  **Hit Detection:**

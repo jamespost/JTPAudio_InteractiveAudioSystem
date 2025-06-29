@@ -1,3 +1,10 @@
+// GameManager.cs
+// Summary: This script manages the overall game state, including transitions between MAIN_MENU, PLAYING, and GAME_OVER states. It is responsible for resetting the player, handling player death, and triggering game state changes. Future features include managing wave-based gameplay and integrating designer-editable waves via WaveData assets.
+//
+// TODO: Integrate wave-based gameplay management using WaveManager.
+// TODO: Add support for designer-editable WaveData assets to define spawn groups and wave composition.
+// TODO: Ensure all enemy spawning is handled through the ObjectPooler for performance optimization.
+
 using UnityEngine;
 using System;
 
