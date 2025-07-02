@@ -97,7 +97,8 @@ public class GameManager : MonoBehaviour
 
         // Create a GameObject for displaying the game state
         gameStateTextObject = new GameObject("GameStateText");
-        gameStateTextObject.transform.SetParent(transform);
+        gameStateTextObject.transform.SetParent(null); // Make it a root object
+        DontDestroyOnLoad(gameStateTextObject);
 
         // Add a Canvas component for UI rendering
         Canvas canvas2 = gameStateTextObject.AddComponent<Canvas>();
@@ -108,7 +109,6 @@ public class GameManager : MonoBehaviour
         gameStateText.alignment = TextAnchor.MiddleLeft;
         gameStateText.color = Color.white;
         gameStateText.fontSize = 32;
-        gameStateText.text = "Game State: " + CurrentState.ToString();
 
         // Load the ShareTechMono-Regular font from the Resources folder
         Font shareTechMonoFont = Resources.Load<Font>("Fonts/ShareTechMono-Regular");
@@ -139,19 +139,23 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(GameState newState)
     {
+        Debug.Log($"SetGameState called. Changing state from {CurrentState} to {newState}");
         CurrentState = newState;
         EventManager.TriggerGameStateChanged(newState);
 
         if (newState == GameState.MAIN_MENU)
         {
+            Debug.Log("GameState is now MAIN_MENU");
             //SceneManager.LoadScene("MainMenu");
         }
         else if (newState == GameState.LEVEL_LOADING)
         {
+            Debug.Log("GameState is now LEVEL_LOADING");
             //SceneManager.LoadScene("Game");
         }
         else if (newState == GameState.IN_GAME)
         {
+            Debug.Log("GameState is now IN_GAME");
             ResetPlayer();
             if (waveManager != null)
             {
@@ -164,6 +168,7 @@ public class GameManager : MonoBehaviour
         }
         else if (newState == GameState.PAUSED)
         {
+            Debug.Log("GameState is now PAUSED");
             Time.timeScale = 0f; // Freeze the game
             if (pauseTextObject != null)
             {
@@ -172,6 +177,7 @@ public class GameManager : MonoBehaviour
         }
         else if (newState == GameState.GAME_OVER)
         {
+            Debug.Log("GameState is now GAME_OVER");
             if (waveManager != null)
             {
                 waveManager.StopWaves();
@@ -187,15 +193,34 @@ public class GameManager : MonoBehaviour
         if (gameStateText != null)
         {
             gameStateText.text = "Game State: " + newState.ToString();
+            Debug.Log($"GameStateText updated to: {gameStateText.text}");
+        }
+        else
+        {
+            Debug.LogWarning("GameStateText is null. Unable to update text.");
         }
     }
 
     public void StartGame()
     {
         Debug.Log("StartGame method called!");
+        SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.LoadScene("Game");
-        SetGameState(GameState.IN_GAME);
-        
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"OnSceneLoaded called. Loaded scene: {scene.name}");
+        if (scene.name == "Game")
+        {
+            // Re-find the Text component in the persistent gameStateTextObject
+            if (gameStateTextObject != null)
+            {
+                gameStateText = gameStateTextObject.GetComponent<Text>();
+            }
+            SetGameState(GameState.IN_GAME);
+        }
+        SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe to avoid duplicate calls
     }
 
     private void HandlePlayerDeath()

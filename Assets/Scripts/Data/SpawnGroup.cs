@@ -1,8 +1,9 @@
 // Assets/Scripts/Data/SpawnGroup.cs
 using UnityEngine;
+using UnityEditor;
 
-[System.Serializable]
-public class SpawnGroup
+[CreateAssetMenu(fileName = "NewSpawnGroup", menuName = "Data/SpawnGroup")]
+public class SpawnGroup : ScriptableObject
 {
     [Tooltip("The enemy prefab to spawn.")]
     public GameObject whatToSpawn;
