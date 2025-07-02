@@ -163,3 +163,5 @@ public class Health : MonoBehaviour
         get { return currentHealth; }
     }
 }
+
+// Note: This system could be improved by allowing the font and other settings to be assigned via the Inspector in the future.

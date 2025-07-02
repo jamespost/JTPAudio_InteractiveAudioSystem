@@ -202,7 +202,7 @@ public class WeaponController : MonoBehaviour
         {
             enabled = false;
         }
-        else if (newState == GameManager.GameState.PLAYING)
+        else if (newState == GameManager.GameState.IN_GAME)
         {
             enabled = true;
         }

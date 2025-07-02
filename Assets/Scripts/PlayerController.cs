@@ -145,6 +145,19 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Update()
     {
+        // Check for pause/unpause input
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (GameManager.Instance.CurrentState == GameManager.GameState.IN_GAME)
+            {
+                GameManager.Instance.SetGameState(GameManager.GameState.PAUSED);
+            }
+            else if (GameManager.Instance.CurrentState == GameManager.GameState.PAUSED)
+            {
+                GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
+            }
+        }
+
         if (!controlsEnabled) return; // Skip input handling if controls are disabled
 
         // Check if the player is dead
@@ -308,7 +321,7 @@ public class PlayerController : MonoBehaviour
         {
             controlsEnabled = false;
         }
-        else if (newState == GameManager.GameState.PLAYING)
+        else if (newState == GameManager.GameState.IN_GAME)
         {
             controlsEnabled = true;
         }

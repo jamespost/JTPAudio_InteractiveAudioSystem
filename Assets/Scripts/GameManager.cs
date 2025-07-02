@@ -24,8 +24,10 @@ public class GameManager : MonoBehaviour
 
     [Tooltip("Level data containing wave configurations.")]
     [SerializeField] private LevelData levelData;
+
+    private GameObject pauseTextObject;
     
-    public enum GameState { MAIN_MENU, PLAYING, GAME_OVER }
+    public enum GameState { MAIN_MENU, LEVEL_LOADING, IN_GAME, PAUSED, GAME_OVER }
     public GameState CurrentState { get; private set; }
 
     private void Awake()
@@ -67,6 +69,29 @@ public class GameManager : MonoBehaviour
             waveManager.Initialize(levelData);
         }
 
+        // Create a pause text object programmatically **NOTE: This is a temporary solution; ideally, this should be set up in the Unity Editor for better flexibility and design control.
+        pauseTextObject = new GameObject("PauseText");
+        pauseTextObject.transform.SetParent(transform);
+
+        // Add a Canvas component for UI rendering
+        Canvas canvas = pauseTextObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        // Add a TextMeshProUGUI component for displaying the pause message
+        TMPro.TextMeshProUGUI text = pauseTextObject.AddComponent<TMPro.TextMeshProUGUI>();
+        text.alignment = TMPro.TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.fontSize = 48;
+        text.text = "Paused\nPress 'P' to Resume";
+
+        // Adjust RectTransform for proper positioning
+        RectTransform rectTransform = text.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(600, 200);
+        rectTransform.anchoredPosition = Vector2.zero;
+
+        // Initially hide the pause text
+        pauseTextObject.SetActive(false);
+
         SetGameState(GameState.MAIN_MENU);
     }
 
@@ -87,21 +112,28 @@ public class GameManager : MonoBehaviour
         {
             //SceneManager.LoadScene("MainMenu");
         }
-        else if (newState == GameState.PLAYING)
+        else if (newState == GameState.LEVEL_LOADING)
         {
             //SceneManager.LoadScene("Game");
         }
-        else if (newState == GameState.GAME_OVER)
-        {
-            //SceneManager.LoadScene("GameOver");
-        }
-
-        if (newState == GameState.PLAYING)
+        else if (newState == GameState.IN_GAME)
         {
             ResetPlayer();
             if (waveManager != null)
             {
                 waveManager.StartWaves();
+            }
+            if (pauseTextObject != null)
+            {
+                pauseTextObject.SetActive(false);
+            }
+        }
+        else if (newState == GameState.PAUSED)
+        {
+            Time.timeScale = 0f; // Freeze the game
+            if (pauseTextObject != null)
+            {
+                pauseTextObject.SetActive(true);
             }
         }
         else if (newState == GameState.GAME_OVER)
@@ -111,13 +143,18 @@ public class GameManager : MonoBehaviour
                 waveManager.StopWaves();
             }
         }
+
+        if (newState != GameState.PAUSED && Time.timeScale == 0f)
+        {
+            Time.timeScale = 1f; // Resume the game if coming out of pause
+        }
     }
 
     public void StartGame()
     {
         Debug.Log("StartGame method called!");
         SceneManager.LoadScene("Game");
-        SetGameState(GameState.PLAYING);
+        SetGameState(GameState.IN_GAME);
         
     }
 
