@@ -6,6 +6,7 @@
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI; // Add this for UI components
 
 public class GameManager : MonoBehaviour
 {
@@ -26,6 +27,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private LevelData levelData;
 
     private GameObject pauseTextObject;
+    private GameObject gameStateTextObject;
+    private Text gameStateText;
     
     public enum GameState { MAIN_MENU, LEVEL_LOADING, IN_GAME, PAUSED, GAME_OVER }
     public GameState CurrentState { get; private set; }
@@ -92,6 +95,37 @@ public class GameManager : MonoBehaviour
         // Initially hide the pause text
         pauseTextObject.SetActive(false);
 
+        // Create a GameObject for displaying the game state
+        gameStateTextObject = new GameObject("GameStateText");
+        gameStateTextObject.transform.SetParent(transform);
+
+        // Add a Canvas component for UI rendering
+        Canvas canvas2 = gameStateTextObject.AddComponent<Canvas>();
+        canvas2.renderMode = RenderMode.ScreenSpaceOverlay;
+
+        // Add a Text component for displaying the game state
+        gameStateText = gameStateTextObject.AddComponent<Text>();
+        gameStateText.alignment = TextAnchor.MiddleLeft;
+        gameStateText.color = Color.white;
+        gameStateText.fontSize = 32;
+        gameStateText.text = "Game State: " + CurrentState.ToString();
+
+        // Load the ShareTechMono-Regular font from the Resources folder
+        Font shareTechMonoFont = Resources.Load<Font>("Fonts/ShareTechMono-Regular");
+        if (shareTechMonoFont != null)
+        {
+            gameStateText.font = shareTechMonoFont;
+        }
+        else
+        {
+            Debug.LogError("ShareTechMono-Regular font not found in Resources/Fonts folder.");
+        }
+
+        // Adjust RectTransform for proper positioning
+        RectTransform rectTransform2 = gameStateText.GetComponent<RectTransform>();
+        rectTransform2.sizeDelta = new Vector2(400, 50);
+        rectTransform2.anchoredPosition = new Vector2(-Screen.width / 2 + 200, 0); // Center-left of the screen
+
         SetGameState(GameState.MAIN_MENU);
     }
 
@@ -147,6 +181,12 @@ public class GameManager : MonoBehaviour
         if (newState != GameState.PAUSED && Time.timeScale == 0f)
         {
             Time.timeScale = 1f; // Resume the game if coming out of pause
+        }
+
+        // Update the game state text
+        if (gameStateText != null)
+        {
+            gameStateText.text = "Game State: " + newState.ToString();
         }
     }
 
