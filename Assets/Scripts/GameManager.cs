@@ -85,15 +85,15 @@ public class GameManager : MonoBehaviour
 
         if (newState == GameState.MAIN_MENU)
         {
-            SceneManager.LoadScene("MainMenu");
+            //SceneManager.LoadScene("MainMenu");
         }
         else if (newState == GameState.PLAYING)
         {
-            SceneManager.LoadScene("GameScene");
+            //SceneManager.LoadScene("Game");
         }
         else if (newState == GameState.GAME_OVER)
         {
-            SceneManager.LoadScene("GameOver");
+            //SceneManager.LoadScene("GameOver");
         }
 
         if (newState == GameState.PLAYING)
@@ -111,6 +111,14 @@ public class GameManager : MonoBehaviour
                 waveManager.StopWaves();
             }
         }
+    }
+
+    public void StartGame()
+    {
+        Debug.Log("StartGame method called!");
+        SceneManager.LoadScene("Game");
+        SetGameState(GameState.PLAYING);
+        
     }
 
     private void HandlePlayerDeath()

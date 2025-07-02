@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/FPS playercontroller test scene.unity
-    guid: ffabac048e2a59742bba1f5dcc102896
+    path: Assets/Scenes/MainMenu.unity
+    guid: 3b2af0cc65c3ae544b76656349bf24ed
+  - enabled: 1
+    path: Assets/Scenes/Game.unity
+    guid: 3848703a9d738e645a39eec744983818
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: 3259170dc874abb4f8258e4ac1be8285
   m_configObjects: {}
