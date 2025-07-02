@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 433662202}
   - component: {fileID: 433662201}
   - component: {fileID: 433662200}
+  - component: {fileID: 433662203}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -214,6 +215,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &433662203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433662199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99d32cc55ca3221418bc5a46c370b020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPaused: 0
+  uiFont: {fileID: 12800000, guid: 2adfc465fb74d844d9d30f9f85da7689, type: 3}
+  primaryColor: {r: 1, g: 0.72, b: 0, a: 1}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  glLineMaterial: {fileID: 2100000, guid: fd55d9eb5002a7842a415d090121e6d3, type: 2}
+  particleCount: 250
+  maxConnectionDistance: 1.5
+  sphereRadius: 5
+  particleSpeed: 0.1
+  sphereDistance: 15
 --- !u!1001 &922368070
 PrefabInstance:
   m_ObjectHideFlags: 0
