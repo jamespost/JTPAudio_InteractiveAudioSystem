@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\LevelData.cs" />
     <Compile Include="Assets\Scripts\Data\SpawnGroup.cs" />
     <Compile Include="Assets\Scripts\Data\WaveData.cs" />
+    <Compile Include="Assets\Scripts\PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
     <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
     <Compile Include="Assets\Scripts\WaveManager.cs" />
