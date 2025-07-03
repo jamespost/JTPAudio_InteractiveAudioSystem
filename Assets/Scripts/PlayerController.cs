@@ -117,10 +117,6 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
 
-        // Lock and hide the cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         // Zero out the mouse delta to prevent initial jump in view
         currentMouseDelta = Vector2.zero;
         currentMouseVelocity = Vector2.zero;

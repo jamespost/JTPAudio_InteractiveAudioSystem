@@ -26,7 +26,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Level data containing wave configurations.")]
     [SerializeField] private LevelData levelData;
 
-    private GameObject pauseTextObject;
     private GameObject gameStateTextObject;
     private Text gameStateText;
     
@@ -71,29 +70,6 @@ public class GameManager : MonoBehaviour
         {
             waveManager.Initialize(levelData);
         }
-
-        // Create a pause text object programmatically **NOTE: This is a temporary solution; ideally, this should be set up in the Unity Editor for better flexibility and design control.
-        pauseTextObject = new GameObject("PauseText");
-        pauseTextObject.transform.SetParent(transform);
-
-        // Add a Canvas component for UI rendering
-        Canvas canvas = pauseTextObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-
-        // Add a TextMeshProUGUI component for displaying the pause message
-        TMPro.TextMeshProUGUI text = pauseTextObject.AddComponent<TMPro.TextMeshProUGUI>();
-        text.alignment = TMPro.TextAlignmentOptions.Center;
-        text.color = Color.white;
-        text.fontSize = 48;
-        text.text = "Paused\nPress 'P' to Resume";
-
-        // Adjust RectTransform for proper positioning
-        RectTransform rectTransform = text.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(600, 200);
-        rectTransform.anchoredPosition = Vector2.zero;
-
-        // Initially hide the pause text
-        pauseTextObject.SetActive(false);
 
         // Create a GameObject for displaying the game state
         gameStateTextObject = new GameObject("GameStateText");
@@ -143,6 +119,18 @@ public class GameManager : MonoBehaviour
         CurrentState = newState;
         EventManager.TriggerGameStateChanged(newState);
 
+        // Manage cursor lock state and visibility
+        if (newState == GameState.IN_GAME)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else if (newState == GameState.PAUSED || newState == GameState.MAIN_MENU)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         if (newState == GameState.MAIN_MENU)
         {
             Debug.Log("GameState is now MAIN_MENU");
@@ -161,19 +149,11 @@ public class GameManager : MonoBehaviour
             {
                 waveManager.StartWaves();
             }
-            if (pauseTextObject != null)
-            {
-                pauseTextObject.SetActive(false);
-            }
         }
         else if (newState == GameState.PAUSED)
         {
             Debug.Log("GameState is now PAUSED");
             Time.timeScale = 0f; // Freeze the game
-            if (pauseTextObject != null)
-            {
-                pauseTextObject.SetActive(true);
-            }
         }
         else if (newState == GameState.GAME_OVER)
         {

@@ -70,7 +70,6 @@ public class PauseMenuController : MonoBehaviour
     private int selectedIndex = 0;
     private string[] menuItems = { "Resume", "Restart Level", "Exit to Main Menu", "Exit to Desktop" };
 
-    private bool mouseLocked = false; // Tracks whether the mouse is temporarily locked
 
     /// <summary>
     /// Represents a single particle in the background sphere animation.
@@ -169,8 +168,6 @@ public class PauseMenuController : MonoBehaviour
             if (isPaused)
             {
                 GameManager.Instance.SetGameState(GameManager.GameState.PAUSED);
-                mouseLocked = true; // Lock the mouse temporarily
-                Invoke(nameof(UnlockMouse), mouseUnlockDelay); // Schedule mouse unlock
             }
             else
             {
@@ -193,7 +190,7 @@ public class PauseMenuController : MonoBehaviour
             else
             {
                 Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                Cursor.visible = false; // Hide the cursor during gameplay
             }
         }
 
@@ -205,11 +202,6 @@ public class PauseMenuController : MonoBehaviour
                 p.Update(particleSpeed);
             }
         }
-    }
-
-    private void UnlockMouse()
-    {
-        mouseLocked = false;
     }
 
     /// <summary>
@@ -293,6 +285,7 @@ public class PauseMenuController : MonoBehaviour
                 Debug.Log("Resuming game...");
                 isPaused = false;
                 Time.timeScale = 1f;
+                GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
                 break;
             case 1: // Restart Level
                 Debug.Log("Restarting level...");
