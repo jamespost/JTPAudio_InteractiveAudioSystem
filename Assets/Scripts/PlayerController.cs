@@ -145,19 +145,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        // Check for pause/unpause input
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (GameManager.Instance.CurrentState == GameManager.GameState.IN_GAME)
-            {
-                GameManager.Instance.SetGameState(GameManager.GameState.PAUSED);
-            }
-            else if (GameManager.Instance.CurrentState == GameManager.GameState.PAUSED)
-            {
-                GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
-            }
-        }
-
         if (!controlsEnabled) return; // Skip input handling if controls are disabled
 
         // Check if the player is dead
@@ -324,6 +311,12 @@ public class PlayerController : MonoBehaviour
         else if (newState == GameManager.GameState.IN_GAME)
         {
             controlsEnabled = true;
+        }
+        else if (newState == GameManager.GameState.PAUSED)
+        {
+            // Reset mouse smoothing variables to prevent momentum carryover
+            currentMouseDelta = Vector2.zero;
+            currentMouseVelocity = Vector2.zero;
         }
     }
 }

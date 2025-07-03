@@ -59,12 +59,18 @@ public class PauseMenuController : MonoBehaviour
     [Tooltip("The distance of the sphere from the camera.")]
     public float sphereDistance = 15.0f;
 
+    [Tooltip("The delay in seconds before the mouse can be moved after entering the pause menu.")]
+    [Range(0f, 1f)]
+    public float mouseUnlockDelay = 0.1f; // Default to 0.1 seconds
+
 
     // --- PRIVATE FIELDS ---
     private List<Particle> particles;
     private GUIStyle headerStyle, footerStyle, menuItemStyle;
     private int selectedIndex = 0;
     private string[] menuItems = { "Resume", "Restart Level", "Exit to Main Menu", "Exit to Desktop" };
+
+    private bool mouseLocked = false; // Tracks whether the mouse is temporarily locked
 
     /// <summary>
     /// Represents a single particle in the background sphere animation.
@@ -158,8 +164,37 @@ public class PauseMenuController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             isPaused = !isPaused;
+
+            // Notify the GameManager of the state change
+            if (isPaused)
+            {
+                GameManager.Instance.SetGameState(GameManager.GameState.PAUSED);
+                mouseLocked = true; // Lock the mouse temporarily
+                Invoke(nameof(UnlockMouse), mouseUnlockDelay); // Schedule mouse unlock
+            }
+            else
+            {
+                GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
+            }
+
             // Freeze time when paused, unfreeze when resumed
             Time.timeScale = isPaused ? 0f : 1f;
+
+            // Manage cursor lock state and visibility
+            if (isPaused)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+
+                // Reset mouse position to the center of the screen
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
 
         // Only update particles if the menu is paused and they exist
@@ -170,6 +205,11 @@ public class PauseMenuController : MonoBehaviour
                 p.Update(particleSpeed);
             }
         }
+    }
+
+    private void UnlockMouse()
+    {
+        mouseLocked = false;
     }
 
     /// <summary>
