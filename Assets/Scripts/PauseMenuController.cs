@@ -85,7 +85,7 @@ public class PauseMenuController : MonoBehaviour
 
         public void Update(float speed)
         {
-            position += velocity * speed * Time.deltaTime;
+            position += velocity * speed * Time.unscaledDeltaTime;
 
             // If the particle goes outside the sphere, invert its velocity to "bounce" back in.
             if (position.magnitude > sphereRadius)
@@ -206,13 +206,25 @@ public class PauseMenuController : MonoBehaviour
         for (int i = 0; i < menuItems.Length; i++)
         {
             Rect itemRect = new Rect(safeMargin, menuTop + (i * menuHeight), 600, menuHeight);
-            
+
             // Check for mouse hover
             bool isHovering = itemRect.Contains(Event.current.mousePosition);
-            
+
             // Set text color based on hover state
             menuItemStyle.normal.textColor = isHovering ? hoverColor : primaryColor;
-            
+
+            // Update selectedIndex based on hover
+            if (isHovering)
+            {
+                selectedIndex = i;
+            }
+
+            // Draw the blinking '>' symbol next to the selected item
+            if (selectedIndex == i)
+            {
+                GUI.Label(new Rect(itemRect.x - 30, itemRect.y, 20, menuHeight), ">", menuItemStyle);
+            }
+
             // Apply a slight indent on hover for visual feedback
             if (isHovering)
             {
