@@ -16,4 +16,7 @@ public class SpawnGroup : ScriptableObject
 
     [Tooltip("The delay before this group starts spawning.")]
     public float delay;
+
+    [Tooltip("The tag used to identify the object pool.")]
+    public string poolTag;
 }

@@ -34,8 +34,17 @@ public class ObjectPooler : MonoBehaviour
     // Dictionary to store queues of pooled objects, categorized by their tags.
     public Dictionary<string, Queue<GameObject>> poolDictionary;
 
+    public static ObjectPooler Instance { get; private set; }
+
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         // Initialize the pool dictionary.
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
 

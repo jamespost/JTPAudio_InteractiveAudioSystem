@@ -72,6 +72,7 @@
     <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
     <Compile Include="Assets\Scripts\WaveState.cs" />
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
+    <Compile Include="Assets\Scripts\Data\LevelData.cs" />
     <Compile Include="Assets\Scripts\WeaponController.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
     <Compile Include="Assets\Scripts\Data\WeaponData.cs" />
