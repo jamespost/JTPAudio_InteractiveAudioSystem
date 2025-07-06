@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b3122152bc6fc448b1ce8e9bdba2554, type: 3}
   m_Name: WD_Test
   m_EditorClassIdentifier: 
-  spawnGroups: []
+  spawnGroups:
+  - {fileID: 11400000, guid: 674f97440cf590c4ba282e0f94bffd6a, type: 2}

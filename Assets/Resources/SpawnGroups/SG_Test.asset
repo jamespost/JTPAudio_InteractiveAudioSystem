@@ -16,3 +16,4 @@ MonoBehaviour:
   count: 3
   spawnPoint: {fileID: 0}
   delay: 0
+  poolTag: Enemy
