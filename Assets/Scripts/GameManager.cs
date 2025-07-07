@@ -132,6 +132,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("GameState is now LEVEL_LOADING");
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                SceneManager.sceneLoaded += OnGameSceneLoaded;
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload current level
                 break;
 
@@ -202,6 +203,18 @@ public class GameManager : MonoBehaviour
                 gameStateText = gameStateTextObject.GetComponent<Text>();
             }
         }
+        else if (scene.name != "MainMenu") // Handle any other game scenes that might be loaded
+        {
+            Debug.Log($"Scene {scene.name} loaded.");
+            ResetPlayer();
+            SetGameState(GameState.IN_GAME);
+
+            // Re-find the Text component in the persistent gameStateTextObject
+            if (gameStateTextObject != null)
+            {
+                gameStateText = gameStateTextObject.GetComponent<Text>();
+            }
+        }
         SceneManager.sceneLoaded -= OnGameSceneLoaded; // Unsubscribe to avoid duplicate calls
     }
 
@@ -228,6 +241,23 @@ public class GameManager : MonoBehaviour
 
     private void ResetPlayer()
     {
+        // Re-find the player after scene reload if needed
+        if (playerTransform == null)
+        {
+            PlayerController playerController = FindObjectOfType<PlayerController>();
+            if (playerController != null)
+            {
+                playerTransform = playerController.transform;
+                playerHealth = playerController.GetComponent<Health>();
+                
+                // Re-subscribe to player death event
+                if (playerHealth != null)
+                {
+                    playerHealth.OnDied += HandlePlayerDeath;
+                }
+            }
+        }
+
         if (playerTransform != null)
         {
             playerTransform.position = initialPlayerPosition;

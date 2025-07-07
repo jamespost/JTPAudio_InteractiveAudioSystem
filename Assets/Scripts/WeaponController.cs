@@ -205,6 +205,34 @@ public class WeaponController : MonoBehaviour
         else if (newState == GameManager.GameState.IN_GAME)
         {
             enabled = true;
+            // Re-initialize critical components to ensure weapon works after scene reload
+            StartCoroutine(ReinitializeWeapon());
+        }
+    }
+
+    private System.Collections.IEnumerator ReinitializeWeapon()
+    {
+        yield return new WaitForEndOfFrame();
+        
+        // Re-cache the main camera if it's null
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
+        }
+
+        // Re-find the VFX pooler if it's null
+        if (vfxPooler == null)
+        {
+            vfxPooler = FindObjectOfType<ObjectPooler>();
+        }
+
+        // Re-setup firePoint if it's null
+        if (firePoint == null && mainCamera != null)
+        {
+            GameObject defaultFirePoint = new GameObject("DefaultFirePoint");
+            defaultFirePoint.transform.SetParent(mainCamera.transform);
+            defaultFirePoint.transform.localPosition = new Vector3(0, 0, 0);
+            firePoint = defaultFirePoint.transform;
         }
     }
 }

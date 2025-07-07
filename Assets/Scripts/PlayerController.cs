@@ -307,9 +307,8 @@ public class PlayerController : MonoBehaviour
         else if (newState == GameManager.GameState.IN_GAME)
         {
             controlsEnabled = true;
-            // Lock and hide the cursor when entering gameplay
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // Use a small delay to ensure cursor locking happens after GameManager
+            StartCoroutine(SetCursorStateDelayed());
         }
         else if (newState == GameManager.GameState.PAUSED)
         {
@@ -320,5 +319,13 @@ public class PlayerController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+    }
+
+    private System.Collections.IEnumerator SetCursorStateDelayed()
+    {
+        yield return new WaitForEndOfFrame();
+        // Lock and hide the cursor when entering gameplay
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }
