@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("GameState is now MAIN_MENU");
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-                SceneManager.LoadScene("MainMenuScene"); // Ensure this is the correct scene name
+                SceneManager.LoadScene("MainMenu"); // Ensure this is the correct scene name
                 break;
 
             case GameState.LEVEL_LOADING:
