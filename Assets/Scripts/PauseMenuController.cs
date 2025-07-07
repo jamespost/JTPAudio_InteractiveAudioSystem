@@ -320,11 +320,11 @@ public class PauseMenuController : MonoBehaviour
                 break;
             case "Restart Level":
                 Debug.Log("Restarting level...");
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                GameManager.Instance.SetGameState(GameManager.GameState.LEVEL_LOADING);
                 break;
             case "Exit to Main Menu":
                 Debug.Log("Exiting to main menu...");
-                SceneManager.LoadScene("MainMenuScene");
+                GameManager.Instance.SetGameState(GameManager.GameState.MAIN_MENU);
                 break;
             case "Exit to Desktop":
                 Debug.Log("Exiting to desktop...");
@@ -333,6 +333,7 @@ public class PauseMenuController : MonoBehaviour
             case "Start Game":
                 Debug.Log("Starting game...");
                 SceneManager.LoadScene("Game"); // Replace "GameScene" with your actual game scene name
+                GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
                 break;
         }
     }

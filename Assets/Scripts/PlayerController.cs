@@ -307,12 +307,18 @@ public class PlayerController : MonoBehaviour
         else if (newState == GameManager.GameState.IN_GAME)
         {
             controlsEnabled = true;
+            // Lock and hide the cursor when entering gameplay
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
         else if (newState == GameManager.GameState.PAUSED)
         {
             // Reset mouse smoothing variables to prevent momentum carryover
             currentMouseDelta = Vector2.zero;
             currentMouseVelocity = Vector2.zero;
+            // Unlock and show the cursor when paused
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 }
