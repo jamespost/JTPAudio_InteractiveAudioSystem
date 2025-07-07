@@ -116,8 +116,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        // Exit if the player is not found.
-        if (player == null) return;
+        // Exit if the player is not found or if the player's health is zero
+        if (player == null || player.GetComponent<Health>()?.CurrentHealth <= 0) return;
 
         // State machine logic
         switch (currentState)

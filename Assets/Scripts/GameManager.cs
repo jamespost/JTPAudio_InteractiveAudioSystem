@@ -107,6 +107,46 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        UnsubscribeFromPlayerEvents();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromPlayerEvents();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        UnsubscribeFromPlayerEvents(); // Ensure no stale subscriptions
+
+        PlayerController playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null)
+        {
+            playerTransform = playerController.transform;
+            playerHealth = playerController.GetComponent<Health>();
+
+            SubscribeToPlayerEvents();
+        }
+    }
+
+    private void SubscribeToPlayerEvents()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnDied -= HandlePlayerDeath; // Unsubscribe first to prevent duplicates
+            playerHealth.OnDied += HandlePlayerDeath;
+        }
+    }
+
+    private void UnsubscribeFromPlayerEvents()
+    {
         if (playerHealth != null)
         {
             playerHealth.OnDied -= HandlePlayerDeath;
@@ -117,6 +157,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"SetGameState called. Changing state from {CurrentState} to {newState}");
         CurrentState = newState;
+        Debug.Log($"GameState is now {CurrentState}"); // Added debug log
         EventManager.TriggerGameStateChanged(newState);
 
         switch (newState)

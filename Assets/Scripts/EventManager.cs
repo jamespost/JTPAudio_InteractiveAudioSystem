@@ -162,6 +162,7 @@ public static class EventManager
     /// <param name="newState">The new game state.</param>
     public static void TriggerGameStateChanged(GameManager.GameState newState)
     {
+        Debug.Log($"TriggerGameStateChanged called with state: {newState}"); // Added debug log
         OnGameStateChanged?.Invoke(newState);
     }
 }

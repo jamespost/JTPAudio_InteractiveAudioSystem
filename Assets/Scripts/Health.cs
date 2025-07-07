@@ -93,14 +93,17 @@ public class Health : MonoBehaviour
     /// <param name="amount">The amount of damage to take.</param>
     public void TakeDamage(float amount)
     {
-        if (currentHealth <= 0) return; // Already dead
+        Debug.Log($"TakeDamage called with amount: {amount}"); // Added debug log
+        if (currentHealth <= 0 && amount > 0) return; // Already dead and taking damage
 
         currentHealth -= amount;
+        Debug.Log($"Current health after damage: {currentHealth}"); // Added debug log
         OnDamaged?.Invoke(currentHealth);
 
         if (currentHealth <= 0)
         {
             currentHealth = 0;
+            Debug.Log("OnDied event invoked"); // Added debug log
             OnDied?.Invoke();
             // Optionally, you can add logic here to disable the GameObject or trigger a death animation.
         }

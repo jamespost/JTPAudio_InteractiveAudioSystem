@@ -113,6 +113,33 @@ public class PauseMenuController : MonoBehaviour
     void Start()
     {
         InitializeParticles();
+        // Subscribe to game state changes
+        EventManager.OnGameStateChanged += HandleGameStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events to prevent memory leaks
+        EventManager.OnGameStateChanged -= HandleGameStateChanged;
+    }
+
+    /// <summary>
+    /// Handle game state changes to show appropriate menus
+    /// </summary>
+    private void HandleGameStateChanged(GameManager.GameState newState)
+    {
+        Debug.Log($"HandleGameStateChanged called with state: {newState}"); // Added debug log
+        if (newState == GameManager.GameState.GAME_OVER)
+        {
+            Debug.Log("Triggering Game Over Menu"); // Added debug log
+            TriggerGameOverMenu();
+        }
+        else if (newState == GameManager.GameState.IN_GAME)
+        {
+            // Reset game over state when returning to game
+            isGameOver = false;
+            isPaused = false;
+        }
     }
 
     /// <summary>
@@ -209,12 +236,23 @@ public class PauseMenuController : MonoBehaviour
 
     public void TriggerGameOverMenu()
     {
+        Debug.Log($"TriggerGameOverMenu called. Cursor lock state: {Cursor.lockState}, Cursor visible: {Cursor.visible}"); // Added debug log
         isGameOver = true;
         isPaused = true;
         Time.timeScale = 0f;
-        GameManager.Instance.SetGameState(GameManager.GameState.GAME_OVER);
+
+        // Ensure the game state is set to GAME_OVER
+        if (GameManager.Instance.CurrentState != GameManager.GameState.GAME_OVER)
+        {
+            GameManager.Instance.SetGameState(GameManager.GameState.GAME_OVER);
+        }
+
+        // Ensure cursor is always visible and unlocked
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        // Log confirmation
+        Debug.Log("Game Over Menu triggered successfully.");
     }
 
     /// <summary>
