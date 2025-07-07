@@ -85,3 +85,15 @@ This document serves as a catch-all for new features and ideas that arise during
   - Ensure the system is lightweight and does not impact performance when disabled.
   - Optionally, include a log or history of recent actions for deeper debugging insights.
 - **Rationale:** Helps designers and developers understand and refine AI behavior, making it easier to identify issues and improve gameplay.
+
+## Wave Information Display System
+
+- **Description:** Implement a system to display wave progression information to the player during gameplay. This system will provide real-time updates on the current wave, total waves, and any special conditions or rewards for the wave.
+- **Implementation:**
+  - Use a `World Space Canvas` or HUD element to display wave information prominently on the screen.
+  - Include details such as the current wave number, total waves, remaining enemies, and any special objectives or bonuses.
+  - Integrate with the `EventManager` to update the display dynamically as the wave progresses.
+  - Allow designers to customize the appearance and layout of the wave information via a dedicated `WaveInfoData` asset.
+  - Provide options to toggle the display on or off for different game modes or player preferences.
+  - Ensure the system is lightweight and does not impact performance.
+- **Rationale:** Enhances player awareness and engagement by providing clear and accessible information about wave progression, encouraging strategic planning and immersion.

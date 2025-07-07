@@ -29,15 +29,14 @@
     *   Define an `enum` for game states: `MainMenu`, `Playing`, `GameOver`.
     *   Create public methods to manage state transitions, e.g., `GoToState(GameState newState)`. These methods will handle loading the appropriate scenes (`SceneManager.LoadScene`).
 
-3.  **Basic Scene UI:**
-    *   In the `MainMenu` scene, add a UI Canvas and a Button. Configure the button's `OnClick()` event to call the `GameManager` to transition to the `Playing` state (loading the "Game" scene).
-    *   In the `GameOver` scene, add a UI Canvas with a "Restart" button that calls the `GameManager` to transition back to the `Playing` state.
+3.  **Basic Scene UI: [COMPLETED]**
+    *   Utilize PauseMenuController to handle dynamic menu elements and calls to the game manager to handle scene changes
 
 #### **Task 2: Data-Driven Wave System**
 
 **Objective:** Design and implement a flexible wave system where all wave properties are defined in data assets, not in code. This is a critical step for enabling rapid design iteration.
 
-1.  **Create `WaveData` ScriptableObject:**
+1.  **Create `WaveData` ScriptableObject: [COMPLETED]**
     *   Create a new C# script, `WaveData.cs`, that inherits from `ScriptableObject`.
     *   Inside this script, define a serializable class or struct for a single spawn instruction, e.g., `SpawnGroup`, which should contain:
         *   `GameObject whatToSpawn` (The enemy prefab)
@@ -47,9 +46,9 @@
     *   The `WaveData` asset itself should contain a list or array of these `SpawnGroup` objects. This single asset will define an entire wave.
     *   Create a second ScriptableObject, `LevelData.cs`, that holds an array of `WaveData` assets. This allows you to define the sequence of all waves for a level.
 
-2.  **Implement `WaveManager.cs`:**
-    *   Create the `WaveManager.cs` script and attach it to a `GameManager` GameObject in the `Game` scene.
-    *   Add a public field to assign the `LevelData` asset for the current level.
+2.  **Implement `WaveManager.cs`: [COMPLETED]**
+    *   [COMPLETED] Create the `WaveManager.cs` script and attach it to a `GameManager` GameObject in the `Game` scene.
+    *   [COMPLETED] Add a public field to assign the `LevelData` asset for the current level.
     *   Implement the main `SpawnWave` coroutine. This coroutine will:
         *   Iterate through the `WaveData` assets in the assigned `LevelData`.
         *   For each wave, post the "Wave Start" audio event using `AudioManager.PostEvent`.

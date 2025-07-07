@@ -134,6 +134,9 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(startupDelay);
         controlsEnabled = true;
+
+        // Trigger the OnPlayerReady event to notify subscribers
+        EventManager.TriggerPlayerReady();
     }
 
     /// <summary>

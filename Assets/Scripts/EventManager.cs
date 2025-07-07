@@ -45,6 +45,19 @@ public static class EventManager
         OnPlayerDied?.Invoke();
     }
 
+    /// <summary>
+    /// Called when the player is ready to play.
+    /// </summary>
+    public static event Action OnPlayerReady;
+
+    /// <summary>
+    /// Invokes the OnPlayerReady event.
+    /// </summary>
+    public static void TriggerPlayerReady()
+    {
+        OnPlayerReady?.Invoke();
+    }
+
 
     // ==================================== ENEMY EVENTS ====================================
     /// <summary>

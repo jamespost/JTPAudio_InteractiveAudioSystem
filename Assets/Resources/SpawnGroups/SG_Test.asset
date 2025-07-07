@@ -15,5 +15,5 @@ MonoBehaviour:
   whatToSpawn: {fileID: 9088262424192284898, guid: bc371533f7bd9b04191a9b225cecab11, type: 3}
   count: 3
   spawnPoint: {fileID: 0}
-  delay: 0
+  delay: 5
   poolTag: Enemy
