@@ -13,6 +13,38 @@ using UnityEngine;
 /// </summary>
 public static class EventManager
 {
+    // ==================================== UI EVENTS ====================================
+    /// <summary>
+    /// Called when a script wants to display or update a piece of UI text.
+    /// Provides a unique ID for the UI element and the text to display.
+    /// </summary>
+    public static event Action<string, string> OnUIUpdateRequest;
+
+    /// <summary>
+    /// Triggers a UI update request.
+    /// </summary>
+    /// <param name="id">A unique identifier for the UI element (e.g., "WaveCounter").</param>
+    /// <param name="text">The text to be displayed.</param>
+    public static void TriggerUIUpdateRequest(string id, string text)
+    {
+        OnUIUpdateRequest?.Invoke(id, text);
+    }
+
+    /// <summary>
+    /// Called when a script wants to hide a piece of UI text.
+    /// </summary>
+    public static event Action<string> OnUIHideRequest;
+
+    /// <summary>
+    /// Triggers a UI hide request.
+    /// </summary>
+    /// <param name="id">The unique identifier of the UI element to hide.</param>
+    public static void TriggerUIHideRequest(string id)
+    {
+        OnUIHideRequest?.Invoke(id);
+    }
+
+
     // =================================== PLAYER EVENTS ====================================
     /// <summary>
     /// Called when the player takes damage.
