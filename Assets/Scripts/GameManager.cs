@@ -119,49 +119,46 @@ public class GameManager : MonoBehaviour
         CurrentState = newState;
         EventManager.TriggerGameStateChanged(newState);
 
-        // Manage cursor lock state and visibility
-        if (newState == GameState.IN_GAME)
+        switch (newState)
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else if (newState == GameState.PAUSED || newState == GameState.MAIN_MENU)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+            case GameState.MAIN_MENU:
+                Debug.Log("GameState is now MAIN_MENU");
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
 
-        if (newState == GameState.MAIN_MENU)
-        {
-            Debug.Log("GameState is now MAIN_MENU");
-            //SceneManager.LoadScene("MainMenu");
-        }
-        else if (newState == GameState.LEVEL_LOADING)
-        {
-            Debug.Log("GameState is now LEVEL_LOADING");
-            //SceneManager.LoadScene("Game");
-        }
-        else if (newState == GameState.IN_GAME)
-        {
-            Debug.Log("GameState is now IN_GAME");
-            ResetPlayer();
-            if (waveManager != null)
-            {
-                waveManager.StartWaves();
-            }
-        }
-        else if (newState == GameState.PAUSED)
-        {
-            Debug.Log("GameState is now PAUSED");
-            Time.timeScale = 0f; // Freeze the game
-        }
-        else if (newState == GameState.GAME_OVER)
-        {
-            Debug.Log("GameState is now GAME_OVER");
-            if (waveManager != null)
-            {
-                waveManager.StopWaves();
-            }
+            case GameState.LEVEL_LOADING:
+                Debug.Log("GameState is now LEVEL_LOADING");
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
+
+            case GameState.IN_GAME:
+                Debug.Log("GameState is now IN_GAME");
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                if (waveManager != null)
+                {
+                    waveManager.StartWaves();
+                }
+                break;
+
+            case GameState.PAUSED:
+                Debug.Log("GameState is now PAUSED");
+                Time.timeScale = 0f; // Freeze the game
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
+
+            case GameState.GAME_OVER:
+                Debug.Log("GameState is now GAME_OVER");
+                if (waveManager != null)
+                {
+                    waveManager.StopWaves();
+                }
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
         }
 
         if (newState != GameState.PAUSED && Time.timeScale == 0f)
@@ -184,23 +181,35 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         Debug.Log("StartGame method called!");
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.LoadScene("Game");
+        SceneManager.sceneLoaded += OnGameSceneLoaded;
+        SetGameState(GameState.LEVEL_LOADING);
+        SceneManager.LoadScene("Game"); // Replace "Game" with your actual game scene name
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnGameSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"OnSceneLoaded called. Loaded scene: {scene.name}");
-        if (scene.name == "Game")
+        if (scene.name == "Game") // Replace "Game" with your actual game scene name
         {
+            Debug.Log("Game scene loaded.");
+            ResetPlayer();
+            SetGameState(GameState.IN_GAME);
+
             // Re-find the Text component in the persistent gameStateTextObject
             if (gameStateTextObject != null)
             {
                 gameStateText = gameStateTextObject.GetComponent<Text>();
             }
-            SetGameState(GameState.IN_GAME);
         }
-        SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe to avoid duplicate calls
+        SceneManager.sceneLoaded -= OnGameSceneLoaded; // Unsubscribe to avoid duplicate calls
+    }
+
+    public void ResumeGame()
+    {
+        Debug.Log("Resuming game...");
+        SetGameState(GameState.IN_GAME);
+        Time.timeScale = 1f; // Unpause the game
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false; // Hide the cursor during gameplay
     }
 
     private void HandlePlayerDeath()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // Add this for scene management
 using System.Collections.Generic;
 
 /// <summary>
@@ -62,6 +63,12 @@ public class PauseMenuController : MonoBehaviour
     [Tooltip("The delay in seconds before the mouse can be moved after entering the pause menu.")]
     [Range(0f, 1f)]
     public float mouseUnlockDelay = 0.1f; // Default to 0.1 seconds
+
+    [Header("Menu Context")]
+    [Tooltip("Set this to true if this menu is used as the main menu.")]
+    public bool isMainMenu = false;
+
+    private bool isGameOver = false; // Track if the game is in a game over state
 
 
     // --- PRIVATE FIELDS ---
@@ -160,7 +167,7 @@ public class PauseMenuController : MonoBehaviour
     void Update()
     {
         // Simple input to toggle the pause menu
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (!isMainMenu && Input.GetKeyDown(KeyCode.Escape))
         {
             isPaused = !isPaused;
 
@@ -182,10 +189,6 @@ public class PauseMenuController : MonoBehaviour
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-
-                // Reset mouse position to the center of the screen
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.lockState = CursorLockMode.None;
             }
             else
             {
@@ -195,7 +198,7 @@ public class PauseMenuController : MonoBehaviour
         }
 
         // Only update particles if the menu is paused and they exist
-        if (isPaused && particles != null)
+        if ((isPaused || isGameOver) && particles != null)
         {
             foreach (var p in particles)
             {
@@ -204,12 +207,22 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    public void TriggerGameOverMenu()
+    {
+        isGameOver = true;
+        isPaused = true;
+        Time.timeScale = 0f;
+        GameManager.Instance.SetGameState(GameManager.GameState.GAME_OVER);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
     /// <summary>
     /// OnGUI is called for rendering and handling GUI events.
     /// </summary>
     void OnGUI()
     {
-        if (!isPaused) return;
+        if (!isPaused && !isGameOver && !isMainMenu) return;
 
         // Null check for the font to prevent errors if not assigned.
         if (uiFont == null)
@@ -226,16 +239,34 @@ public class PauseMenuController : MonoBehaviour
 
         // --- DRAW UI TEXT ---
         // Header
-        GUI.Label(new Rect(safeMargin, safeMargin, 400, 50), "Project Resonance", headerStyle);
+        GUI.Label(new Rect(safeMargin, safeMargin, 400, 50), isMainMenu ? "Main Menu" : "Project Resonance", headerStyle);
 
         // Footer
-        GUI.Label(new Rect(Screen.width - 400 - safeMargin, Screen.height - 50 - safeMargin, 400, 50), "System Paused. All processes stable.", footerStyle);
+        if (!isMainMenu)
+        {
+            GUI.Label(new Rect(Screen.width - 400 - safeMargin, Screen.height - 50 - safeMargin, 400, 50), "System Paused. All processes stable.", footerStyle);
+        }
 
         // --- DRAW MENU ITEMS ---
         float menuTop = Screen.height * 0.3f;
         float menuHeight = 70f;
 
-        for (int i = 0; i < menuItems.Length; i++)
+        // Adjust menu items based on context
+        string[] currentMenuItems;
+        if (isMainMenu)
+        {
+            currentMenuItems = new string[] { "Start Game", "Exit to Desktop" };
+        }
+        else if (isGameOver)
+        {
+            currentMenuItems = new string[] { "Restart Level", "Exit to Main Menu", "Exit to Desktop" };
+        }
+        else
+        {
+            currentMenuItems = menuItems;
+        }
+
+        for (int i = 0; i < currentMenuItems.Length; i++)
         {
             Rect itemRect = new Rect(safeMargin, menuTop + (i * menuHeight), 600, menuHeight);
 
@@ -263,12 +294,12 @@ public class PauseMenuController : MonoBehaviour
                 itemRect.x += 10;
             }
 
-            GUI.Label(itemRect, menuItems[i], menuItemStyle);
+            GUI.Label(itemRect, currentMenuItems[i], menuItemStyle);
 
             // Check for mouse click
             if (isHovering && Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
-                HandleMenuSelection(i);
+                HandleMenuSelection(i, currentMenuItems);
                 Event.current.Use(); // Consume the event
             }
         }
@@ -277,27 +308,31 @@ public class PauseMenuController : MonoBehaviour
     /// <summary>
     /// Executes an action based on which menu item was clicked.
     /// </summary>
-    void HandleMenuSelection(int index)
+    void HandleMenuSelection(int index, string[] currentMenuItems)
     {
-        switch (index)
+        switch (currentMenuItems[index])
         {
-            case 0: // Resume
+            case "Resume":
                 Debug.Log("Resuming game...");
                 isPaused = false;
                 Time.timeScale = 1f;
                 GameManager.Instance.SetGameState(GameManager.GameState.IN_GAME);
                 break;
-            case 1: // Restart Level
+            case "Restart Level":
                 Debug.Log("Restarting level...");
-                // Example: SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                 break;
-            case 2: // Exit to Main Menu
+            case "Exit to Main Menu":
                 Debug.Log("Exiting to main menu...");
-                // Example: SceneManager.LoadScene("MainMenuScene");
+                SceneManager.LoadScene("MainMenuScene");
                 break;
-            case 3: // Exit to Desktop
+            case "Exit to Desktop":
                 Debug.Log("Exiting to desktop...");
                 Application.Quit();
+                break;
+            case "Start Game":
+                Debug.Log("Starting game...");
+                SceneManager.LoadScene("Game"); // Replace "GameScene" with your actual game scene name
                 break;
         }
     }
