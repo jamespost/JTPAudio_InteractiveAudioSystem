@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI; // Added for UI components
 
 /// <summary>
 /// Handles weapon functionality including firing, reloading, and event-driven interactions.
@@ -31,6 +32,9 @@ public class WeaponController : MonoBehaviour
     private ObjectPooler vfxPooler;
     private Camera mainCamera;
 
+    private GameObject ammoDebugTextObject;
+    private Text ammoDebugTextMesh;
+
     private void Awake()
     {
         // Initialize Object Pooler for VFX
@@ -56,11 +60,65 @@ public class WeaponController : MonoBehaviour
     private void Start()
     {
         currentAmmo = weaponData.clipSize;
+
+        if (debugMode)
+        {
+            // Create a new GameObject for the ammo debug text
+            ammoDebugTextObject = new GameObject("AmmoDebugCanvas");
+            ammoDebugTextObject.transform.SetParent(transform);
+            ammoDebugTextObject.transform.localPosition = new Vector3(0, 2, 0); // Position above the weapon
+
+            // Add a Canvas component for UI rendering
+            Canvas canvas = ammoDebugTextObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            CanvasScaler canvasScaler = ammoDebugTextObject.AddComponent<CanvasScaler>();
+            canvasScaler.dynamicPixelsPerUnit = 100f; // Adjust for crispness
+
+            // Add a Text component for displaying ammo count
+            GameObject textObject = new GameObject("AmmoText");
+            textObject.transform.SetParent(ammoDebugTextObject.transform);
+            Text text = textObject.AddComponent<Text>();
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.yellow; // Default color
+            text.fontSize = 32;
+
+            // Load the ShareTechMono-Regular font from the Fonts folder
+            Font shareTechMonoFont = Resources.Load<Font>("Fonts/ShareTechMono-Regular");
+            if (shareTechMonoFont != null)
+            {
+                text.font = shareTechMonoFont;
+            }
+            else
+            {
+                Debug.LogError("ShareTechMono-Regular font not found in Resources/Fonts folder.");
+            }
+
+            // Adjust RectTransform for proper scaling
+            RectTransform rectTransform = text.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(200, 50); // Keep sizeDelta fixed
+            rectTransform.localPosition = Vector3.zero;
+
+            ammoDebugTextObject.transform.localScale = Vector3.one;
+
+            ammoDebugTextMesh = text;
+        }
     }
 
     private void Update()
     {
         HandleInput();
+
+        if (debugMode && ammoDebugTextMesh != null)
+        {
+            // Update the ammo text to represent current ammo
+            ammoDebugTextMesh.text = $"Ammo: {currentAmmo}/{weaponData.clipSize}";
+
+            // Ensure the debug text canvas faces the camera
+            if (Camera.main != null)
+            {
+                ammoDebugTextObject.transform.rotation = Quaternion.LookRotation(ammoDebugTextObject.transform.position - Camera.main.transform.position);
+            }
+        }
     }
 
     private void HandleInput()
