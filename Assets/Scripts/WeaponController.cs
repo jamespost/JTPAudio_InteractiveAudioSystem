@@ -22,6 +22,17 @@ public class WeaponController : MonoBehaviour
     [Tooltip("LayerMask for hit detection.")]
     public LayerMask hitLayers;
 
+    [Header("UI Settings")]
+    [Tooltip("Enable ammo UI display.")]
+    public bool enableAmmoUIDisplay = false;
+
+    [Tooltip("Optional transform to specify where the ammo UI should display.")]
+    public Transform ammoUITransform;
+
+    [Tooltip("Adjust the size of the ammo UI.")]
+    [Range(0.1f, 5f)]
+    public float ammoUISize = 1f;
+
     [Header("Debug Settings")]
     [Tooltip("Enable debug mode to visualize hit points and log additional information.")]
     public bool debugMode = false;
@@ -61,11 +72,14 @@ public class WeaponController : MonoBehaviour
     {
         currentAmmo = weaponData.clipSize;
 
-        if (debugMode)
+        if (enableAmmoUIDisplay)
         {
             // Create a new GameObject for the ammo debug text
             ammoDebugTextObject = new GameObject("AmmoDebugCanvas");
-            ammoDebugTextObject.transform.SetParent(transform);
+
+            // Use the specified transform or default to the weapon's transform
+            Transform parentTransform = ammoUITransform != null ? ammoUITransform : transform;
+            ammoDebugTextObject.transform.SetParent(parentTransform);
             ammoDebugTextObject.transform.localPosition = new Vector3(0, 2, 0); // Position above the weapon
 
             // Add a Canvas component for UI rendering
@@ -98,7 +112,7 @@ public class WeaponController : MonoBehaviour
             rectTransform.sizeDelta = new Vector2(200, 50); // Keep sizeDelta fixed
             rectTransform.localPosition = Vector3.zero;
 
-            ammoDebugTextObject.transform.localScale = Vector3.one;
+            ammoDebugTextObject.transform.localScale = Vector3.one * ammoUISize;
 
             ammoDebugTextMesh = text;
         }
@@ -108,7 +122,7 @@ public class WeaponController : MonoBehaviour
     {
         HandleInput();
 
-        if (debugMode && ammoDebugTextMesh != null)
+        if (enableAmmoUIDisplay && ammoDebugTextMesh != null)
         {
             // Update the ammo text to represent current ammo
             ammoDebugTextMesh.text = $"Ammo: {currentAmmo}/{weaponData.clipSize}";
