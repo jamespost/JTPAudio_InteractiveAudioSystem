@@ -46,10 +46,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentLevelData: {fileID: 11400000, guid: ac16320c4d830e24288e686becba4c62, type: 2}
-  maxSpawnDistance: 50
+  maxSpawnDistance: 12
   minSpawnDistance: 10
   enemySpacing: 2
-  maxSpawnAttempts: 50
+  maxSpawnAttempts: 500
   navMeshAreaMask: -1
   preferCoverSpawning: 1
   navMeshSearchRadius: 5

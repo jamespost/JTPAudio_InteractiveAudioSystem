@@ -364,214 +364,226 @@ public class WeaponController : MonoBehaviour
 
     private void HandleGameStateChanged(GameManager.GameState newState)
     {
-        if (newState == GameManager.GameState.GAME_OVER)
-        {
-            enabled = false;
-        }
-        else if (newState == GameManager.GameState.IN_GAME)
-        {
-            enabled = true;
-            // Re-initialize critical components to ensure weapon works after scene reload
-            StartCoroutine(ReinitializeWeapon());
-        }
+    if (newState == GameManager.GameState.GAME_OVER)
+    {
+        enabled = false;
+    }
+    else if (newState == GameManager.GameState.IN_GAME)
+    {
+        enabled = true;
+        // Re-initialize critical components to ensure weapon works after scene reload
+        StartCoroutine(ReinitializeWeapon());
+    }
+}
+
+private System.Collections.IEnumerator ReinitializeWeapon()
+{
+    yield return new WaitForEndOfFrame();
+    
+    // Re-cache the main camera if it's null
+    if (mainCamera == null)
+    {
+        mainCamera = Camera.main;
     }
 
-    private System.Collections.IEnumerator ReinitializeWeapon()
+    // Re-find the VFX pooler if it's null
+    if (vfxPooler == null)
     {
-        yield return new WaitForEndOfFrame();
-        
-        // Re-cache the main camera if it's null
-        if (mainCamera == null)
-        {
-            mainCamera = Camera.main;
-        }
-
-        // Re-find the VFX pooler if it's null
-        if (vfxPooler == null)
-        {
-            vfxPooler = FindObjectOfType<ObjectPooler>();
-        }
-
-        // Re-setup firePoint if it's null
-        if (firePoint == null && mainCamera != null)
-        {
-            GameObject defaultFirePoint = new GameObject("DefaultFirePoint");
-            defaultFirePoint.transform.SetParent(mainCamera.transform);
-            defaultFirePoint.transform.localPosition = new Vector3(0, 0, 0);
-            firePoint = defaultFirePoint.transform;
-        }
-
-        // Reset weapon rotation to original
-        transform.eulerAngles = originalWeaponRotation;
-        isRotatingForReload = false;
-
-        // Reset ammo UI state
-        if (enableAmmoUIDisplay && ammoDebugTextObject != null)
-        {
-            originalAmmoUIScale = ammoDebugTextObject.transform.localScale;
-            lastAmmoColor = GetAmmoColor(currentAmmo);
-            lastAmmoThreshold = GetAmmoThreshold(currentAmmo);
-        }
+        vfxPooler = FindObjectOfType<ObjectPooler>();
     }
 
-    /// <summary>
-    /// Get the appropriate color for the current ammo count
-    /// </summary>
-    private Color GetAmmoColor(int ammo)
+    // Re-setup firePoint if it's null
+    if (firePoint == null && mainCamera != null)
     {
-        if (ammo <= 0)
-            return ammoColorEmpty;
-        
-        float ammoPercentage = (float)ammo / weaponData.clipSize;
-        
-        if (ammoPercentage > 0.75f)
-            return ammoColorFull;
-        else if (ammoPercentage > 0.25f)
-            return ammoColorMedium;
-        else
-            return ammoColorLow;
+        GameObject defaultFirePoint = new GameObject("DefaultFirePoint");
+        defaultFirePoint.transform.SetParent(mainCamera.transform);
+        defaultFirePoint.transform.localPosition = new Vector3(0, 0, 0);
+        firePoint = defaultFirePoint.transform;
     }
 
-    /// <summary>
-    /// Get the threshold category for ammo count (for audio feedback)
-    /// </summary>
-    private int GetAmmoThreshold(int ammo)
+    // Reset weapon rotation to original
+    transform.eulerAngles = originalWeaponRotation;
+    isRotatingForReload = false;
+
+    // Reset ammo UI state
+    if (enableAmmoUIDisplay && ammoDebugTextObject != null)
     {
-        if (ammo <= 0) return 0; // Empty
-        
-        float ammoPercentage = (float)ammo / weaponData.clipSize;
-        
-        if (ammoPercentage > 0.75f) return 3; // Full
-        else if (ammoPercentage > 0.25f) return 2; // Medium
-        else return 1; // Low
+        originalAmmoUIScale = ammoDebugTextObject.transform.localScale;
+        lastAmmoColor = GetAmmoColor(currentAmmo);
+        lastAmmoThreshold = GetAmmoThreshold(currentAmmo);
     }
+}
 
-    /// <summary>
-    /// Update ammo UI color and size based on current ammo
-    /// </summary>
-    private void UpdateAmmoUI()
+/// <summary>
+/// Get the appropriate color for the current ammo count
+/// </summary>
+private Color GetAmmoColor(int ammo)
+{
+    if (ammo <= 0)
+        return ammoColorEmpty;
+    
+    float ammoPercentage = (float)ammo / weaponData.clipSize;
+    
+    if (ammoPercentage > 0.75f)
+        return ammoColorFull;
+    else if (ammoPercentage > 0.25f)
+        return ammoColorMedium;
+    else
+        return ammoColorLow;
+}
+
+/// <summary>
+/// Get the threshold category for ammo count (for audio feedback)
+/// </summary>
+private int GetAmmoThreshold(int ammo)
+{
+    if (ammo <= 0) return 0; // Empty
+    
+    float ammoPercentage = (float)ammo / weaponData.clipSize;
+    
+    if (ammoPercentage > 0.75f) return 3; // Full
+    else if (ammoPercentage > 0.25f) return 2; // Medium
+    else return 1; // Low
+}
+
+/// <summary>
+/// Update ammo UI color and size based on current ammo
+/// </summary>
+private void UpdateAmmoUI()
+{
+    if (!enableAmmoUIDisplay || ammoDebugTextMesh == null)
+        return;
+
+    // Update ammo text
+    if (isReloading)
     {
-        if (!enableAmmoUIDisplay || ammoDebugTextMesh == null)
-            return;
-
-        // Update ammo text
+        ammoDebugTextMesh.text = "RELOADING";
+    }
+    else if (currentAmmo <= 0)
+    {
+        ammoDebugTextMesh.text = "OUT OF AMMO";
+    }
+    else
+    {
         ammoDebugTextMesh.text = $"Ammo: {currentAmmo}/{weaponData.clipSize}";
-
-        // Update color
-        Color newColor = GetAmmoColor(currentAmmo);
-        if (newColor != lastAmmoColor)
-        {
-            ammoDebugTextMesh.color = newColor;
-            lastAmmoColor = newColor;
-
-            // Placeholder for audio feedback on color change
-            // AudioManager.Instance.PostEvent(ammoColorChangeAudioEvent, gameObject);
-        }
-
-        // Update size based on ammo status
-        Vector3 targetScale = originalAmmoUIScale;
-        if (currentAmmo <= 0)
-        {
-            targetScale = originalAmmoUIScale * emptyAmmoSizeMultiplier;
-        }
-        ammoDebugTextObject.transform.localScale = targetScale;
-
-        // Check for threshold changes for audio feedback
-        int currentThreshold = GetAmmoThreshold(currentAmmo);
-        if (currentThreshold != lastAmmoThreshold && currentThreshold == 1) // Entering low ammo
-        {
-            // Placeholder for low ammo audio warning
-            // AudioManager.Instance.PostEvent(lowAmmoAudioEvent, gameObject);
-        }
-        lastAmmoThreshold = currentThreshold;
-
-        // Ensure the debug text canvas faces the camera
-        if (Camera.main != null)
-        {
-            ammoDebugTextObject.transform.rotation = Quaternion.LookRotation(ammoDebugTextObject.transform.position - Camera.main.transform.position);
-        }
     }
 
-    /// <summary>
-    /// Pulse the ammo UI when trying to shoot without ammo
-    /// </summary>
-    private IEnumerator PulseAmmoUI()
+    // Update color
+    Color newColor = GetAmmoColor(currentAmmo);
+    if (newColor != lastAmmoColor)
     {
-        if (!enableAmmoUIDisplay || ammoDebugTextObject == null)
-            yield break;
+        ammoDebugTextMesh.color = newColor;
+        lastAmmoColor = newColor;
 
-        Vector3 originalScale = ammoDebugTextObject.transform.localScale;
-        Vector3 pulseTargetScale = originalScale * pulseScale;
-        
-        float elapsedTime = 0f;
-        float halfDuration = pulseDuration / 2f;
-
-        // Pulse up
-        while (elapsedTime < halfDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / halfDuration;
-            ammoDebugTextObject.transform.localScale = Vector3.Lerp(originalScale, pulseTargetScale, progress);
-            yield return null;
-        }
-
-        // Pulse down
-        elapsedTime = 0f;
-        while (elapsedTime < halfDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / halfDuration;
-            ammoDebugTextObject.transform.localScale = Vector3.Lerp(pulseTargetScale, originalScale, progress);
-            yield return null;
-        }
-
-        // Ensure we end at the correct scale
-        ammoDebugTextObject.transform.localScale = originalScale;
+        // Placeholder for audio feedback on color change
+        // AudioManager.Instance.PostEvent(ammoColorChangeAudioEvent, gameObject);
     }
 
-    /// <summary>
-    /// Animate weapon rotation during reload
-    /// </summary>
-    private IEnumerator AnimateReloadRotation()
+    // Update size based on ammo status
+    Vector3 targetScale = originalAmmoUIScale;
+    if (currentAmmo <= 0)
     {
-        if (!enableReloadAnimation || reloadRotationTransform == null)
-            yield break;
-
-        isRotatingForReload = true;
-
-        Quaternion originalRotation = reloadRotationTransform.rotation;
-        Quaternion targetRotation = Quaternion.Euler(originalRotation.eulerAngles + new Vector3(reloadRotationAngle, 0, 0));
-
-        float elapsedTime = 0f;
-        float animationDuration = 1f / reloadAnimationSpeed;
-
-        // Rotate down
-        while (elapsedTime < animationDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / animationDuration;
-            reloadRotationTransform.rotation = Quaternion.Lerp(originalRotation, targetRotation, progress);
-            yield return null;
-        }
-
-        // Hold the rotation while reloading
-        reloadRotationTransform.rotation = targetRotation;
-
-        // Wait for reload to finish (this will be controlled by the reload coroutine)
-        yield return new WaitWhile(() => isReloading);
-
-        // Rotate back up
-        elapsedTime = 0f;
-        while (elapsedTime < animationDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float progress = elapsedTime / animationDuration;
-            reloadRotationTransform.rotation = Quaternion.Lerp(targetRotation, originalRotation, progress);
-            yield return null;
-        }
-
-        // Ensure we end at the original rotation
-        reloadRotationTransform.rotation = originalRotation;
-        isRotatingForReload = false;
+        targetScale = originalAmmoUIScale * emptyAmmoSizeMultiplier;
     }
+    ammoDebugTextObject.transform.localScale = targetScale;
+
+    // Check for threshold changes for audio feedback
+    int currentThreshold = GetAmmoThreshold(currentAmmo);
+    if (currentThreshold != lastAmmoThreshold && currentThreshold == 1) // Entering low ammo
+    {
+        // Placeholder for low ammo audio warning
+        // AudioManager.Instance.PostEvent(lowAmmoAudioEvent, gameObject);
+    }
+    lastAmmoThreshold = currentThreshold;
+
+    // Ensure the debug text canvas faces the camera
+    if (Camera.main != null)
+    {
+        ammoDebugTextObject.transform.rotation = Quaternion.LookRotation(ammoDebugTextObject.transform.position - Camera.main.transform.position);
+    }
+}
+
+/// <summary>
+/// Pulse the ammo UI when trying to shoot without ammo
+/// </summary>
+private IEnumerator PulseAmmoUI()
+{
+    if (!enableAmmoUIDisplay || ammoDebugTextObject == null)
+        yield break;
+
+    Vector3 originalScale = ammoDebugTextObject.transform.localScale;
+    Vector3 pulseTargetScale = originalScale * pulseScale;
+    
+    float elapsedTime = 0f;
+    float halfDuration = pulseDuration / 2f;
+
+    // Pulse up
+    while (elapsedTime < halfDuration)
+    {
+        elapsedTime += Time.deltaTime;
+        float progress = elapsedTime / halfDuration;
+        ammoDebugTextObject.transform.localScale = Vector3.Lerp(originalScale, pulseTargetScale, progress);
+        yield return null;
+    }
+
+    // Pulse down
+    elapsedTime = 0f;
+    while (elapsedTime < halfDuration)
+    {
+        elapsedTime += Time.deltaTime;
+        float progress = elapsedTime / halfDuration;
+        ammoDebugTextObject.transform.localScale = Vector3.Lerp(pulseTargetScale, originalScale, progress);
+        yield return null;
+    }
+
+    // Ensure we end at the correct scale
+    ammoDebugTextObject.transform.localScale = originalScale;
+}
+
+/// <summary>
+/// Animate weapon rotation during reload
+/// </summary>
+private IEnumerator AnimateReloadRotation()
+{
+    if (!enableReloadAnimation || reloadRotationTransform == null)
+        yield break;
+
+    isRotatingForReload = true;
+
+    // Cache the original local rotation
+    Quaternion originalLocalRotation = reloadRotationTransform.localRotation;
+    Quaternion targetLocalRotation = Quaternion.Euler(originalLocalRotation.eulerAngles + new Vector3(reloadRotationAngle, 0, 0));
+
+    float elapsedTime = 0f;
+    float animationDuration = weaponData.reloadSpeed / 2f; // Use half of reload speed for each rotation phase
+
+    // Rotate down
+    while (elapsedTime < animationDuration)
+    {
+        elapsedTime += Time.deltaTime;
+        float progress = elapsedTime / animationDuration;
+        reloadRotationTransform.localRotation = Quaternion.Lerp(originalLocalRotation, targetLocalRotation, progress);
+        yield return null;
+    }
+
+    // Hold the rotation while reloading
+    reloadRotationTransform.localRotation = targetLocalRotation;
+
+    // Wait for reload to finish (this will be controlled by the reload coroutine)
+    yield return new WaitWhile(() => isReloading);
+
+    // Rotate back up
+    elapsedTime = 0f;
+    while (elapsedTime < animationDuration)
+    {
+        elapsedTime += Time.deltaTime;
+        float progress = elapsedTime / animationDuration;
+        reloadRotationTransform.localRotation = Quaternion.Lerp(targetLocalRotation, originalLocalRotation, progress);
+        yield return null;
+    }
+
+    // Ensure we end at the original rotation
+    reloadRotationTransform.localRotation = originalLocalRotation;
+    isRotatingForReload = false;
+}
 }
