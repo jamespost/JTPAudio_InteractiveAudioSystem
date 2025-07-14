@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17b98aacc0a1ec94baf749fcd90dc45a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentLevelData: {fileID: 11400000, guid: ac16320c4d830e24288e686becba4c62, type: 2}
+  currentLevelData: {fileID: 11400000, guid: 20268e520af5b63448274cf5c2085cf4, type: 2}
   maxSpawnDistance: 12
   minSpawnDistance: 10
   enemySpacing: 2

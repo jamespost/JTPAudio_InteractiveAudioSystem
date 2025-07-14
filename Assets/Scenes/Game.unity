@@ -2260,7 +2260,7 @@ PrefabInstance:
     - target: {fileID: 2134430104666124055, guid: d344a944d20a9e341a3b510db339c8fe, type: 3}
       propertyPath: levelData
       value: 
-      objectReference: {fileID: 11400000, guid: ac16320c4d830e24288e686becba4c62, type: 2}
+      objectReference: {fileID: 11400000, guid: 20268e520af5b63448274cf5c2085cf4, type: 2}
     - target: {fileID: 2134430104666124055, guid: d344a944d20a9e341a3b510db339c8fe, type: 3}
       propertyPath: waveManager
       value: 
@@ -2366,6 +2366,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wave Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
+      propertyPath: enemySpacing
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
+      propertyPath: currentLevelData
+      value: 
+      objectReference: {fileID: 11400000, guid: 20268e520af5b63448274cf5c2085cf4, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
