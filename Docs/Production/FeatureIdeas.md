@@ -97,3 +97,19 @@ This document serves as a catch-all for new features and ideas that arise during
   - Provide options to toggle the display on or off for different game modes or player preferences.
   - Ensure the system is lightweight and does not impact performance.
 - **Rationale:** Enhances player awareness and engagement by providing clear and accessible information about wave progression, encouraging strategic planning and immersion.
+
+## Modular Action System
+
+- **Description:** Develop a modular, data-driven system to define and execute actions that objects (e.g., weapons, abilities, environmental objects) can perform on other objects. This system should be highly extensible and designer-friendly, enabling the creation of complex and creative interactions without requiring extensive programming.
+
+- **Implementation:**
+  - Define an `ActionModule` data structure that encapsulates the logic, parameters, and triggers for an action (e.g., hit scan, area-of-effect damage, projectile spawning).
+  - Create a library of reusable `ActionModules` that can be assigned to objects via data assets (e.g., `WeaponData`, `AbilityData`).
+  - Allow chaining and composition of `ActionModules` to create complex behaviors (e.g., a bullet that spawns smaller bullets on impact).
+  - Provide a visual editor for designers to configure and link `ActionModules`, set priorities, and define conditions for execution.
+  - Integrate with the `EventManager` to trigger actions based on gameplay events (e.g., player input, collisions, timers).
+  - Integrate with the DynamicUISystem
+  - Ensure compatibility with existing systems like the state machine and object pooler for efficient execution and resource management.
+  - Allow for custom scripting hooks to extend or override `ActionModule` logic if needed.
+
+- **Rationale:** Provides a scalable and flexible foundation for implementing diverse and creative gameplay mechanics. Empowers designers to experiment with new ideas and iterate quickly without requiring custom code for each new feature. Encourages the creation of unique and engaging player experiences by enabling the rapid prototyping of novel interactions.
