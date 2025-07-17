@@ -93,6 +93,13 @@ public class WeaponController : MonoBehaviour
     [Tooltip("Enable debug mode to visualize hit points and log additional information.")]
     public bool debugMode = false;
 
+    // --- Static Events for UI System ---
+    /// <summary>
+    /// Static event that fires when ammo changes.
+    /// Parameters: currentAmmo, maxAmmo
+    /// </summary>
+    public static event System.Action<int, int> OnAmmoChanged;
+
     private int currentAmmo;
     private bool isReloading;
     private float nextFireTime;
@@ -143,6 +150,9 @@ public class WeaponController : MonoBehaviour
     private void Start()
     {
         currentAmmo = weaponData.clipSize;
+
+        // Fire initial ammo event
+        OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
 
         if (enableAmmoUIDisplay)
         {
@@ -240,6 +250,9 @@ public class WeaponController : MonoBehaviour
         currentAmmo--;
         nextFireTime = Time.time + weaponData.fireRate;
 
+        // Fire ammo changed event
+        OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+
         // Trigger weapon fire event
         EventManager.TriggerWeaponFired();
 
@@ -328,6 +341,9 @@ public class WeaponController : MonoBehaviour
 
         currentAmmo = weaponData.clipSize;
         isReloading = false;
+
+        // Fire ammo changed event after reload
+        OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
     }
 
     private void DebugDrawHitPoint(Vector3 position)

@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
     <Compile Include="Assets\Scripts\Data\LevelData.cs" />
     <Compile Include="Assets\Scripts\WeaponController.cs" />
+    <Compile Include="Assets\Scripts\UIElementData.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
     <Compile Include="Assets\Scripts\Data\WeaponData.cs" />
     <Compile Include="Assets\Scripts\Audio\GameParameter.cs" />
@@ -81,7 +82,9 @@
     <Compile Include="Assets\Scripts\Data\SpawnGroup.cs" />
     <Compile Include="Assets\Scripts\Data\WaveData.cs" />
     <Compile Include="Assets\Scripts\PauseMenuController.cs" />
+    <Compile Include="Assets\Scripts\HUDLayoutData.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
+    <Compile Include="Assets\Scripts\ScoreManager.cs" />
     <Compile Include="Assets\Scripts\Audio\RandomContainer.cs" />
     <Compile Include="Assets\Scripts\WaveManager.cs" />
     <Compile Include="Assets\Scripts\WaveSpawnerTester.cs" />
@@ -103,6 +106,7 @@
     <Compile Include="Assets\Scripts\Audio\AudioState.cs" />
     <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
+    <Compile Include="Assets\Scripts\DataDrivenUIManager.cs" />
     <Compile Include="Assets\Scripts\ExampleThreatSource.cs" />
     <Compile Include="Assets\Scripts\ObjectPooler.cs" />
     <Compile Include="Assets\Scripts\GameplayLogUI.cs" />

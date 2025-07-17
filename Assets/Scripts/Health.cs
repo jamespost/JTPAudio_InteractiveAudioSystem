@@ -12,6 +12,10 @@ public class Health : MonoBehaviour
     [Tooltip("The EntityData that defines the stats for this entity.")]
     public EntityData entityData;
 
+    [Header("Entity Type")]
+    [Tooltip("Is this health component attached to the player?")]
+    public bool isPlayer = false;
+
     [Header("Debug Settings")]
     [Tooltip("Enable debug mode to display health as text above the entity.")]
     public bool debugMode = false;
@@ -19,6 +23,13 @@ public class Health : MonoBehaviour
     // --- Public Events ---
     public event Action<float> OnDamaged;
     public event Action OnDied;
+    
+    // --- Static Events for Player ---
+    /// <summary>
+    /// Static event that fires when the player's health changes.
+    /// Parameters: currentHealth, maxHealth
+    /// </summary>
+    public static event Action<float, float> OnPlayerHealthChanged;
 
     // --- Private State ---
     private float currentHealth;
@@ -100,6 +111,12 @@ public class Health : MonoBehaviour
         Debug.Log($"Current health after damage: {currentHealth}"); // Added debug log
         OnDamaged?.Invoke(currentHealth);
 
+        // Fire static player health event if this is the player
+        if (isPlayer && entityData != null)
+        {
+            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+        }
+
         if (currentHealth <= 0)
         {
             currentHealth = 0;
@@ -119,6 +136,12 @@ public class Health : MonoBehaviour
         if (currentHealth > entityData.maxHealth)
         {
             currentHealth = entityData.maxHealth;
+        }
+        
+        // Fire static player health event if this is the player
+        if (isPlayer && entityData != null)
+        {
+            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
         }
     }
 

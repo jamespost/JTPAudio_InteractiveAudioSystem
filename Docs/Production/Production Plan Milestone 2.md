@@ -32,7 +32,7 @@
 3.  **Basic Scene UI: [COMPLETED]**
     *   Utilize PauseMenuController to handle dynamic menu elements and calls to the game manager to handle scene changes
 
-#### **Task 2: Data-Driven Wave System**
+#### **Task 2: Data-Driven Wave System [COMPLETED]**
 
 **Objective:** Design and implement a flexible wave system where all wave properties are defined in data assets, not in code. This is a critical step for enabling rapid design iteration.
 
@@ -64,7 +64,7 @@
 
 1.  **Implement `UIManager.cs`:**
     *   Create the `UIManager.cs` script and attach it to a `Canvas` GameObject in the `Game` scene.
-    *   In its `OnEnable` method, subscribe to events from other systems (e.g., `Player.OnHealthChanged`, `Weapon.OnAmmoChanged`, `WaveManager.OnWaveChanged`).
+    *   In its `OnEnable` method, subscribe to events from other systems (e.g., `Player.OnHealthChanged`, `Weapon.OnAmmoChanged`, `WaveManager.OnWaveChanged`, anything that wavemanager or enemys broadcast).
     *   In its `OnDisable` method, unsubscribe from all events to prevent memory leaks.
     *   Create handler functions that take the relevant data (e.g., `HandleHealthUpdate(int newHealth)`) and update the UI text elements.
 
