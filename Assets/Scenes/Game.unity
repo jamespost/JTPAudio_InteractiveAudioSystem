@@ -1381,6 +1381,32 @@ MonoBehaviour:
   energyLossPerMeter: 1000
   minReflectionDistanceFromListener: 20
   debugEchoCount: 6
+--- !u!1 &1359456476 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1697397759652502978, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
+  m_PrefabInstance: {fileID: 1579985043}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1359456478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359456476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5651e717213bf3b4197aa45ce35df5a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentLayout: {fileID: 11400000, guid: a513019f7426ab84989d4cf31fecf6be, type: 2}
+  targetCanvas: {fileID: 1359456481}
+  defaultFont: {fileID: 11400000, guid: 629deadc1f954c24e8193dfef08cf108, type: 2}
+  debugMode: 0
+--- !u!223 &1359456481 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 7563186767090419994, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
+  m_PrefabInstance: {fileID: 1579985043}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1525543665 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
@@ -1569,6 +1595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityData: {fileID: 11400000, guid: 883b1be0e0ee9bf468e871e4dd06ad7e, type: 2}
+  isPlayer: 1
   debugMode: 1
 --- !u!1 &1552604526
 GameObject:
@@ -1755,6 +1782,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7748714219131718012, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9017676249415988569, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1774,7 +1805,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1697397759652502978, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1359456478}
   m_SourcePrefab: {fileID: 100100000, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
 --- !u!1 &1707405948
 GameObject:
@@ -2244,6 +2278,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: _UIManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6885819072174644390, guid: 7f9d1f220c8494a4e840313a610b8d21, type: 3}
+      propertyPath: uiFont
+      value: 
+      objectReference: {fileID: 12800000, guid: 2adfc465fb74d844d9d30f9f85da7689, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

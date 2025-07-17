@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnGroups:
   - {fileID: 11400000, guid: 3451b3155f0afab4894c3fca63fc0ead, type: 2}
+  - {fileID: 11400000, guid: 3451b3155f0afab4894c3fca63fc0ead, type: 2}
+  - {fileID: 11400000, guid: 3451b3155f0afab4894c3fca63fc0ead, type: 2}
