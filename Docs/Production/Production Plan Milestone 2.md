@@ -58,7 +58,7 @@
         *   Once all enemies in a wave are defeated, post the "Wave Complete" audio event.
         *   Wait for a short delay before starting the next wave.
 
-#### **Task 3: Event-Driven User Interface**
+#### **Task 3: Event-Driven User Interface [COMPLETED]**
 
 **Objective:** Create a reactive UI system that updates automatically by listening to game events, without holding any direct references to game logic controllers.
 
@@ -86,3 +86,17 @@
 *   The UI correctly displays player health, ammo, and the current wave number, updating in real-time based on game events.
 *   Upon player death, a "Game Over" screen is shown with an option to restart, successfully looping the gameplay.
 *   All enemy spawning is handled by the object pooler, and all audio is triggered via the `AudioManager`.
+
+---
+
+### **Known Issues**
+
+The following issues must be resolved before Milestone 2 can be considered complete:
+
+1. **Enemy Spawn Colliders:** Enemies spawn with colliders that "bump" the player. This may be caused by enemies pooling from the same location as the player start when their colliders are activated.
+
+2. **Wave Count UI:** The current wave count does not properly update in the UI.
+
+3. **Missing Win State:** There is no "success" or "win state" when all waves are defeated.
+
+4. **Placeholder Text in UI:** Player health and ammo display placeholder text at the start of the level. These values only update once their respective systems send event messages to the corresponding UI elements.
