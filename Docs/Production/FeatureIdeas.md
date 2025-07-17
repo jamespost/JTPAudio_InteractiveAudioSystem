@@ -113,3 +113,18 @@ This document serves as a catch-all for new features and ideas that arise during
   - Allow for custom scripting hooks to extend or override `ActionModule` logic if needed.
 
 - **Rationale:** Provides a scalable and flexible foundation for implementing diverse and creative gameplay mechanics. Empowers designers to experiment with new ideas and iterate quickly without requiring custom code for each new feature. Encourages the creation of unique and engaging player experiences by enabling the rapid prototyping of novel interactions.
+
+## Wave Trigger System
+
+- **Description:** Implement a flexible, data driven system for triggering new waves of enemies based on player actions or progress through the level. This system should support a variety of triggers, such as reaching specific locations, interacting with objects, or completing objectives. It should be designer friendly and modular.
+- **Implementation:**
+  - Define a `WaveTrigger` data structure that specifies the type of trigger (e.g., location-based, interaction-based, objective-based) and its parameters.
+  - Create a library of reusable `WaveTrigger` types, such as:
+    - **Location-Based Triggers:** Activate when the player enters a specific area or crosses a threshold.
+    - **Interaction-Based Triggers:** Activate when the player interacts with an object, such as unlocking a door or picking up a keycard.
+    - **Objective-Based Triggers:** Activate when the player completes a specific task, such as solving a puzzle or defeating a mini-boss.
+  - Integrate with the `WaveManager` to spawn the appropriate wave when a trigger is activated.
+  - Provide a visual editor for designers to place and configure `WaveTriggers` in the level, including options to set conditions and link triggers to specific waves.
+  - Ensure compatibility with the `EventManager` to allow triggers to respond to gameplay events dynamically.
+  - Allow for custom scripting hooks to extend trigger logic if needed.
+- **Rationale:** Enhances gameplay variety and immersion by tying enemy encounters to meaningful player actions and progress. Empowers designers to create dynamic and engaging levels without requiring extensive programming.

@@ -33,7 +33,7 @@ public class DataDrivenUIManager : MonoBehaviour
 
     [Header("Debug")]
     [Tooltip("Enable debug logging for UI operations.")]
-    public bool debugMode = false;
+    public bool debugMode = true;
 
     // Runtime data
     private Dictionary<string, UIElementInstance> _activeElements = new Dictionary<string, UIElementInstance>();
@@ -463,14 +463,22 @@ public class DataDrivenUIManager : MonoBehaviour
 
     private void HandleWaveChanged(int newWave)
     {
+        if (debugMode)
+            Debug.Log($"DataDrivenUIManager: HandleWaveChanged called with wave {newWave}");
+            
         foreach (var kvp in _activeElements)
         {
             var element = kvp.Value;
             if (element.data.eventType == UIEventType.WaveChanged && element.data.autoUpdate)
             {
+                if (debugMode)
+                    Debug.Log($"DataDrivenUIManager: Updating wave element '{kvp.Key}' to wave {newWave}");
                 UpdateElement(kvp.Key, newWave);
             }
         }
+        
+        if (debugMode)
+            Debug.Log($"DataDrivenUIManager: Found {_activeElements.Count} total active elements");
     }
 
     private void HandleAmmoChanged(int currentAmmo, int maxAmmo)

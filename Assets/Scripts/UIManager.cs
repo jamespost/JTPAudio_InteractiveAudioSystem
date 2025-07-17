@@ -31,12 +31,14 @@ public class UIManager : MonoBehaviour
     {
         EventManager.OnUIUpdateRequest += HandleUIUpdateRequest;
         EventManager.OnUIHideRequest += HandleUIHideRequest;
+        // WaveManager.OnWaveChanged += UpdateWaveCountUI; // Removed - handled by DataDrivenUIManager
     }
 
     private void OnDisable()
     {
         EventManager.OnUIUpdateRequest -= HandleUIUpdateRequest;
         EventManager.OnUIHideRequest -= HandleUIHideRequest;
+        // WaveManager.OnWaveChanged -= UpdateWaveCountUI; // Removed - handled by DataDrivenUIManager
     }
 
     private void SetupGUIStyle()
@@ -82,6 +84,11 @@ public class UIManager : MonoBehaviour
             _activeUIElements.Remove(id);
             _uiElementLayout.Remove(objectToReturn);
         }
+    }
+
+    private void UpdateWaveCountUI(int waveNumber)
+    {
+        HandleUIUpdateRequest("WaveCount", $"Wave: {waveNumber}");
     }
 
     private void OnGUI()

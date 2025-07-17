@@ -89,15 +89,20 @@ public class WaveManager : MonoBehaviour
     {
         while (_currentWaveIndex < currentLevelData.waves.Length)
         {
+            LogDebug($"Starting wave {_currentWaveIndex + 1}, invoking OnWaveChanged event");
             OnWaveChanged?.Invoke(_currentWaveIndex + 1);
             WaveData currentWave = currentLevelData.waves[_currentWaveIndex];
             yield return StartCoroutine(SpawnWave(currentWave));
+            
+            LogDebug($"Wave spawning complete. Waiting for {_enemiesRemainingInWave} enemies to be defeated...");
             
             // Wait until all enemies in the wave are defeated
             while (_enemiesRemainingInWave > 0)
             {
                 yield return null;
             }
+
+            LogDebug("All enemies defeated! Wave complete.");
 
             if (AudioManager.Instance != null)
             {
@@ -118,6 +123,9 @@ public class WaveManager : MonoBehaviour
     {
         LogDebug("Starting Wave: " + (_currentWaveIndex + 1));
         _currentWaveSpawnPositions.Clear(); // Clear previous wave spawn positions
+        
+        // CRITICAL FIX: Reset enemy count for this wave
+        _enemiesRemainingInWave = 0;
 
         if (AudioManager.Instance != null)
         {
@@ -129,6 +137,8 @@ public class WaveManager : MonoBehaviour
         {
             _enemiesRemainingInWave += group.count;
         }
+        
+        LogDebug($"Wave will spawn {_enemiesRemainingInWave} total enemies");
 
         // Add debug log to check the pool tag being used
         foreach (var group in waveData.spawnGroups)
@@ -177,6 +187,12 @@ public class WaveManager : MonoBehaviour
     private void HandleEnemyDied()
     {
         _enemiesRemainingInWave--;
+        LogDebug($"Enemy died. Enemies remaining in wave: {_enemiesRemainingInWave}");
+        
+        if (_enemiesRemainingInWave <= 0)
+        {
+            LogDebug("All enemies in wave defeated!");
+        }
     }
 
     /// <summary>
