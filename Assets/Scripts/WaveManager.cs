@@ -62,6 +62,8 @@ public class WaveManager : MonoBehaviour
     [SerializeField, Tooltip("Enable or disable debug messages for WaveManager.")]
     private bool debugMode = true;
 
+    private Transform playerTransform; // Reference to the player's transform
+
     public void Initialize(LevelData levelData)
     {
         currentLevelData = levelData;
@@ -163,6 +165,13 @@ public class WaveManager : MonoBehaviour
                     GameObject enemy = ObjectPooler.Instance.SpawnFromPool(group.poolTag, spawnPosition, Quaternion.identity);
                     if (enemy != null)
                     {
+                        Collider enemyCollider = enemy.GetComponent<Collider>();
+                        if (enemyCollider != null)
+                        {
+                            enemyCollider.enabled = false; // Disable collider temporarily
+                            StartCoroutine(EnableColliderAfterDelay(enemyCollider, 0.5f));
+                        }
+
                         LogDebug($"Successfully spawned enemy from pool with tag: {group.poolTag}");
                         Health enemyHealth = enemy.GetComponent<Health>();
                         if (enemyHealth != null)
@@ -182,6 +191,12 @@ public class WaveManager : MonoBehaviour
                 yield return new WaitForSeconds(0.5f); // Stagger spawns slightly
             }
         }
+    }
+
+    private IEnumerator EnableColliderAfterDelay(Collider collider, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        collider.enabled = true;
     }
 
     private void HandleEnemyDied()
@@ -209,7 +224,7 @@ public class WaveManager : MonoBehaviour
         }
 
         Vector3 cameraPosition = mainCamera.transform.position;
-        
+
         LogDebug("Testing NavMesh spawn positions...");
         for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
         {
@@ -217,22 +232,20 @@ public class WaveManager : MonoBehaviour
             Vector3 randomDirection = UnityEngine.Random.insideUnitSphere.normalized;
             float randomDistance = UnityEngine.Random.Range(minSpawnDistance, maxSpawnDistance);
             Vector3 targetPosition = cameraPosition + randomDirection * randomDistance;
-            
+
             // Find the nearest point on the NavMesh
             NavMeshHit hit;
             if (NavMesh.SamplePosition(targetPosition, out hit, navMeshSearchRadius, navMeshAreaMask))
             {
                 Vector3 navMeshPosition = hit.position;
-                
+
                 // Check if position is visible to the player
-                if (IsPositionVisibleToPlayer(navMeshPosition))
+                if (IsPositionVisibleToPlayer(navMeshPosition) &&
+                    IsPositionValidForSpawning(navMeshPosition, _currentWaveSpawnPositions) &&
+                    IsPositionFarFromPlayer(navMeshPosition))
                 {
-                    // Check if position is far enough from other enemies (using persistent wave tracking)
-                    if (IsPositionValidForSpawning(navMeshPosition, _currentWaveSpawnPositions))
-                    {
-                        LogDebug($"Found valid NavMesh spawn position: {navMeshPosition}");
-                        return navMeshPosition;
-                    }
+                    LogDebug($"Found valid NavMesh spawn position: {navMeshPosition}");
+                    return navMeshPosition;
                 }
             }
         }
@@ -336,6 +349,14 @@ public class WaveManager : MonoBehaviour
         return isAtGoodDistance;
     }
 
+    private bool IsPositionFarFromPlayer(Vector3 position)
+    {
+        if (playerTransform == null) return true; // If player is not found, skip this check
+
+        float safeDistance = 5f; // Minimum distance from the player
+        return Vector3.Distance(position, playerTransform.position) > safeDistance;
+    }
+
 #if UNITY_EDITOR
     /// <summary>
     /// Editor-only method to visualize spawn areas and test spawn positions
@@ -383,6 +404,20 @@ public class WaveManager : MonoBehaviour
         if (debugMode)
         {
             Debug.Log(message);
+        }
+    }
+
+    private void Awake()
+    {
+        // Find the player transform (assuming the player has a tag "Player")
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerTransform = player.transform;
+        }
+        else
+        {
+            Debug.LogError("Player object not found. Ensure the player has the tag 'Player'.");
         }
     }
 

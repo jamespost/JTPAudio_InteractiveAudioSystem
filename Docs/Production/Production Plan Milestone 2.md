@@ -93,7 +93,7 @@
 
 The following issues must be resolved before Milestone 2 can be considered complete:
 
-1. **Enemy Spawn Colliders:** Enemies spawn with colliders that "bump" the player. This may be caused by enemies pooling from the same location as the player start when their colliders are activated.
+1. **Enemy Spawn Colliders:[FIXED]** Enemies spawn with colliders that "bump" the player. This may be caused by enemies pooling from the same location as the player start when their colliders are activated.
 
 2. **Wave Count UI: [FIXED]** The current wave count does not properly update in the UI.
 
