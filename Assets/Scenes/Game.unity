@@ -2410,12 +2410,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
       propertyPath: enemySpacing
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
       propertyPath: currentLevelData
       value: 
       objectReference: {fileID: 11400000, guid: 20268e520af5b63448274cf5c2085cf4, type: 2}
+    - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
+      propertyPath: maxSpawnDistance
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
+      propertyPath: minSpawnDistance
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 6361718385842525279, guid: c0011be29759e4f46943f7cd45f24192, type: 3}
+      propertyPath: navMeshSearchRadius
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
