@@ -73,6 +73,13 @@ public class DataDrivenUIManager : MonoBehaviour
         {
             LoadHUDLayout(currentLayout);
         }
+
+        // Ensure ammo UI is updated at the start of the level
+        WeaponController weaponController = FindObjectOfType<WeaponController>();
+        if (weaponController != null)
+        {
+            weaponController.TriggerInitialAmmoUpdate();
+        }
     }
 
     private void OnEnable()

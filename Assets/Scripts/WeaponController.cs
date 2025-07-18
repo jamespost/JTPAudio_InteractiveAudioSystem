@@ -602,4 +602,9 @@ private IEnumerator AnimateReloadRotation()
     reloadRotationTransform.localRotation = originalLocalRotation;
     isRotatingForReload = false;
 }
+
+public void TriggerInitialAmmoUpdate()
+{
+    OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+}
 }

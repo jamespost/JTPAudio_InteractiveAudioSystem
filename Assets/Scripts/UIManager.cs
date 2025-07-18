@@ -1,6 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+
+/// <summary>
+/// DEPRECATED: This UIManager is being replaced by DataDrivenUIManager.
+/// It will be removed in a future update.
+/// </summary>
+
 public class UIManager : MonoBehaviour
 {
     private static UIManager _instance;
@@ -78,7 +84,7 @@ public class UIManager : MonoBehaviour
     private void HandleUIHideRequest(string id)
     {
         if (_activeUIElements.ContainsKey(id))
-        { 
+        {
             GameObject objectToReturn = _activeUIElements[id];
             ObjectPooler.Instance.ReturnToPool("UIElement", objectToReturn);
             _activeUIElements.Remove(id);

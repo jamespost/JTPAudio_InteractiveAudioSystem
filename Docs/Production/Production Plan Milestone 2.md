@@ -99,4 +99,4 @@ The following issues must be resolved before Milestone 2 can be considered compl
 
 3. **Missing Win State:[FIXED]** There is no "success" or "win state" when all waves are defeated. The dynamic ui wave count should say all waves completed, the game should pop up the pause menu but the pause menu should say in big text "YOU WON" and have the menu options for restarting the level, exiting to main menu, or exiting to desktop like it does in a normal pause setup.
 
-4. **Placeholder Text in UI:** Player health and ammo display placeholder text at the start of the level. These values only update once their respective systems send event messages to the corresponding UI elements.
+4. **Placeholder Text in UI: [FIXED]** Player health and ammo display placeholder text at the start of the level. These values only update once their respective systems send event messages to the corresponding UI elements.

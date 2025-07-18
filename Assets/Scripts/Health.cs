@@ -53,6 +53,12 @@ public class Health : MonoBehaviour
 
     private void Start()
     {
+        if (isPlayer)
+        {
+            currentHealth = entityData.maxHealth;
+            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+        }
+
         if (debugMode)
         {
             // Create a new GameObject for the debug text

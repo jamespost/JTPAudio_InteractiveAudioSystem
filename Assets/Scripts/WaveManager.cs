@@ -441,6 +441,14 @@ public class WaveManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (currentLevelData != null)
+        {
+            OnWaveChanged?.Invoke(_currentWaveIndex + 1);
+        }
+    }
+
     // Add a method to check if all waves are completed
     public bool AreAllWavesCompleted()
     {

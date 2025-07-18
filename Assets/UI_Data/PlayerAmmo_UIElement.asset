@@ -27,7 +27,7 @@ MonoBehaviour:
   autoUpdate: 1
   eventType: 2
   customEventName: 
-  useDynamicColors: 1
+  useDynamicColors: 0
   colorRanges:
   - minValue: 75
     maxValue: 100
