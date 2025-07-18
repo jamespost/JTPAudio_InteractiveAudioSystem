@@ -213,6 +213,9 @@ public class AudioManager : MonoBehaviour
     #region Pooling & Priority Logic (Updated for int priority)
     private ActiveSound GetSourceFromPool(int priority)
     {
+        // --- FIX: Clean up any destroyed sources from the pool before proceeding ---
+        sourcePool.RemoveAll(item => item == null);
+
         var inactiveSource = sourcePool.FirstOrDefault(s => !s.source.isPlaying);
         if (inactiveSource != null) return inactiveSource;
 
