@@ -57,7 +57,7 @@
         3.  **Pathfinding:** Use NavMeshAgent and optimize SetDestination calls.
         4.  **Inspector Cleanup:** Expose key variables from its EnemyData like attackRange, attackSpeed, and stoppingDistance (and movement related info). Use [Header("AI Behavior")] to separate these from other component variables.
 
-**Sub-Milestone 1.5: Weapon Hit Detection and Feedback (1 Week) [COMPLETED]**
+**Sub-Milestone 1.5: Weapon Hit Detection and Feedback (1 Week) [COMPLETE]**
     1.  **Goal:** Enhance the WeaponController to detect hits, apply damage to objects with a Health component, and provide visual and audio feedback.
     2.  **WeaponController Enhancements:**
         1.  **Hit Detection:**
@@ -79,7 +79,7 @@
         - Expose VFX and SFX settings in the Inspector for easy customization.
         - Allow designers to assign different feedback assets (both VFX and SFX) for different materials or object types.
 
-5.  **Milestone 2: Game Loop Architecture (1 Week)**
+5.  **Milestone 2: Game Loop Architecture (1 Week)** - **Status: [COMPLETE]**
     1.  **Goal:** Structure the gameplay flow with a focus on designer-editable waves.
     2.  **Game Manager (GameManager.cs)**
         1.  **Singleton:** A persistent singleton managing the overall application state (MAIN_MENU, PLAYING, GAME_OVER).

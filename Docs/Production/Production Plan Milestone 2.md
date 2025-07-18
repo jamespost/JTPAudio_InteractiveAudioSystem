@@ -1,3 +1,5 @@
+# **[COMPLETE] Milestone Status**
+
 # **Production Plan: Milestone 2 - Game Loop Architecture**
 
 **Goal:** To structure the core gameplay into a complete, replayable loop, managed by robust, data-driven, and event-based systems. This milestone focuses on creating the systems that will control the game flow from the main menu, through waves of enemies, to a game over screen.
@@ -81,11 +83,11 @@
 ---
 
 **Milestone 2 Completion Criteria:**
-*   The game is fully playable from a main menu.
-*   The `WaveManager` correctly spawns sequential waves of enemies based on the data set in the `LevelData` and `WaveData` ScriptableObjects.
-*   The UI correctly displays player health, ammo, and the current wave number, updating in real-time based on game events.
-*   Upon player death, a "Game Over" screen is shown with an option to restart, successfully looping the gameplay.
-*   All enemy spawning is handled by the object pooler, and all audio is triggered via the `AudioManager`.
+*   [COMPLETED] The game is fully playable from a main menu.
+*   [COMPLETED] The `WaveManager` correctly spawns sequential waves of enemies based on the data set in the `LevelData` and `WaveData` ScriptableObjects.
+*   [COMPLETED] The UI correctly displays player health, ammo, and the current wave number, updating in real-time based on game events.
+*   [COMPLETED] Upon player death, a "Game Over" screen is shown with an option to restart, successfully looping the gameplay.
+*   [COMPLETED] All enemy spawning is handled by the object pooler, and all audio is triggered via the `AudioManager`.
 
 ---
 

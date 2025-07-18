@@ -10,7 +10,7 @@
 * **Core Loop:** Survive Wave \-\> Prepare \-\> Survive Next Wave \-\> Repeat.  
 * **Unique Selling Point (for this PoC):** A tight, satisfying core combat loop with a strong focus on "game feel" through impactful visuals and high-quality audio.
 
-### **Milestone 1: The "Grey Box" Prototype (1-2 Weeks)**
+### **Milestone 1: The "Grey Box" Prototype (1-2 Weeks) [COMPLETE]**
 
 **Goal:** To create the absolute minimum playable experience. Focus entirely on functionality, not aesthetics. The game should be mechanically playable by the end of this milestone.
 
@@ -35,7 +35,7 @@
 
 **Milestone 1 Completion Criteria:** You can move around a simple level, shoot a functional weapon, and kill a basic enemy that can also harm and kill you.
 
-### **Milestone 2: The Game Loop (1 Week)**
+### **Milestone 2: The Game Loop (1 Week)** - **Status: [COMPLETE]**
 
 **Goal:** To turn the prototype into a structured game with a clear beginning, middle, and end.
 

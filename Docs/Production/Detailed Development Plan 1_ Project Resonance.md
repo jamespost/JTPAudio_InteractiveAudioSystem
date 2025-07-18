@@ -46,7 +46,7 @@ This plan expands on your Game Design Document, turning each checklist item into
 * **Environment**  
   * **Test Arena:** Create a new scene. Use a Plane for the floor. Use scaled Cube objects for walls and a few obstacles. Do not add any textures or materials yet. This is about layout, not looks.
 
-### **Milestone 2: The Game Loop (1 Week)**
+### **Milestone 2: The Game Loop (1 Week)** - **Status: [COMPLETE]**
 
 **Goal:** To wrap the core mechanics in a playable structure. A player should be able to start, play, and end a game session.
 
