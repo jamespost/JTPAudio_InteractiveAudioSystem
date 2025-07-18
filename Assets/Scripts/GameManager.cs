@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     private GameObject gameStateTextObject;
     private Text gameStateText;
     
-    public enum GameState { MAIN_MENU, LEVEL_LOADING, IN_GAME, PAUSED, GAME_OVER }
+    public enum GameState { MAIN_MENU, LEVEL_LOADING, IN_GAME, PAUSED, GAME_OVER, WIN_STATE }
     public GameState CurrentState { get; private set; }
 
     private void Awake()
@@ -203,6 +203,17 @@ public class GameManager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 break;
+
+            case GameState.WIN_STATE:
+                Debug.Log("GameState is now WIN_STATE");
+                if (waveManager != null)
+                {
+                    waveManager.StopWaves();
+                }
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                EventManager.TriggerGameStateChanged(GameState.WIN_STATE);
+                break;
         }
 
         if (newState != GameState.PAUSED && Time.timeScale == 0f)
@@ -277,6 +288,12 @@ public class GameManager : MonoBehaviour
         if (playerController != null)
         {
             playerController.enabled = false;
+        }
+
+        // Check for win condition
+        if (waveManager != null && waveManager.AreAllWavesCompleted())
+        {
+            SetGameState(GameState.WIN_STATE);
         }
     }
 

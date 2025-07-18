@@ -25,6 +25,7 @@ using System;
 public class WaveManager : MonoBehaviour
 {
     public static event Action<int> OnWaveChanged;
+    public static event Action OnAllWavesCompleted; // Event triggered when all waves are completed
 
     public LevelData currentLevelData;
     private int _currentWaveIndex = 0;
@@ -117,8 +118,9 @@ public class WaveManager : MonoBehaviour
             _currentWaveIndex++;
         }
 
+        // Replace the existing log and event trigger with EventManager usage
         Debug.Log("All waves completed!");
-        // Optionally, trigger a game over or victory condition here
+        EventManager.TriggerGameStateChanged(GameManager.GameState.WIN_STATE); // Broadcast win state via EventManager
     }
 
     public IEnumerator SpawnWave(WaveData waveData)
@@ -437,5 +439,11 @@ public class WaveManager : MonoBehaviour
         {
             StartWaves();
         }
+    }
+
+    // Add a method to check if all waves are completed
+    public bool AreAllWavesCompleted()
+    {
+        return _currentWaveIndex >= currentLevelData.waves.Length;
     }
 }

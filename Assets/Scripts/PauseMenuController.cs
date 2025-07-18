@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement; // Add this for scene management
 using System.Collections.Generic;
+using UnityEngine.UI; // Add this for UI elements like Text
 
 /// <summary>
 /// A complete, code-driven pause menu for 'Project Resonance'.
@@ -139,6 +140,38 @@ public class PauseMenuController : MonoBehaviour
             // Reset game over state when returning to game
             isGameOver = false;
             isPaused = false;
+        }
+        // Add a new menu state for WIN_STATE
+        else if (newState == GameManager.GameState.WIN_STATE)
+        {
+            Debug.Log("Triggering Win Menu");
+            isGameOver = true;
+            isPaused = true;
+            Time.timeScale = 0f;
+
+            // Ensure cursor is always visible and unlocked
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            // Update menu items for win state
+            menuItems = new string[] { "Restart Level", "Exit to Main Menu", "Exit to Desktop" };
+
+            // --- ADDITION: Display "YOU WON" MESSAGE ---
+            // Create a new GameObject for the "YOU WON" text
+            GameObject youWonTextObject = new GameObject("YouWonText");
+            youWonTextObject.transform.SetParent(this.transform);
+
+            // Add a Text component for the "YOU WON" message
+            Text youWonText = youWonTextObject.AddComponent<Text>();
+            youWonText.text = "YOU WON";
+            youWonText.alignment = TextAnchor.MiddleCenter;
+            youWonText.fontSize = 72;
+            youWonText.color = Color.yellow;
+
+            // Set the RectTransform to center the text on the screen
+            RectTransform rectTransform = youWonText.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(600, 200);
+            rectTransform.anchoredPosition = new Vector2(0, Screen.height / 4); // Centered vertically above menu options
         }
     }
 
