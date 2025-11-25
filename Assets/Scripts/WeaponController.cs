@@ -100,11 +100,20 @@ public class WeaponController : MonoBehaviour
     /// </summary>
     public static event System.Action<int, int> OnAmmoChanged;
 
+    /// <summary>
+    /// Static event that fires when bloom changes.
+    /// Parameters: currentBloom, maxBloom
+    /// </summary>
+    public static event System.Action<float, float> OnBloomChanged;
+
     private int currentAmmo;
+    private float currentBloom;
     private bool isReloading;
     private float nextFireTime;
     private ObjectPooler vfxPooler;
     private Camera mainCamera;
+    private PlayerController playerController;
+    private CharacterController characterController;
 
     private GameObject ammoDebugTextObject;
     private Text ammoDebugTextMesh;
@@ -150,9 +159,18 @@ public class WeaponController : MonoBehaviour
     private void Start()
     {
         currentAmmo = weaponData.clipSize;
+        currentBloom = weaponData.minBloomAngle;
+
+        // Get PlayerController reference
+        playerController = GetComponentInParent<PlayerController>();
+        if (playerController != null)
+        {
+            characterController = playerController.GetComponent<CharacterController>();
+        }
 
         // Fire initial ammo event
         OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+        OnBloomChanged?.Invoke(currentBloom, weaponData.maxBloomAngle);
 
         if (enableAmmoUIDisplay)
         {
@@ -206,7 +224,33 @@ public class WeaponController : MonoBehaviour
     private void Update()
     {
         HandleInput();
+        UpdateBloom();
         UpdateAmmoUI();
+    }
+
+    private void UpdateBloom()
+    {
+        float targetBloom = weaponData.minBloomAngle;
+
+        // Check for movement
+        if (characterController != null && characterController.velocity.magnitude > 0.1f)
+        {
+            targetBloom = weaponData.minBloomAngle * weaponData.movementBloomMultiplier;
+        }
+
+        // Recover bloom
+        if (currentBloom > targetBloom)
+        {
+            currentBloom -= weaponData.bloomRecoveryRate * Time.deltaTime;
+            if (currentBloom < targetBloom) currentBloom = targetBloom;
+        }
+        else if (currentBloom < targetBloom)
+        {
+            // If we are below target (e.g. started moving), increase bloom quickly
+            currentBloom = Mathf.Lerp(currentBloom, targetBloom, Time.deltaTime * 10f);
+        }
+
+        OnBloomChanged?.Invoke(currentBloom, weaponData.maxBloomAngle);
     }
 
     private void HandleInput()
@@ -256,6 +300,19 @@ public class WeaponController : MonoBehaviour
         // Trigger weapon fire event
         EventManager.TriggerWeaponFired();
 
+        // Apply Bloom
+        currentBloom += weaponData.bloomGrowthRate;
+        currentBloom = Mathf.Clamp(currentBloom, weaponData.minBloomAngle, weaponData.maxBloomAngle);
+
+        // Calculate spread direction
+        Vector3 spreadDirection = firePoint.forward;
+        if (currentBloom > 0)
+        {
+            spreadDirection = Quaternion.AngleAxis(Random.Range(0f, 360f), firePoint.forward) * 
+                              Quaternion.AngleAxis(Random.Range(0f, currentBloom), Vector3.up) * 
+                              firePoint.forward;
+        }
+
         // Play fire sound
         if (weaponData.fireSound != null)
         {
@@ -264,7 +321,7 @@ public class WeaponController : MonoBehaviour
 
         // Raycast for hit detection
         RaycastHit hit;
-        if (Physics.Raycast(firePoint.position, firePoint.forward, out hit, weaponData.range, hitLayers))
+        if (Physics.Raycast(firePoint.position, spreadDirection, out hit, weaponData.range, hitLayers))
         {
             // Log hit information
             if (debugMode)
@@ -420,6 +477,9 @@ private System.Collections.IEnumerator ReinitializeWeapon()
     // Reset weapon rotation to original
     transform.eulerAngles = originalWeaponRotation;
     isRotatingForReload = false;
+
+    // Reset bloom
+    currentBloom = weaponData.minBloomAngle;
 
     // Reset ammo UI state
     if (enableAmmoUIDisplay && ammoDebugTextObject != null)

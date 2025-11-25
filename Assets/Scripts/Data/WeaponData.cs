@@ -38,4 +38,23 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Sound played on impact.")]
     public AudioEvent impactSound;
+
+    [Header("Bloom Settings")]
+    [Tooltip("Minimum spread angle in degrees when standing still.")]
+    public float minBloomAngle = 0.1f;
+
+    [Tooltip("Maximum spread angle in degrees.")]
+    public float maxBloomAngle = 5f;
+
+    [Tooltip("How much bloom is added per shot.")]
+    public float bloomGrowthRate = 1f;
+
+    [Tooltip("How fast bloom recovers per second.")]
+    public float bloomRecoveryRate = 10f;
+
+    [Tooltip("Multiplier for bloom when moving.")]
+    public float movementBloomMultiplier = 2f;
+
+    [Tooltip("Multiplier for bloom when crouching (if applicable).")]
+    public float crouchBloomMultiplier = 0.5f;
 }
