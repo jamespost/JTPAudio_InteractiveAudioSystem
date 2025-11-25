@@ -84,10 +84,10 @@ public class ObjectPooler : MonoBehaviour
         // Retrieve the next object from the pool.
         GameObject objectToSpawn = poolDictionary[tag].Dequeue();
 
-        // Activate and position the object.
-        objectToSpawn.SetActive(true);
+        // Position the object before activating it so OnEnable has the correct data
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
+        objectToSpawn.SetActive(true);
 
         // Re-enqueue the object to the pool for future use.
         poolDictionary[tag].Enqueue(objectToSpawn);
