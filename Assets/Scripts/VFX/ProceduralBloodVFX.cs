@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace JTPAudio.VFX
 {
@@ -15,6 +16,16 @@ namespace JTPAudio.VFX
         private ParticleSystemRenderer decalRenderer;
         private static Texture2D _cachedParticleTexture;
         private static Texture2D _cachedSplatTexture;
+        private static Shader _cachedBloodShader;
+        private static Material _cachedParticleMaterial;
+        private static Material _cachedDecalMaterial;
+        private static bool _didLogMissingShader;
+
+        [SerializeField]
+        [Tooltip("Optional explicit shader reference to override automatic lookup.")]
+        private Shader bloodShaderOverride;
+
+        private const float DecalSurfaceOffset = 0.025f;
         private float _currentDamageScale = 1.0f;
 
         private void Awake()
@@ -29,7 +40,11 @@ namespace JTPAudio.VFX
             decalObj.transform.localRotation = Quaternion.identity;
             
             decalPs = decalObj.AddComponent<ParticleSystem>();
-            decalRenderer = decalObj.AddComponent<ParticleSystemRenderer>();
+            decalRenderer = decalObj.GetComponent<ParticleSystemRenderer>();
+            if (decalRenderer == null)
+            {
+                decalRenderer = decalObj.AddComponent<ParticleSystemRenderer>();
+            }
 
             ConfigureParticleSystem();
             ConfigureDecalSystem();
@@ -39,6 +54,9 @@ namespace JTPAudio.VFX
         {
             if (ps != null)
             {
+                ForceStopAndClear(ps);
+                ForceStopAndClear(decalPs);
+
                 // Re-apply configuration to ensure material is correct even after pooling
                 ConfigureParticleSystem();
 
@@ -63,9 +81,17 @@ namespace JTPAudio.VFX
             gameObject.SetActive(false);
         }
 
+        private static void ForceStopAndClear(ParticleSystem system)
+        {
+            if (system == null) return;
+            system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
         public void ScaleEffect(float damage)
         {
             if (ps == null) ps = GetComponent<ParticleSystem>();
+
+            ForceStopAndClear(ps);
 
             // Scale burst count based on damage
             // Assuming base damage is around 10-20
@@ -85,12 +111,13 @@ namespace JTPAudio.VFX
             main.startSizeMultiplier = _currentDamageScale;
 
             // Restart to apply changes immediately
-            ps.Clear();
             ps.Play();
         }
 
         private void ConfigureParticleSystem()
         {
+            ForceStopAndClear(ps);
+
             // 1. Main Module
             var main = ps.main;
             main.duration = 0.1f; // Short burst
@@ -162,46 +189,10 @@ namespace JTPAudio.VFX
             collision.sendCollisionMessages = true; // Enable OnParticleCollision
 
             // 5. Renderer
-            // Force a material that supports vertex colors and is unlit
-            // We check if we need to create a material. We do this if it's null or the default one.
-            if (psRenderer.sharedMaterial == null || psRenderer.sharedMaterial.name.StartsWith("Default-Particle"))
+            var particleMaterial = GetParticleMaterial();
+            if (particleMaterial != null)
             {
-                // Try to find a reliable shader that supports vertex colors
-                // Legacy shaders are often more reliable for simple programmatic vertex color support
-                Shader particleShader = Shader.Find("Legacy Shaders/Particles/Alpha Blended");
-                if (particleShader == null) particleShader = Shader.Find("Mobile/Particles/Alpha Blended");
-                if (particleShader == null) particleShader = Shader.Find("Particles/Standard Unlit");
-                
-                if (particleShader != null)
-                {
-                    Material particleMat = new Material(particleShader);
-                    
-                    // For Standard Unlit, we need to ensure it's set to transparent and uses vertex colors
-                    if (particleShader.name.Contains("Standard Unlit"))
-                    {
-                        particleMat.SetFloat("_Mode", 2); // Fade/Transparent
-                        particleMat.EnableKeyword("_ALPHABLEND_ON");
-                        particleMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                        particleMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                        particleMat.SetInt("_ZWrite", 0);
-                        particleMat.DisableKeyword("_ALPHATEST_ON");
-                        particleMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                        particleMat.renderQueue = 3000;
-                    }
-
-                    // Generate and assign a texture so it's not a square
-                    if (_cachedParticleTexture == null)
-                    {
-                        _cachedParticleTexture = CreateCircleTexture();
-                    }
-                    particleMat.mainTexture = _cachedParticleTexture;
-
-                    psRenderer.material = particleMat;
-                }
-                else
-                {
-                    Debug.LogWarning("[ProceduralBloodVFX] Could not find a suitable particle shader.");
-                }
+                psRenderer.sharedMaterial = particleMaterial;
             }
             
             // Set render mode to Billboard for more realistic droplets
@@ -250,7 +241,7 @@ namespace JTPAudio.VFX
                 float elongation = Mathf.Lerp(3f, 1f, Mathf.Abs(impactDot)); // 1 = circle, 3 = long streak
                 
                 // Randomize size and apply damage scale
-                float size = Random.Range(0.1f, 0.3f) * _currentDamageScale;
+                float size = Random.Range(0.2f, 0.5f) * _currentDamageScale;
                 Vector3 size3D = new Vector3(size, size * elongation, 1f);
 
                 // Orient to surface
@@ -272,7 +263,8 @@ namespace JTPAudio.VFX
 
                 // Emit decal
                 var emitParams = new ParticleSystem.EmitParams();
-                emitParams.position = collision.intersection + (collision.normal * 0.01f); // Slight offset to prevent z-fighting
+                float pushOut = DecalSurfaceOffset * Random.Range(0.85f, 1.15f);
+                emitParams.position = collision.intersection + (collision.normal * pushOut);
                 emitParams.rotation3D = rotation.eulerAngles;
                 emitParams.startSize3D = size3D;
                 emitParams.startColor = new Color(0.6f, 0f, 0f, 1f); // Start dark red
@@ -283,6 +275,8 @@ namespace JTPAudio.VFX
 
         private void ConfigureDecalSystem()
         {
+            ForceStopAndClear(decalPs);
+
             var main = decalPs.main;
             main.duration = 1f;
             main.loop = false;
@@ -291,6 +285,8 @@ namespace JTPAudio.VFX
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.playOnAwake = false;
             main.maxParticles = 100;
+            main.startRotation3D = true;
+            main.startSize3D = true;
             
             // Color over lifetime for drying effect (Red -> Brown)
             var col = decalPs.colorOverLifetime;
@@ -332,48 +328,119 @@ namespace JTPAudio.VFX
                     new Vector2(0, 1),
                     new Vector2(1, 1)
                 };
-                quadMesh.triangles = new int[] { 0, 2, 1, 2, 3, 1 };
+                // Double-sided triangles to prevent backface culling issues
+                quadMesh.triangles = new int[] { 
+                    0, 2, 1, 2, 3, 1, // Front
+                    1, 2, 0, 1, 3, 2  // Back
+                };
                 quadMesh.RecalculateNormals();
                 decalRenderer.mesh = quadMesh;
             }
 
-            decalRenderer.alignment = ParticleSystemRenderSpace.World; // Important for custom rotation
+            decalRenderer.alignment = ParticleSystemRenderSpace.Local; // Respect per-particle rotation
+            decalRenderer.sortingFudge = 2f; // Push above nearby geometry
+            decalRenderer.enableGPUInstancing = true;
+            decalRenderer.shadowCastingMode = ShadowCastingMode.Off;
+            decalRenderer.receiveShadows = false;
 
             // Material for Decals
-            // We check if we need to create a material. We do this if it's null or the default one.
-            if (decalRenderer.sharedMaterial == null || decalRenderer.sharedMaterial.name.StartsWith("Default-Particle"))
+            var decalMaterial = GetDecalMaterial();
+            if (decalMaterial != null)
             {
-                // Reuse the particle shader but with a splat texture
-                Shader particleShader = Shader.Find("Legacy Shaders/Particles/Alpha Blended"); // Reliable
-                if (particleShader == null) particleShader = Shader.Find("Mobile/Particles/Alpha Blended");
-                if (particleShader == null) particleShader = Shader.Find("Particles/Standard Unlit");
-                if (particleShader == null) particleShader = Shader.Find("Sprites/Default"); // Ultimate fallback
+                decalRenderer.sharedMaterial = decalMaterial;
+            }
+        }
 
-                if (particleShader != null)
-                {
-                    Material decalMat = new Material(particleShader);
-                    
-                    // For Standard Unlit, we need to ensure it's set to transparent and uses vertex colors
-                    if (particleShader.name.Contains("Standard Unlit"))
-                    {
-                        decalMat.SetFloat("_Mode", 2); // Fade/Transparent
-                        decalMat.EnableKeyword("_ALPHABLEND_ON");
-                        decalMat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                        decalMat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                        decalMat.SetInt("_ZWrite", 0);
-                        decalMat.DisableKeyword("_ALPHATEST_ON");
-                        decalMat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                        decalMat.renderQueue = 3000;
-                    }
+        private Material GetParticleMaterial()
+        {
+            if (_cachedParticleMaterial != null) return _cachedParticleMaterial;
 
-                    if (_cachedSplatTexture == null) _cachedSplatTexture = CreateSplatTexture();
-                    decalMat.mainTexture = _cachedSplatTexture;
-                    decalRenderer.material = decalMat;
-                }
-                else
+            Shader shader = ResolveBloodShader();
+            if (shader == null) return null;
+
+            _cachedParticleMaterial = new Material(shader);
+            ConfigureMaterial(_cachedParticleMaterial, shader);
+
+            if (_cachedParticleTexture == null)
+            {
+                _cachedParticleTexture = CreateCircleTexture();
+            }
+            _cachedParticleMaterial.mainTexture = _cachedParticleTexture;
+            return _cachedParticleMaterial;
+        }
+
+        private Material GetDecalMaterial()
+        {
+            if (_cachedDecalMaterial != null) return _cachedDecalMaterial;
+
+            Shader shader = ResolveBloodShader();
+            if (shader == null) return null;
+
+            _cachedDecalMaterial = new Material(shader);
+            ConfigureMaterial(_cachedDecalMaterial, shader);
+
+            if (_cachedSplatTexture == null)
+            {
+                _cachedSplatTexture = CreateSplatTexture();
+            }
+            _cachedDecalMaterial.mainTexture = _cachedSplatTexture;
+            return _cachedDecalMaterial;
+        }
+
+        private Shader ResolveBloodShader()
+        {
+            if (bloodShaderOverride != null) return bloodShaderOverride;
+            if (_cachedBloodShader != null) return _cachedBloodShader;
+
+            string[] shaderNames = new string[]
+            {
+                "Custom/ProceduralBlood",
+                "Particles/Standard Unlit",
+                "Mobile/Particles/Alpha Blended",
+                "Legacy Shaders/Particles/Alpha Blended",
+                "Sprites/Default"
+            };
+
+            foreach (var name in shaderNames)
+            {
+                Shader shader = Shader.Find(name);
+                if (shader != null)
                 {
-                    Debug.LogError("[ProceduralBloodVFX] Could not find ANY suitable shader for decals!");
+                    _cachedBloodShader = shader;
+                    return _cachedBloodShader;
                 }
+            }
+
+            if (!_didLogMissingShader)
+            {
+                Debug.LogError("[ProceduralBloodVFX] Unable to locate a usable blood shader. Please ensure 'Custom/ProceduralBlood' exists or assign an override.");
+                _didLogMissingShader = true;
+            }
+
+            return null;
+        }
+
+        private void ConfigureMaterial(Material mat, Shader shader)
+        {
+            // If using our custom shader, no extra config needed
+            if (shader != null && shader.name == "Custom/ProceduralBlood") return;
+
+            if (shader == null) return;
+
+            // For Standard/URP particles ensure transparent blending
+            if (shader.name.Contains("Standard Unlit") || shader.name.Contains("Universal Render Pipeline/Particles/Unlit"))
+            {
+                mat.SetFloat("_Mode", 2); // Fade/Transparent
+                mat.EnableKeyword("_ALPHABLEND_ON");
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.DisableKeyword("_ALPHATEST_ON");
+                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                mat.renderQueue = 3000;
+
+                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+                if (mat.HasProperty("_Color")) mat.SetColor("_Color", Color.white);
             }
         }
 
