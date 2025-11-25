@@ -147,8 +147,12 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleChasingState()
     {
-        // Continuously set the destination to the player's position
-        navMeshAgent.SetDestination(player.position);
+        // Ensure the agent is valid, active, and on the NavMesh before setting a destination
+        if (navMeshAgent != null && navMeshAgent.isActiveAndEnabled && navMeshAgent.isOnNavMesh)
+        {
+            // Continuously set the destination to the player's position
+            navMeshAgent.SetDestination(player.position);
+        }
 
         // Transition to ATTACKING if within attack range
         if (Vector3.Distance(transform.position, player.position) <= enemyData.attackRange)
