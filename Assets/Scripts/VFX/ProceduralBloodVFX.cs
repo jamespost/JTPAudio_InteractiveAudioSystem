@@ -144,7 +144,9 @@ namespace JTPAudio.VFX
             main.loop = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f); // Longer persistence
             main.startSpeed = new ParticleSystem.MinMaxCurve(5f, 15f); // Faster speed for "gushing"
-            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.02f); // Reduced max size for finer droplets
+            // Use Shape scaling to prevent hierarchy scale from affecting particle size
+            main.scalingMode = ParticleSystemScalingMode.Shape;
+            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.015f); // 5mm to 1.5cm droplets (World Space)
             
             // Use White because color is baked into the texture for specular highlights
             main.startColor = Color.white;
@@ -152,8 +154,6 @@ namespace JTPAudio.VFX
             main.gravityModifier = 3f; // Heavier gravity
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.playOnAwake = false;
-            main.scalingMode = ParticleSystemScalingMode.Hierarchy;
-
             // 2. Emission
             var emission = ps.emission;
             emission.enabled = true;
@@ -269,7 +269,7 @@ namespace JTPAudio.VFX
                 float elongation = Mathf.Lerp(3f, 1f, Mathf.Abs(impactDot)); // 1 = circle, 3 = long streak
                 
                 // Randomize size and apply damage scale
-                float size = Random.Range(0.05f, 0.2f) * _currentDamageScale;
+                float size = Random.Range(0.15f, 0.4f) * _currentDamageScale;
                 Vector3 size3D = new Vector3(size, size * elongation, 1f);
 
                 // Orient to surface
@@ -322,6 +322,7 @@ namespace JTPAudio.VFX
             main.startLifetime = 10f; // Decals stay longer
             main.startSpeed = 0f; // Static
             main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.scalingMode = ParticleSystemScalingMode.Shape; // Prevent giant decals on scaled enemies
             main.playOnAwake = false;
             main.maxParticles = 100;
             main.startRotation3D = true;
@@ -401,7 +402,8 @@ namespace JTPAudio.VFX
             main.loop = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
             main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 6f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.002f, 0.01f);
+            main.scalingMode = ParticleSystemScalingMode.Shape;
+            main.startSize = new ParticleSystem.MinMaxCurve(0.002f, 0.005f); // 2mm to 5mm
             main.gravityModifier = 2f;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.playOnAwake = false;
