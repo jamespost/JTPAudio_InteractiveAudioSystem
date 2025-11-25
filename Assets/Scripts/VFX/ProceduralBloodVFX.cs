@@ -14,6 +14,8 @@ namespace JTPAudio.VFX
         private ParticleSystemRenderer psRenderer;
         private ParticleSystem decalPs; // Secondary system for decals
         private ParticleSystemRenderer decalRenderer;
+        private ParticleSystem splashPs; // Tiny droplets on impact
+        private ParticleSystemRenderer splashRenderer;
         private static Texture2D _cachedParticleTexture;
         private static Texture2D _cachedSplatTexture;
         private static Shader _cachedBloodShader;
@@ -46,8 +48,19 @@ namespace JTPAudio.VFX
                 decalRenderer = decalObj.AddComponent<ParticleSystemRenderer>();
             }
 
+            // Create Splash Particle System
+            GameObject splashObj = new GameObject("SplashSubEmitter");
+            splashObj.transform.SetParent(transform);
+            splashObj.transform.localPosition = Vector3.zero;
+            splashObj.transform.localRotation = Quaternion.identity;
+            
+            splashPs = splashObj.AddComponent<ParticleSystem>();
+            splashRenderer = splashObj.GetComponent<ParticleSystemRenderer>();
+            if (splashRenderer == null) splashRenderer = splashObj.AddComponent<ParticleSystemRenderer>();
+
             ConfigureParticleSystem();
             ConfigureDecalSystem();
+            ConfigureSplashSystem();
         }
 
         private void OnEnable()
@@ -56,6 +69,7 @@ namespace JTPAudio.VFX
             {
                 ForceStopAndClear(ps);
                 ForceStopAndClear(decalPs);
+                ForceStopAndClear(splashPs);
 
                 // Re-apply configuration to ensure material is correct even after pooling
                 ConfigureParticleSystem();
@@ -67,6 +81,12 @@ namespace JTPAudio.VFX
                 {
                     decalPs.Clear();
                     decalPs.Play();
+                }
+
+                if (splashPs != null)
+                {
+                    splashPs.Clear();
+                    splashPs.Play();
                 }
 
                 // Disable after the longest possible lifetime to return to pool
@@ -124,14 +144,10 @@ namespace JTPAudio.VFX
             main.loop = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f); // Longer persistence
             main.startSpeed = new ParticleSystem.MinMaxCurve(5f, 15f); // Faster speed for "gushing"
-            main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.1f); // Reduced max size for finer droplets
+            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.02f); // Reduced max size for finer droplets
             
-            // Randomize color between dark red and brighter blood red
-            // Reduced variance for more consistent look
-            main.startColor = new ParticleSystem.MinMaxGradient(
-                new Color(0.5f, 0.0f, 0.0f, 1f), // Deep red
-                new Color(0.7f, 0.05f, 0.05f, 1f)  // Slightly brighter red
-            );
+            // Use White because color is baked into the texture for specular highlights
+            main.startColor = Color.white;
             
             main.gravityModifier = 3f; // Heavier gravity
             main.simulationSpace = ParticleSystemSimulationSpace.World;
@@ -151,14 +167,14 @@ namespace JTPAudio.VFX
             var shape = ps.shape;
             shape.enabled = true;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 20f; // Tighter cone for more directional force
+            shape.angle = 15f; // Tighter cone
             shape.radius = 0.05f; 
             shape.radiusThickness = 1f; 
 
             // Add Noise for turbulence/liquid feel
             var noise = ps.noise;
             noise.enabled = true;
-            noise.strength = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
+            noise.strength = new ParticleSystem.MinMaxCurve(0.1f, 0.3f); // Reduced noise for smoother stream
             noise.frequency = 0.5f;
             noise.scrollSpeed = 1f;
             noise.damping = true;
@@ -168,10 +184,10 @@ namespace JTPAudio.VFX
             collision.enabled = true;
             collision.type = ParticleSystemCollisionType.World;
             collision.mode = ParticleSystemCollisionMode.Collision3D;
-            collision.dampen = 0.5f; // Less sticky, allows sliding
-            collision.bounce = 0.2f; // Slight bounce
-            collision.radiusScale = 0.5f; // Reduce collision radius to avoid snagging on enemy mesh
-            collision.lifetimeLoss = 1f; // Kill particle on collision so we can spawn a decal instead
+            collision.dampen = 0.7f; // More dampening (sticky blood)
+            collision.bounce = 0.1f; // Less bounce
+            collision.radiusScale = 0.5f; 
+            collision.lifetimeLoss = 1f; // Kill particle on collision
             collision.minKillSpeed = 0f;
             
             // Exclude Enemy layer from collision if possible to prevent initial bounce on enemy
@@ -188,11 +204,23 @@ namespace JTPAudio.VFX
             
             collision.sendCollisionMessages = true; // Enable OnParticleCollision
 
-            // 5. Renderer
+            // 5. Trails - Create the "stream" look
+            var trails = ps.trails;
+            trails.enabled = true;
+            trails.mode = ParticleSystemTrailMode.Ribbon;
+            trails.ratio = 0.5f; // Only some particles have trails
+            trails.lifetime = new ParticleSystem.MinMaxCurve(0.05f, 0.1f); // Short trails
+            trails.inheritParticleColor = true;
+            trails.sizeAffectsWidth = true;
+            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(1f, 0.5f); // Taper
+            trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
+
+            // 6. Renderer
             var particleMaterial = GetParticleMaterial();
             if (particleMaterial != null)
             {
                 psRenderer.sharedMaterial = particleMaterial;
+                psRenderer.trailMaterial = particleMaterial; // Reuse material for trails
             }
             
             // Set render mode to Billboard for more realistic droplets
@@ -241,7 +269,7 @@ namespace JTPAudio.VFX
                 float elongation = Mathf.Lerp(3f, 1f, Mathf.Abs(impactDot)); // 1 = circle, 3 = long streak
                 
                 // Randomize size and apply damage scale
-                float size = Random.Range(0.2f, 0.5f) * _currentDamageScale;
+                float size = Random.Range(0.05f, 0.2f) * _currentDamageScale;
                 Vector3 size3D = new Vector3(size, size * elongation, 1f);
 
                 // Orient to surface
@@ -267,9 +295,20 @@ namespace JTPAudio.VFX
                 emitParams.position = collision.intersection + (collision.normal * pushOut);
                 emitParams.rotation3D = rotation.eulerAngles;
                 emitParams.startSize3D = size3D;
-                emitParams.startColor = new Color(0.6f, 0f, 0f, 1f); // Start dark red
+                emitParams.startColor = Color.white; 
                 
                 decalPs.Emit(emitParams, 1);
+
+                // Emit Splash (Mist)
+                if (splashPs != null)
+                {
+                    var splashParams = new ParticleSystem.EmitParams();
+                    splashParams.position = collision.intersection + (collision.normal * 0.05f);
+                    // Random velocity away from surface
+                    Vector3 reflectDir = Vector3.Reflect(velocityDir, collision.normal);
+                    splashParams.velocity = (reflectDir + Random.insideUnitSphere * 0.5f).normalized * Random.Range(2f, 5f);
+                    splashPs.Emit(splashParams, Random.Range(3, 8));
+                }
             }
         }
 
@@ -287,16 +326,18 @@ namespace JTPAudio.VFX
             main.maxParticles = 100;
             main.startRotation3D = true;
             main.startSize3D = true;
+            main.startColor = Color.white; // Texture has color
             
-            // Color over lifetime for drying effect (Red -> Brown)
+            // Color over lifetime for drying effect (White -> Dark Grey)
+            // Since texture is already red, tinting it grey darkens it to brown/black
             var col = decalPs.colorOverLifetime;
             col.enabled = true;
             Gradient grad = new Gradient();
             grad.SetKeys(
                 new GradientColorKey[] { 
-                    new GradientColorKey(new Color(0.6f, 0.0f, 0.0f), 0.0f), // Fresh Red
-                    new GradientColorKey(new Color(0.3f, 0.1f, 0.05f), 0.3f), // Drying Brown-Red
-                    new GradientColorKey(new Color(0.2f, 0.05f, 0.0f), 1.0f)  // Dried Dark Brown
+                    new GradientColorKey(Color.white, 0.0f), // Fresh
+                    new GradientColorKey(new Color(0.7f, 0.7f, 0.7f), 0.3f), // Drying
+                    new GradientColorKey(new Color(0.4f, 0.4f, 0.4f), 1.0f)  // Dried
                 },
                 new GradientAlphaKey[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) }
             );
@@ -348,6 +389,42 @@ namespace JTPAudio.VFX
             if (decalMaterial != null)
             {
                 decalRenderer.sharedMaterial = decalMaterial;
+            }
+        }
+
+        private void ConfigureSplashSystem()
+        {
+            ForceStopAndClear(splashPs);
+
+            var main = splashPs.main;
+            main.duration = 1f;
+            main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 6f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.002f, 0.01f);
+            main.gravityModifier = 2f;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.playOnAwake = false;
+            main.maxParticles = 200;
+            
+            // Use white since texture has color
+            main.startColor = Color.white;
+
+            var emission = splashPs.emission;
+            emission.enabled = false; // Emit via script
+
+            var shape = splashPs.shape;
+            shape.enabled = false;
+
+            // Renderer
+            splashRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            splashRenderer.minParticleSize = 0f;
+            splashRenderer.maxParticleSize = 0.1f;
+            
+            var particleMaterial = GetParticleMaterial();
+            if (particleMaterial != null)
+            {
+                splashRenderer.sharedMaterial = particleMaterial;
             }
         }
 
@@ -446,31 +523,54 @@ namespace JTPAudio.VFX
 
         private Texture2D CreateCircleTexture()
         {
-            int resolution = 256; // Increased resolution for sharper edges
+            int resolution = 128;
             Texture2D texture = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
             Color[] colors = new Color[resolution * resolution];
             float center = resolution / 2f;
             float radius = resolution / 2f;
+            
+            // Blood colors - Baked in for "wet" look with specular
+            Color bloodDark = new Color(0.4f, 0.0f, 0.0f, 1f);
+            Color bloodLight = new Color(0.7f, 0.05f, 0.05f, 1f);
+            Color highlight = new Color(1f, 1f, 1f, 1f);
+
+            Vector2 lightDir = new Vector2(-0.5f, 0.5f).normalized;
 
             for (int y = 0; y < resolution; y++)
             {
                 for (int x = 0; x < resolution; x++)
                 {
-                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                    Vector2 pos = new Vector2(x, y);
+                    Vector2 relPos = pos - new Vector2(center, center);
+                    float dist = relPos.magnitude;
+                    float normDist = dist / radius;
                     
-                    // Create a sharper, more solid circle
-                    float alpha = 0f;
-                    if (dist < radius * 0.8f)
+                    if (dist >= radius)
                     {
-                        alpha = 1f; // Solid core
+                        colors[y * resolution + x] = Color.clear;
+                        continue;
                     }
-                    else if (dist < radius)
-                    {
-                        // Quick fade out at edge
-                        alpha = 1f - ((dist - (radius * 0.8f)) / (radius * 0.2f));
-                    }
+
+                    // Fake spherical normal
+                    float z = Mathf.Sqrt(Mathf.Max(0, 1f - normDist * normDist));
+                    Vector3 normal = new Vector3(relPos.x / radius, relPos.y / radius, z).normalized;
+                    Vector3 light = new Vector3(lightDir.x, lightDir.y, 0.5f).normalized;
                     
-                    colors[y * resolution + x] = new Color(1, 1, 1, alpha);
+                    // Diffuse
+                    float diffuse = Mathf.Clamp01(Vector3.Dot(normal, light));
+                    Color baseCol = Color.Lerp(bloodDark, bloodLight, diffuse * 0.8f + 0.2f);
+
+                    // Specular (Sharp wet highlight)
+                    // Offset the reflection slightly
+                    float spec = Mathf.Pow(Mathf.Clamp01(Vector3.Dot(normal, light)), 30f);
+                    
+                    Color finalCol = baseCol + (highlight * spec * 0.8f);
+                    
+                    // Soft edge alpha
+                    float alpha = Mathf.SmoothStep(1f, 0f, (dist - (radius * 0.8f)) / (radius * 0.2f));
+                    finalCol.a = alpha;
+
+                    colors[y * resolution + x] = finalCol;
                 }
             }
             texture.SetPixels(colors);
@@ -480,29 +580,58 @@ namespace JTPAudio.VFX
 
         private Texture2D CreateSplatTexture()
         {
-            int resolution = 128;
+            int resolution = 256;
             Texture2D texture = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
             Color[] colors = new Color[resolution * resolution];
             float center = resolution / 2f;
             float maxRadius = resolution / 2f;
+
+            Color bloodDark = new Color(0.35f, 0.0f, 0.0f, 1f);
+            Color bloodLight = new Color(0.6f, 0.0f, 0.0f, 1f);
+            Color highlight = new Color(1f, 1f, 1f, 0.8f);
+            Vector2 lightDir = new Vector2(-0.5f, 0.5f).normalized;
 
             for (int y = 0; y < resolution; y++)
             {
                 for (int x = 0; x < resolution; x++)
                 {
                     Vector2 pos = new Vector2(x, y);
-                    Vector2 dir = (pos - new Vector2(center, center)).normalized;
-                    float dist = Vector2.Distance(pos, new Vector2(center, center));
+                    Vector2 relPos = pos - new Vector2(center, center);
+                    Vector2 dir = relPos.normalized;
+                    float dist = relPos.magnitude;
                     
-                    // Noise for irregular edges
+                    // Multi-layered noise for jagged liquid edges
                     float angle = Mathf.Atan2(dir.y, dir.x);
-                    float noise = Mathf.PerlinNoise(angle * 2f, dist * 0.05f);
-                    float radius = maxRadius * (0.5f + noise * 0.4f);
-
-                    float alpha = Mathf.Clamp01(1f - (dist / radius));
-                    alpha = Mathf.Pow(alpha, 2); // Sharpen
+                    float noise1 = Mathf.PerlinNoise(angle * 3f, dist * 0.02f);
+                    float noise2 = Mathf.PerlinNoise(angle * 10f + 50f, dist * 0.05f);
+                    float combinedNoise = (noise1 * 0.7f) + (noise2 * 0.3f);
                     
-                    colors[y * resolution + x] = new Color(1, 1, 1, alpha);
+                    float currentRadius = maxRadius * (0.4f + combinedNoise * 0.5f);
+
+                    if (dist > currentRadius)
+                    {
+                        colors[y * resolution + x] = Color.clear;
+                        continue;
+                    }
+
+                    // Fake volume/lighting
+                    float normDist = dist / currentRadius;
+                    float z = Mathf.Sqrt(Mathf.Max(0, 1f - normDist * normDist));
+                    Vector3 normal = new Vector3(relPos.x / maxRadius, relPos.y / maxRadius, z).normalized;
+                    Vector3 light = new Vector3(lightDir.x, lightDir.y, 0.5f).normalized;
+
+                    float diffuse = Mathf.Clamp01(Vector3.Dot(normal, light));
+                    Color baseCol = Color.Lerp(bloodDark, bloodLight, diffuse);
+
+                    // Wet highlight
+                    float spec = Mathf.Pow(Mathf.Clamp01(Vector3.Dot(normal, light)), 20f);
+                    Color finalCol = baseCol + (highlight * spec * 0.6f);
+
+                    // Alpha fade at very edge
+                    float alpha = Mathf.SmoothStep(1f, 0f, (dist - (currentRadius * 0.9f)) / (currentRadius * 0.1f));
+                    finalCol.a = alpha;
+
+                    colors[y * resolution + x] = finalCol;
                 }
             }
             texture.SetPixels(colors);
