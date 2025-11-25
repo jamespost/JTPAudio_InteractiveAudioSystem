@@ -133,4 +133,36 @@ public class ObjectPooler : MonoBehaviour
         objectToReturn.SetActive(false);
         poolDictionary[tag].Enqueue(objectToReturn);
     }
+
+    /// <summary>
+    /// Dynamically creates a new pool at runtime.
+    /// </summary>
+    /// <param name="tag">Unique identifier for the pool.</param>
+    /// <param name="prefab">Prefab to pool.</param>
+    /// <param name="size">Size of the pool.</param>
+    public void CreatePool(string tag, GameObject prefab, int size)
+    {
+        if (poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning($"Pool with tag {tag} already exists.");
+            return;
+        }
+
+        Queue<GameObject> objectPool = new Queue<GameObject>();
+
+        for (int i = 0; i < size; i++)
+        {
+            GameObject obj = Instantiate(prefab);
+            obj.SetActive(false);
+            // Keep hierarchy clean by parenting to the pooler
+            obj.transform.SetParent(transform); 
+            objectPool.Enqueue(obj);
+        }
+
+        poolDictionary.Add(tag, objectPool);
+        
+        // Also add to the list so it shows up in inspector (optional, for debug)
+        Pool newPool = new Pool { tag = tag, prefab = prefab, size = size };
+        pools.Add(newPool);
+    }
 }

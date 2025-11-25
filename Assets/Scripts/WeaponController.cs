@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI; // Added for UI components
+using JTPAudio.VFX;
 
 /// <summary>
 /// Handles weapon functionality including firing, reloading, and event-driven interactions.
@@ -131,10 +132,12 @@ public class WeaponController : MonoBehaviour
     [Tooltip("Transform to rotate during reload (e.g., gun model).")]
     public Transform reloadRotationTransform;
 
+    private const string BLOOD_VFX_TAG = "BloodSplatter";
+
     private void Awake()
     {
         // Initialize Object Pooler for VFX
-        vfxPooler = FindObjectOfType<ObjectPooler>();
+        vfxPooler = FindFirstObjectByType<ObjectPooler>();
         if (vfxPooler == null)
         {
             Debug.LogWarning("[WeaponController] ObjectPooler not found in the scene. VFX pooling may not work as expected.");
@@ -160,6 +163,9 @@ public class WeaponController : MonoBehaviour
     {
         currentAmmo = weaponData.clipSize;
         currentBloom = weaponData.minBloomAngle;
+
+        // Initialize Blood VFX Pool
+        InitializeBloodVFX();
 
         // Get PlayerController reference
         playerController = GetComponentInParent<PlayerController>();
@@ -219,6 +225,28 @@ public class WeaponController : MonoBehaviour
             lastAmmoColor = GetAmmoColor(currentAmmo);
             ammoDebugTextMesh.color = lastAmmoColor;
         }
+    }
+
+    private void InitializeBloodVFX()
+    {
+        if (vfxPooler == null) return;
+
+        // Check if pool already exists to avoid duplicates
+        if (vfxPooler.poolDictionary.ContainsKey(BLOOD_VFX_TAG)) return;
+
+        // Create the procedural prefab
+        GameObject bloodPrefab = new GameObject("ProceduralBloodVFX_Prefab");
+        // Keep it hidden and organized
+        bloodPrefab.transform.SetParent(vfxPooler.transform); 
+        bloodPrefab.SetActive(false);
+        
+        // Add components required for the effect
+        bloodPrefab.AddComponent<ParticleSystem>();
+        bloodPrefab.AddComponent<ParticleSystemRenderer>();
+        bloodPrefab.AddComponent<ProceduralBloodVFX>();
+
+        // Create the pool dynamically
+        vfxPooler.CreatePool(BLOOD_VFX_TAG, bloodPrefab, 20);
     }
 
     private void Update()
@@ -331,13 +359,38 @@ public class WeaponController : MonoBehaviour
 
             // Apply damage if the hit object has a Health component
             Health health = hit.collider.GetComponent<Health>();
-            if (health != null)
+            bool isEnemy = health != null;
+
+            if (isEnemy)
             {
                 health.TakeDamage(weaponData.damage);
+                
+                // Spawn Blood VFX for enemies
+                if (vfxPooler != null)
+                {
+                    // Offset to prevent immediate self-collision with the enemy mesh
+                    Vector3 spawnPos = hit.point + (hit.normal * 0.1f);
+                    
+                    // Calculate direction: mostly normal (splash back) but influenced by projectile velocity (momentum)
+                    // We use reflection to simulate the "glance" or momentum transfer
+                    Vector3 reflectDir = Vector3.Reflect(spreadDirection, hit.normal);
+                    // Blend between pure splash back (normal) and the reflection
+                    Vector3 finalDir = Vector3.Lerp(hit.normal, reflectDir, 0.4f);
+                    
+                    GameObject bloodObj = vfxPooler.SpawnFromPool(BLOOD_VFX_TAG, spawnPos, Quaternion.LookRotation(finalDir));
+                    if (bloodObj != null)
+                    {
+                        ProceduralBloodVFX bloodVFX = bloodObj.GetComponent<ProceduralBloodVFX>();
+                        if (bloodVFX != null)
+                        {
+                            bloodVFX.ScaleEffect(weaponData.damage);
+                        }
+                    }
+                }
             }
 
-            // Spawn impact VFX
-            if (impactVFX != null && vfxPooler != null)
+            // Spawn impact VFX (only if not an enemy, or if we want both? Usually just blood for enemies)
+            if (!isEnemy && impactVFX != null && vfxPooler != null)
             {
                 GameObject vfx = vfxPooler.GetPooledObject(impactVFX);
                 if (vfx != null)
@@ -351,11 +404,11 @@ public class WeaponController : MonoBehaviour
                     Debug.LogWarning("[WeaponController] No pooled object available for impact VFX. Check ObjectPooler configuration.");
                 }
             }
-            else if (impactVFX == null)
+            else if (!isEnemy && impactVFX == null)
             {
                 Debug.LogWarning("[WeaponController] Impact VFX prefab is not assigned. Visual feedback will not be shown.");
             }
-            else if (vfxPooler == null)
+            else if (!isEnemy && vfxPooler == null)
             {
                 Debug.LogWarning("[WeaponController] ObjectPooler is not initialized. VFX pooling will not work.");
             }
@@ -462,7 +515,7 @@ private System.Collections.IEnumerator ReinitializeWeapon()
     // Re-find the VFX pooler if it's null
     if (vfxPooler == null)
     {
-        vfxPooler = FindObjectOfType<ObjectPooler>();
+        vfxPooler = FindFirstObjectByType<ObjectPooler>();
     }
 
     // Re-setup firePoint if it's null
