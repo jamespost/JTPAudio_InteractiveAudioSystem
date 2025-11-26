@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f0cb57375316934a9f0a557216adacc, type: 3}
   m_Name: ED_Enemy_TEEF
   m_EditorClassIdentifier: 
-  maxHealth: 30
+  maxHealth: 10
   healthDisplaySize: 0.25

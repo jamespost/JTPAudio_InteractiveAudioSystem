@@ -1,21 +1,29 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace JTPAudio.VFX
 {
     /// <summary>
-    /// Programmatically configures a ParticleSystem to look like blood splatter.
-    /// Attach this to an empty GameObject to create a blood VFX prefab.
+    /// Programmatically assembles a layered, fluid-like blood effect using multiple particle passes
+    /// (core jet, sheet, droplets, mist, decals, drips) plus runtime LOD/scale controls. Attach this
+    /// to an empty GameObject to create a blood VFX prefab driven entirely by code.
     /// </summary>
     [RequireComponent(typeof(ParticleSystem))]
     public class ProceduralBloodVFX : MonoBehaviour
     {
-        private ParticleSystem ps;
+        private ParticleSystem ps; // Core jet
         private ParticleSystemRenderer psRenderer;
-        private ParticleSystem decalPs; // Secondary system for decals
+        private ParticleSystem sheetPs;
+        private ParticleSystemRenderer sheetRenderer;
+        private ParticleSystem dropletPs;
+        private ParticleSystemRenderer dropletRenderer;
+        private ParticleSystem mistPs;
+        private ParticleSystemRenderer mistRenderer;
+        private ParticleSystem decalPs;
         private ParticleSystemRenderer decalRenderer;
-        private ParticleSystem splashPs; // Tiny droplets on impact
-        private ParticleSystemRenderer splashRenderer;
+        private ParticleSystem dripPs;
+        private ParticleSystemRenderer dripRenderer;
         private static Texture2D _cachedParticleTexture;
         private static Texture2D _cachedSplatTexture;
         private static Shader _cachedBloodShader;
@@ -23,76 +31,123 @@ namespace JTPAudio.VFX
         private static Material _cachedDecalMaterial;
         private static bool _didLogMissingShader;
 
+        private readonly List<ParticleSystem> _allSystems = new List<ParticleSystem>();
+        private readonly Dictionary<ParticleSystem, (short min, short max)> _burstCache = new Dictionary<ParticleSystem, (short, short)>();
+        private readonly Dictionary<ParticleSystem, float> _layerWeights = new Dictionary<ParticleSystem, float>();
+        private static readonly List<ParticleCollisionEvent> CollisionBuffer = new List<ParticleCollisionEvent>(64);
+
         [SerializeField]
         [Tooltip("Optional explicit shader reference to override automatic lookup.")]
         private Shader bloodShaderOverride;
+
+        [Header("Fluid Behaviour")]
+        [SerializeField]
+        private AnimationCurve pressureOverLife = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+
+        [SerializeField]
+        private Vector2 speedRange = new Vector2(7f, 18f);
+
+        [SerializeField]
+        private float jetGravityScale = 4f;
+
+        [Header("Visual Toggles")]
+        [SerializeField]
+        private bool enableSheetConnector = false;
+
+        [SerializeField]
+        private bool enableRibbonTrails = false;
+
+        [Header("LOD & Performance")]
+        [SerializeField]
+        private float highDetailDistance = 7f;
+
+        [SerializeField]
+        private float mediumDetailDistance = 14f;
+
+        [SerializeField, Range(0.1f, 1f)]
+        private float mediumIntensityMultiplier = 0.65f;
+
+        [SerializeField, Range(0.05f, 0.8f)]
+        private float lowIntensityMultiplier = 0.3f;
+
+        private enum DetailTier { Full, Medium, Low }
+
+        private DetailTier _currentTier = DetailTier.Full;
+        private Camera _mainCamera;
+        private float _tierIntensityMultiplier = 1f;
+        private float _damageIntensityMultiplier = 1f;
 
         private const float DecalSurfaceOffset = 0.025f;
         private float _currentDamageScale = 1.0f;
 
         private void Awake()
         {
+            _mainCamera = Camera.main;
+
             ps = GetComponent<ParticleSystem>();
             psRenderer = GetComponent<ParticleSystemRenderer>();
-            
-            // Create Decal Particle System
-            GameObject decalObj = new GameObject("DecalSubEmitter");
-            decalObj.transform.SetParent(transform);
-            decalObj.transform.localPosition = Vector3.zero;
-            decalObj.transform.localRotation = Quaternion.identity;
-            
-            decalPs = decalObj.AddComponent<ParticleSystem>();
-            decalRenderer = decalObj.GetComponent<ParticleSystemRenderer>();
-            if (decalRenderer == null)
+            RegisterSystem(ps);
+
+            sheetPs = CreateChildSystem("SheetLayer", out sheetRenderer);
+            dropletPs = CreateChildSystem("DropletLayer", out dropletRenderer);
+            mistPs = CreateChildSystem("MistLayer", out mistRenderer);
+            decalPs = CreateChildSystem("DecalLayer", out decalRenderer);
+            dripPs = CreateChildSystem("DripLayer", out dripRenderer);
+
+            ConfigureCoreJet();
+            if (enableSheetConnector)
             {
-                decalRenderer = decalObj.AddComponent<ParticleSystemRenderer>();
+                ConfigureSheetLayer();
             }
-
-            // Create Splash Particle System
-            GameObject splashObj = new GameObject("SplashSubEmitter");
-            splashObj.transform.SetParent(transform);
-            splashObj.transform.localPosition = Vector3.zero;
-            splashObj.transform.localRotation = Quaternion.identity;
-            
-            splashPs = splashObj.AddComponent<ParticleSystem>();
-            splashRenderer = splashObj.GetComponent<ParticleSystemRenderer>();
-            if (splashRenderer == null) splashRenderer = splashObj.AddComponent<ParticleSystemRenderer>();
-
-            ConfigureParticleSystem();
-            ConfigureDecalSystem();
-            ConfigureSplashSystem();
+            else
+            {
+                DisableLayer(sheetPs, sheetRenderer);
+            }
+            ConfigureDropletLayer();
+            ConfigureMistLayer();
+            ConfigureDecalLayer();
+            ConfigureDripLayer();
+            ApplyLayerIntensities();
         }
 
         private void OnEnable()
         {
-            if (ps != null)
+            if (_allSystems.Count == 0) return;
+            ResetAndPlayAll();
+            ScheduleDisable();
+        }
+
+        private void OnDisable()
+        {
+            CancelInvoke(nameof(DisableSelf));
+        }
+
+        private void LateUpdate()
+        {
+            if (_mainCamera == null) return;
+
+            float sqrDist = (transform.position - _mainCamera.transform.position).sqrMagnitude;
+            DetailTier targetTier = DetailTier.Full;
+
+            if (sqrDist > mediumDetailDistance * mediumDetailDistance)
             {
-                ForceStopAndClear(ps);
-                ForceStopAndClear(decalPs);
-                ForceStopAndClear(splashPs);
+                targetTier = DetailTier.Low;
+            }
+            else if (sqrDist > highDetailDistance * highDetailDistance)
+            {
+                targetTier = DetailTier.Medium;
+            }
 
-                // Re-apply configuration to ensure material is correct even after pooling
-                ConfigureParticleSystem();
-
-                ps.Clear();
-                ps.Play();
-                
-                if (decalPs != null)
+            if (targetTier != _currentTier)
+            {
+                _currentTier = targetTier;
+                _tierIntensityMultiplier = targetTier switch
                 {
-                    decalPs.Clear();
-                    decalPs.Play();
-                }
-
-                if (splashPs != null)
-                {
-                    splashPs.Clear();
-                    splashPs.Play();
-                }
-
-                // Disable after the longest possible lifetime to return to pool
-                float maxLifetime = ps.main.startLifetime.constantMax;
-                float duration = ps.main.duration;
-                Invoke(nameof(DisableSelf), duration + maxLifetime);
+                    DetailTier.Medium => mediumIntensityMultiplier,
+                    DetailTier.Low => lowIntensityMultiplier,
+                    _ => 1f
+                };
+                ApplyLayerIntensities();
             }
         }
 
@@ -107,150 +162,63 @@ namespace JTPAudio.VFX
             system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
+        /// <summary>
+        /// Re-pressurizes the entire stack based on gameplay damage. Call this before enabling the VFX
+        /// to remap burst counts, gravity, and start speeds so designers can tune brutality per hit.
+        /// </summary>
         public void ScaleEffect(float damage)
         {
-            if (ps == null) ps = GetComponent<ParticleSystem>();
+            if (ps == null) return;
 
-            ForceStopAndClear(ps);
+            float normalized = Mathf.Clamp(damage / 30f, 0.4f, 2.5f);
+            _damageIntensityMultiplier = normalized;
 
-            // Scale burst count based on damage
-            // Assuming base damage is around 10-20
-            short minBurst = (short)Mathf.Clamp(damage * 2f, 10, 100);
-            short maxBurst = (short)Mathf.Clamp(damage * 5f, 20, 200);
+            _currentDamageScale = Mathf.Clamp(0.5f + damage / 50f, 0.6f, 1.5f);
 
-            var emission = ps.emission;
-            emission.SetBursts(new ParticleSystem.Burst[] { 
-                new ParticleSystem.Burst(0f, minBurst, maxBurst) 
-            });
-
-            // Scale size slightly based on damage
             var main = ps.main;
-            // Reduced max multiplier to prevent giant pixelated blobs
-            // Base scale around 1.0 for average damage (15-20)
-            _currentDamageScale = Mathf.Clamp(0.7f + (damage / 50f), 0.8f, 1.3f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(speedRange.x * normalized, speedRange.y * normalized * 1.15f);
             main.startSizeMultiplier = _currentDamageScale;
+            main.gravityModifier = Mathf.Lerp(jetGravityScale * 0.6f, jetGravityScale * 1.35f, Mathf.Clamp01((normalized - 0.4f) / 2.1f));
 
-            // Restart to apply changes immediately
-            ps.Play();
-        }
-
-        private void ConfigureParticleSystem()
-        {
-            ForceStopAndClear(ps);
-
-            // 1. Main Module
-            var main = ps.main;
-            main.duration = 0.1f; // Short burst
-            main.loop = false;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f); // Longer persistence
-            main.startSpeed = new ParticleSystem.MinMaxCurve(5f, 15f); // Faster speed for "gushing"
-            // Use Shape scaling to prevent hierarchy scale from affecting particle size
-            main.scalingMode = ParticleSystemScalingMode.Shape;
-            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.015f); // 5mm to 1.5cm droplets (World Space)
-            
-            // Use White because color is baked into the texture for specular highlights
-            main.startColor = Color.white;
-            
-            main.gravityModifier = 3f; // Heavier gravity
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.playOnAwake = false;
-            // 2. Emission
-            var emission = ps.emission;
-            emission.enabled = true;
-            emission.rateOverTime = 0;
-            // Burst of particles
-            emission.SetBursts(new ParticleSystem.Burst[] { 
-                new ParticleSystem.Burst(0f, (short)20, (short)50) 
-            });
-
-            // 3. Shape
-            var shape = ps.shape;
-            shape.enabled = true;
-            shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 15f; // Tighter cone
-            shape.radius = 0.05f; 
-            shape.radiusThickness = 1f; 
-
-            // Add Noise for turbulence/liquid feel
-            var noise = ps.noise;
-            noise.enabled = true;
-            noise.strength = new ParticleSystem.MinMaxCurve(0.1f, 0.3f); // Reduced noise for smoother stream
-            noise.frequency = 0.5f;
-            noise.scrollSpeed = 1f;
-            noise.damping = true;
-
-            // 4. Collision
-            var collision = ps.collision;
-            collision.enabled = true;
-            collision.type = ParticleSystemCollisionType.World;
-            collision.mode = ParticleSystemCollisionMode.Collision3D;
-            collision.dampen = 0.7f; // More dampening (sticky blood)
-            collision.bounce = 0.1f; // Less bounce
-            collision.radiusScale = 0.5f; 
-            collision.lifetimeLoss = 1f; // Kill particle on collision
-            collision.minKillSpeed = 0f;
-            
-            // Exclude Enemy layer from collision if possible to prevent initial bounce on enemy
-            // Assuming "Enemy" layer exists, otherwise it defaults to Everything
-            int enemyLayer = LayerMask.NameToLayer("Enemy");
-            if (enemyLayer != -1)
+            if (IsLayerActive(sheetPs))
             {
-                collision.collidesWith = ~(1 << enemyLayer);
+                var sheetMain = sheetPs.main;
+                sheetMain.startSpeed = new ParticleSystem.MinMaxCurve(3f * normalized, 9f * normalized);
+                sheetMain.startSizeMultiplier = Mathf.Lerp(0.85f, 1.35f, Mathf.Clamp01(normalized - 0.4f));
             }
-            else
-            {
-                collision.collidesWith = -1; 
-            }
-            
-            collision.sendCollisionMessages = true; // Enable OnParticleCollision
 
-            // 5. Trails - Create the "stream" look
-            var trails = ps.trails;
-            trails.enabled = true;
-            trails.mode = ParticleSystemTrailMode.Ribbon;
-            trails.ratio = 0.5f; // Only some particles have trails
-            trails.lifetime = new ParticleSystem.MinMaxCurve(0.05f, 0.1f); // Short trails
-            trails.inheritParticleColor = true;
-            trails.sizeAffectsWidth = true;
-            trails.widthOverTrail = new ParticleSystem.MinMaxCurve(1f, 0.5f); // Taper
-            trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
-
-            // 6. Renderer
-            var particleMaterial = GetParticleMaterial();
-            if (particleMaterial != null)
+            if (IsLayerActive(dropletPs))
             {
-                psRenderer.sharedMaterial = particleMaterial;
-                psRenderer.trailMaterial = particleMaterial; // Reuse material for trails
+                var dropletMain = dropletPs.main;
+                dropletMain.startSpeed = new ParticleSystem.MinMaxCurve(4f * normalized, 12f * normalized);
+                dropletMain.gravityModifier = Mathf.Lerp(4f, 9f, Mathf.Clamp01(normalized * 0.5f));
             }
-            
-            // Set render mode to Billboard for more realistic droplets
-            psRenderer.renderMode = ParticleSystemRenderMode.Billboard;
-            psRenderer.minParticleSize = 0f;
-            psRenderer.maxParticleSize = 0.5f;
+
+            ApplyLayerIntensities();
+            RestartAll();
         }
 
         private void OnParticleCollision(GameObject other)
         {
-            if (decalPs == null) return;
+            if (ps == null || decalPs == null) return;
 
-            int numCollisionEvents = ps.GetCollisionEvents(other, new System.Collections.Generic.List<ParticleCollisionEvent>());
-            var collisionEvents = new System.Collections.Generic.List<ParticleCollisionEvent>(numCollisionEvents);
-            ps.GetCollisionEvents(other, collisionEvents);
+            CollisionBuffer.Clear();
+            int numCollisionEvents = ps.GetCollisionEvents(other, CollisionBuffer);
+            if (numCollisionEvents == 0) return;
 
-            foreach (var collision in collisionEvents)
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+
+            for (int i = 0; i < numCollisionEvents; i++)
             {
+                var collision = CollisionBuffer[i];
+
                 // Ignore collisions with enemies to prevent floating decals
-                // We check layer, name, and tag (safely)
                 bool isEnemy = false;
                 
-                // Check Layer
-                int enemyLayer = LayerMask.NameToLayer("Enemy");
                 if (enemyLayer != -1 && other.layer == enemyLayer) isEnemy = true;
 
-                // Check Name
                 if (!isEnemy && (other.name.Contains("Enemy") || other.name.Contains("Target"))) isEnemy = true;
 
-                // Check Tag (safely)
                 if (!isEnemy)
                 {
                     try { if (other.CompareTag("Enemy")) isEnemy = true; } catch { /* Tag doesn't exist */ }
@@ -269,7 +237,7 @@ namespace JTPAudio.VFX
                 float elongation = Mathf.Lerp(3f, 1f, Mathf.Abs(impactDot)); // 1 = circle, 3 = long streak
                 
                 // Randomize size and apply damage scale
-                float size = Random.Range(0.15f, 0.4f) * _currentDamageScale;
+                float size = Random.Range(0.025f, 0.075f) * _currentDamageScale;
                 Vector3 size3D = new Vector3(size, size * elongation, 1f);
 
                 // Orient to surface
@@ -299,20 +267,33 @@ namespace JTPAudio.VFX
                 
                 decalPs.Emit(emitParams, 1);
 
-                // Emit Splash (Mist)
-                if (splashPs != null)
+                if (mistPs != null)
                 {
-                    var splashParams = new ParticleSystem.EmitParams();
-                    splashParams.position = collision.intersection + (collision.normal * 0.05f);
-                    // Random velocity away from surface
+                    var splashParams = new ParticleSystem.EmitParams
+                    {
+                        position = collision.intersection + (collision.normal * 0.05f)
+                    };
                     Vector3 reflectDir = Vector3.Reflect(velocityDir, collision.normal);
-                    splashParams.velocity = (reflectDir + Random.insideUnitSphere * 0.5f).normalized * Random.Range(2f, 5f);
-                    splashPs.Emit(splashParams, Random.Range(3, 8));
+                    splashParams.velocity = (reflectDir + Random.insideUnitSphere * 0.35f).normalized * Random.Range(1.5f, 4.5f);
+                    mistPs.Emit(splashParams, Random.Range(4, 10));
+                }
+
+                if (dripPs != null)
+                {
+                    var dripParams = new ParticleSystem.EmitParams
+                    {
+                        position = collision.intersection + (collision.normal * DecalSurfaceOffset * 0.5f),
+                        startSize = Random.Range(0.005f, 0.0125f) * _currentDamageScale,
+                        velocity = Vector3.down * Random.Range(0.4f, 1.2f)
+                    };
+                    dripPs.Emit(dripParams, 1);
                 }
             }
+
+            CollisionBuffer.Clear();
         }
 
-        private void ConfigureDecalSystem()
+        private void ConfigureDecalLayer()
         {
             ForceStopAndClear(decalPs);
 
@@ -322,7 +303,7 @@ namespace JTPAudio.VFX
             main.startLifetime = 10f; // Decals stay longer
             main.startSpeed = 0f; // Static
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.scalingMode = ParticleSystemScalingMode.Shape; // Prevent giant decals on scaled enemies
+            main.scalingMode = ParticleSystemScalingMode.Local;
             main.playOnAwake = false;
             main.maxParticles = 100;
             main.startRotation3D = true;
@@ -393,41 +374,349 @@ namespace JTPAudio.VFX
             }
         }
 
-        private void ConfigureSplashSystem()
+        private void ConfigureCoreJet()
         {
-            ForceStopAndClear(splashPs);
+            ForceStopAndClear(ps);
 
-            var main = splashPs.main;
-            main.duration = 1f;
+            var main = ps.main;
+            main.duration = 0.18f;
             main.loop = false;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 6f);
-            main.scalingMode = ParticleSystemScalingMode.Shape;
-            main.startSize = new ParticleSystem.MinMaxCurve(0.002f, 0.005f); // 2mm to 5mm
-            main.gravityModifier = 2f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.6f, 1.2f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(speedRange.x, speedRange.y);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.015f);
+            main.scalingMode = ParticleSystemScalingMode.Local;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.gravityModifier = jetGravityScale;
             main.playOnAwake = false;
-            main.maxParticles = 200;
-            
-            // Use white since texture has color
-            main.startColor = Color.white;
 
-            var emission = splashPs.emission;
-            emission.enabled = false; // Emit via script
+            var color = ps.colorOverLifetime;
+            color.enabled = true;
+            color.color = new ParticleSystem.MinMaxGradient(new Gradient
+            {
+                colorKeys = new[]
+                {
+                    new GradientColorKey(new Color(0.7f, 0.05f, 0.05f), 0f),
+                    new GradientColorKey(new Color(0.35f, 0f, 0f), 1f)
+                },
+                alphaKeys = new[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(1f, 1f)
+                }
+            });
 
-            var shape = splashPs.shape;
-            shape.enabled = false;
+            var size = ps.sizeOverLifetime;
+            size.enabled = true;
+            size.size = new ParticleSystem.MinMaxCurve(1f, pressureOverLife);
 
-            // Renderer
-            splashRenderer.renderMode = ParticleSystemRenderMode.Billboard;
-            splashRenderer.minParticleSize = 0f;
-            splashRenderer.maxParticleSize = 0.1f;
-            
+            var vel = ps.velocityOverLifetime;
+            vel.enabled = true;
+            vel.space = ParticleSystemSimulationSpace.World;
+            vel.z = new ParticleSystem.MinMaxCurve(-1f, -0.5f);
+            vel.y = new ParticleSystem.MinMaxCurve(-0.5f, 0.5f);
+
+            var limitVel = ps.limitVelocityOverLifetime;
+            limitVel.enabled = true;
+            limitVel.limit = new ParticleSystem.MinMaxCurve(4f, 6f);
+            limitVel.dampen = 0.4f;
+
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.quality = ParticleSystemNoiseQuality.High;
+            noise.strength = new ParticleSystem.MinMaxCurve(0.4f, 0.9f);
+            noise.frequency = 0.5f;
+            noise.scrollSpeed = 0.8f;
+            noise.damping = true;
+
+            var trails = ps.trails;
+            trails.enabled = enableRibbonTrails;
+            if (enableRibbonTrails)
+            {
+                trails.mode = ParticleSystemTrailMode.Ribbon;
+                trails.ratio = 0.3f;
+                trails.lifetime = new ParticleSystem.MinMaxCurve(0.04f, 0.09f);
+                trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
+                trails.sizeAffectsLifetime = true;
+            }
+
+            var collision = ps.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.75f;
+            collision.bounce = 0.05f;
+            collision.radiusScale = 0.6f;
+            collision.lifetimeLoss = 1f;
+            collision.sendCollisionMessages = true;
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            collision.collidesWith = enemyLayer == -1 ? ~0 : ~(1 << enemyLayer);
+
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            short min = 112;
+            short max = 260;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, min, max) });
+            CacheBurst(ps, min, max);
+            SetLayerWeight(ps, 1f);
+
             var particleMaterial = GetParticleMaterial();
             if (particleMaterial != null)
             {
-                splashRenderer.sharedMaterial = particleMaterial;
+                psRenderer.sharedMaterial = particleMaterial;
+                psRenderer.trailMaterial = particleMaterial;
             }
+            psRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            psRenderer.sortingFudge = 1f;
+        }
+
+        private void ConfigureSheetLayer()
+        {
+            ForceStopAndClear(sheetPs);
+
+            var main = sheetPs.main;
+            main.duration = 0.22f;
+            main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.7f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(3f, 8f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.0075f, 0.02f);
+            main.scalingMode = ParticleSystemScalingMode.Local;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.gravityModifier = jetGravityScale * 0.35f;
+            main.startColor = Color.white;
+            main.playOnAwake = false;
+
+            var emission = sheetPs.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            short min = 72;
+            short max = 168;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, min, max) });
+            CacheBurst(sheetPs, min, max);
+            SetLayerWeight(sheetPs, 0.85f);
+
+            var shape = sheetPs.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 9f;
+            shape.radius = 0.04f;
+
+            var velocity = sheetPs.velocityOverLifetime;
+            velocity.enabled = true;
+            velocity.space = ParticleSystemSimulationSpace.World;
+            velocity.x = new ParticleSystem.MinMaxCurve(-0.8f, 0.8f);
+            velocity.y = new ParticleSystem.MinMaxCurve(-0.2f, 0.2f);
+
+            var textureSheet = sheetPs.textureSheetAnimation;
+            textureSheet.enabled = false;
+
+            sheetRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            sheetRenderer.alignment = ParticleSystemRenderSpace.View;
+            sheetRenderer.minParticleSize = 0f;
+            sheetRenderer.maxParticleSize = 0.25f;
+            var mat = GetParticleMaterial();
+            if (mat != null) sheetRenderer.sharedMaterial = mat;
+        }
+
+        private void ConfigureDropletLayer()
+        {
+            ForceStopAndClear(dropletPs);
+
+            var main = dropletPs.main;
+            main.duration = 0.3f;
+            main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.7f, 1.5f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(4f, 10f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.00375f, 0.0125f);
+            main.scalingMode = ParticleSystemScalingMode.Local;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.gravityModifier = 5f;
+            main.playOnAwake = false;
+
+            var emission = dropletPs.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            short min = 48;
+            short max = 112;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0.02f, min, max) });
+            CacheBurst(dropletPs, min, max);
+            SetLayerWeight(dropletPs, 1.15f);
+
+            var collision = dropletPs.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.dampen = 0.65f;
+            collision.bounce = 0.05f;
+            collision.lifetimeLoss = 1f;
+
+            dropletRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            dropletRenderer.minParticleSize = 0f;
+            dropletRenderer.maxParticleSize = 0.15f;
+            var mat = GetParticleMaterial();
+            if (mat != null) dropletRenderer.sharedMaterial = mat;
+        }
+
+        private void ConfigureMistLayer()
+        {
+            ForceStopAndClear(mistPs);
+
+            var main = mistPs.main;
+            main.duration = 0.4f;
+            main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.15f, 0.35f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(1f, 3f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.002f, 0.005f);
+            main.scalingMode = ParticleSystemScalingMode.Local;
+            main.gravityModifier = 1.2f;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.maxParticles = 400;
+
+            var emission = mistPs.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            short min = 80;
+            short max = 200;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0.03f, min, max) });
+            CacheBurst(mistPs, min, max);
+            SetLayerWeight(mistPs, 0.5f);
+
+            mistRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            mistRenderer.minParticleSize = 0f;
+            mistRenderer.maxParticleSize = 0.05f;
+            var mat = GetParticleMaterial();
+            if (mat != null) mistRenderer.sharedMaterial = mat;
+        }
+
+        private void ConfigureDripLayer()
+        {
+            ForceStopAndClear(dripPs);
+
+            var main = dripPs.main;
+            main.duration = 2f;
+            main.loop = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.8f, 2f);
+            main.startSpeed = 0f;
+            main.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.0125f);
+            main.scalingMode = ParticleSystemScalingMode.Local;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.gravityModifier = 9.81f;
+            main.maxParticles = 120;
+            main.playOnAwake = false;
+
+            var emission = dripPs.emission;
+            emission.enabled = false; // script-driven
+
+            var trails = dripPs.trails;
+            trails.enabled = true;
+            trails.lifetime = 0.25f;
+            trails.textureMode = ParticleSystemTrailTextureMode.Stretch;
+
+            dripRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            dripRenderer.minParticleSize = 0f;
+            dripRenderer.maxParticleSize = 0.15f;
+            var mat = GetParticleMaterial();
+            if (mat != null)
+            {
+                dripRenderer.sharedMaterial = mat;
+                dripRenderer.trailMaterial = mat;
+            }
+        }
+
+        private void RegisterSystem(ParticleSystem system)
+        {
+            if (system == null || _allSystems.Contains(system)) return;
+            _allSystems.Add(system);
+        }
+
+        private void DisableLayer(ParticleSystem system, ParticleSystemRenderer renderer)
+        {
+            if (system == null) return;
+            ForceStopAndClear(system);
+            var emission = system.emission;
+            emission.enabled = false;
+            renderer.enabled = false;
+            system.gameObject.SetActive(false);
+            _allSystems.Remove(system);
+            _burstCache.Remove(system);
+            _layerWeights.Remove(system);
+        }
+
+        private ParticleSystem CreateChildSystem(string name, out ParticleSystemRenderer renderer)
+        {
+            GameObject obj = new GameObject(name);
+            obj.transform.SetParent(transform);
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            var system = obj.AddComponent<ParticleSystem>();
+            renderer = obj.GetComponent<ParticleSystemRenderer>();
+            RegisterSystem(system);
+            return system;
+        }
+
+        private void ResetAndPlayAll()
+        {
+            foreach (var system in _allSystems)
+            {
+                ForceStopAndClear(system);
+                system.Play();
+            }
+        }
+
+        private void RestartAll()
+        {
+            foreach (var system in _allSystems)
+            {
+                system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                system.Play();
+            }
+            ScheduleDisable();
+        }
+
+        private void ScheduleDisable()
+        {
+            float maxDuration = 0f;
+            foreach (var system in _allSystems)
+            {
+                var main = system.main;
+                float duration = main.duration + main.startLifetime.constantMax;
+                if (duration > maxDuration) maxDuration = duration;
+            }
+
+            CancelInvoke(nameof(DisableSelf));
+            Invoke(nameof(DisableSelf), maxDuration);
+        }
+
+        private void CacheBurst(ParticleSystem system, short min, short max)
+        {
+            _burstCache[system] = (min, max);
+        }
+
+        private void SetLayerWeight(ParticleSystem system, float weight)
+        {
+            _layerWeights[system] = Mathf.Max(0.05f, weight);
+        }
+
+        private bool IsLayerActive(ParticleSystem system)
+        {
+            return system != null && _layerWeights.ContainsKey(system);
+        }
+
+        private void ApplyLayerIntensities()
+        {
+            foreach (var kvp in _layerWeights)
+            {
+                ApplyBurstScale(kvp.Key, kvp.Value * _tierIntensityMultiplier * _damageIntensityMultiplier);
+            }
+        }
+
+        private void ApplyBurstScale(ParticleSystem system, float multiplier)
+        {
+            if (!_burstCache.TryGetValue(system, out var burst)) return;
+            short min = (short)Mathf.Clamp(burst.min * multiplier, 1, 1000);
+            short max = (short)Mathf.Clamp(burst.max * multiplier, min, 1500);
+            var emission = system.emission;
+            emission.SetBursts(new[] { new ParticleSystem.Burst(0f, min, max) });
         }
 
         private Material GetParticleMaterial()
@@ -479,7 +768,6 @@ namespace JTPAudio.VFX
                 "Legacy Shaders/Particles/Alpha Blended",
                 "Sprites/Default"
             };
-
             foreach (var name in shaderNames)
             {
                 Shader shader = Shader.Find(name);
@@ -569,7 +857,7 @@ namespace JTPAudio.VFX
                     Color finalCol = baseCol + (highlight * spec * 0.8f);
                     
                     // Soft edge alpha
-                    float alpha = Mathf.SmoothStep(1f, 0f, (dist - (radius * 0.8f)) / (radius * 0.2f));
+                    float alpha = Mathf.SmoothStep(1f, 0.85f, (dist - (radius * 0.85f)) / (radius * 0.15f));
                     finalCol.a = alpha;
 
                     colors[y * resolution + x] = finalCol;
@@ -630,7 +918,7 @@ namespace JTPAudio.VFX
                     Color finalCol = baseCol + (highlight * spec * 0.6f);
 
                     // Alpha fade at very edge
-                    float alpha = Mathf.SmoothStep(1f, 0f, (dist - (currentRadius * 0.9f)) / (currentRadius * 0.1f));
+                    float alpha = Mathf.SmoothStep(1f, 0.85f, (dist - (currentRadius * 0.92f)) / (currentRadius * 0.08f));
                     finalCol.a = alpha;
 
                     colors[y * resolution + x] = finalCol;

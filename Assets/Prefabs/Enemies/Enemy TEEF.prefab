@@ -9,6 +9,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -154,7 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entityData: {fileID: 11400000, guid: 06d077c8eb2290e4fbdf7083a7f9a1bd, type: 2}
   isPlayer: 0
-  debugMode: 1
+  debugMode: 0
 --- !u!54 &3232424537136674471
 Rigidbody:
   m_ObjectHideFlags: 0

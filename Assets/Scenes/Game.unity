@@ -1742,7 +1742,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 673212431075838316, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
       propertyPath: baseSize
-      value: 10
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 673212431075838316, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
+      propertyPath: smoothingSpeed
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 673212431075838316, guid: a9069681d60a8b047a190031f5f2d3bb, type: 3}
       propertyPath: bloomScaleFactor
