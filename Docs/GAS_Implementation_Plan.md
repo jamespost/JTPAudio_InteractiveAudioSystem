@@ -39,7 +39,7 @@ This document outlines a phased approach to implementing an Unreal Engine-style 
         *   **Granted Tags:** Tags applied while the effect is active.
     *   Implement `ApplyGameplayEffectToSelf` and `ApplyGameplayEffectToTarget` on the ASC.
 
-## Phase 3: The Actions (Gameplay Abilities)
+## Phase 3: The Actions (Gameplay Abilities) [COMPLETED]
 **Goal:** Define what actors can actually *do*.
 
 ### 3.1 Gameplay Ability Base

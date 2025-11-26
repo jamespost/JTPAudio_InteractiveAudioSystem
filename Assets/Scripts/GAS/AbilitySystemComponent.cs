@@ -7,6 +7,7 @@ namespace GAS
     {
         [SerializeField] private AttributeSet attributeSet;
         [SerializeField] private GameplayTagContainer tagContainer = new GameplayTagContainer();
+        [SerializeField] private List<GameplayAbility> grantedAbilities = new List<GameplayAbility>();
 
         public AttributeSet AttributeSet => attributeSet;
         public GameplayTagContainer TagContainer => tagContainer;
@@ -93,6 +94,45 @@ namespace GAS
         public bool HasTag(GameplayTag tag)
         {
             return tagContainer.HasTag(tag);
+        }
+
+        public void GrantAbility(GameplayAbility ability)
+        {
+            if (ability != null && !grantedAbilities.Contains(ability))
+            {
+                grantedAbilities.Add(ability);
+            }
+        }
+
+        public void RevokeAbility(GameplayAbility ability)
+        {
+            if (grantedAbilities.Contains(ability))
+            {
+                grantedAbilities.Remove(ability);
+            }
+        }
+
+        public bool TryActivateAbility(GameplayAbility ability)
+        {
+            if (grantedAbilities.Contains(ability))
+            {
+                if (ability.CanActivate(this))
+                {
+                    ability.Activate(this);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryActivateAbilityByName(string abilityName)
+        {
+            var ability = grantedAbilities.Find(a => a.AbilityName == abilityName);
+            if (ability != null)
+            {
+                return TryActivateAbility(ability);
+            }
+            return false;
         }
     }
 }
