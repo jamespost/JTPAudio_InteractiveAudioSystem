@@ -3,7 +3,7 @@
 ## Overview
 This document outlines a phased approach to implementing an Unreal Engine-style Gameplay Ability System (GAS) in Unity for the `JTPAudio_InteractiveAudioSystem` project. The goal is to decouple game logic (Abilities) from data (Attributes) and presentation (Cues), making the codebase more modular and easier to extend.
 
-## Phase 1: The Foundation (Tags & Attributes)
+## Phase 1: The Foundation (Tags & Attributes) [COMPLETED]
 **Goal:** Establish the vocabulary and data structure for the system.
 
 ### 1.1 Gameplay Tags
@@ -20,7 +20,7 @@ This document outlines a phased approach to implementing an Unreal Engine-style 
     *   Create `AttributeSet` (ScriptableObject or Monobehaviour) to define collections of attributes for different entity types (e.g., `PlayerAttributeSet`, `EnemyAttributeSet`).
     *   **Migration:** Plan to replace `Health.cs` logic with a `Health` Attribute.
 
-## Phase 2: The Engine (Ability System Component & Effects)
+## Phase 2: The Engine (Ability System Component & Effects) [COMPLETED]
 **Goal:** Create the central processor that manages state and applies changes.
 
 ### 2.1 Ability System Component (ASC)
