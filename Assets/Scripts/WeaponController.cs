@@ -115,6 +115,7 @@ public class WeaponController : MonoBehaviour
     private Camera mainCamera;
     private PlayerController playerController;
     private CharacterController characterController;
+    private RecoilController recoilController;
 
     private GameObject ammoDebugTextObject;
     private Text ammoDebugTextMesh;
@@ -172,6 +173,14 @@ public class WeaponController : MonoBehaviour
         if (playerController != null)
         {
             characterController = playerController.GetComponent<CharacterController>();
+        }
+
+        // Get RecoilController reference
+        recoilController = FindFirstObjectByType<RecoilController>();
+        if (recoilController == null && mainCamera != null)
+        {
+            // Try to find it on the camera if not found globally (though FindFirstObjectByType should find it)
+            recoilController = mainCamera.GetComponent<RecoilController>();
         }
 
         // Fire initial ammo event
@@ -331,6 +340,18 @@ public class WeaponController : MonoBehaviour
         // Apply Bloom
         currentBloom += weaponData.bloomGrowthRate;
         currentBloom = Mathf.Clamp(currentBloom, weaponData.minBloomAngle, weaponData.maxBloomAngle);
+
+        // Apply Recoil
+        if (recoilController != null)
+        {
+            recoilController.RecoilFire(
+                weaponData.recoilX, 
+                weaponData.recoilY, 
+                weaponData.recoilZ, 
+                weaponData.snappiness, 
+                weaponData.returnSpeed
+            );
+        }
 
         // Calculate spread direction
         Vector3 spreadDirection = firePoint.forward;

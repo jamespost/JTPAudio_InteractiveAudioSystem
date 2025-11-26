@@ -57,4 +57,20 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Multiplier for bloom when crouching (if applicable).")]
     public float crouchBloomMultiplier = 0.5f;
+
+    [Header("Recoil Settings")]
+    [Tooltip("Vertical recoil (X-axis rotation).")]
+    public float recoilX = 2f;
+
+    [Tooltip("Horizontal recoil (Y-axis rotation).")]
+    public float recoilY = 0.5f;
+
+    [Tooltip("Kickback force (Z-axis position).")]
+    public float recoilZ = 0.1f;
+
+    [Tooltip("How fast the recoil moves to the target position.")]
+    public float snappiness = 6f;
+
+    [Tooltip("How fast the recoil returns to zero.")]
+    public float returnSpeed = 2f;
 }

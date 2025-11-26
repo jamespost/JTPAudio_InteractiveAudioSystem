@@ -23,3 +23,14 @@ MonoBehaviour:
   hitOtherSound: {fileID: 0}
   outOfAmmoSound: {fileID: 11400000, guid: e50fdcb447168034881add7aa4875d44, type: 2}
   impactSound: {fileID: 0}
+  minBloomAngle: 0.1
+  maxBloomAngle: 5
+  bloomGrowthRate: 1
+  bloomRecoveryRate: 10
+  movementBloomMultiplier: 2
+  crouchBloomMultiplier: 0.5
+  recoilX: 2
+  recoilY: 0.5
+  recoilZ: 0.1
+  snappiness: 6
+  returnSpeed: 10

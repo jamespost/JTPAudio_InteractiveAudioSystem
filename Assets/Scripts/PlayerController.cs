@@ -110,6 +110,10 @@ public class PlayerController : MonoBehaviour
     private bool controlsEnabled = false; // Tracks whether controls are enabled
     private int currentJumpCount = 0; // Tracks the number of jumps performed
 
+    // --- Recoil Settings ---
+    [HideInInspector]
+    public Vector3 recoilOffsetRotation = Vector3.zero;
+
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
     /// </summary>
@@ -276,8 +280,8 @@ public class PlayerController : MonoBehaviour
         verticalRotation -= currentMouseDelta.y;
         verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
 
-        // Apply vertical rotation to the camera
-        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        // Apply vertical rotation to the camera, including recoil
+        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f) * Quaternion.Euler(recoilOffsetRotation);
 
         // Rotate the player horizontally
         transform.Rotate(Vector3.up * currentMouseDelta.x);
