@@ -68,7 +68,7 @@ public class EnemyTeefAI : MonoBehaviour
     public float pathLookAheadDistance = 3f;
 
     [Tooltip("Ground probe distance when checking if the head is planted.")]
-    public float groundCheckDistance = 0.6f;
+    public float groundCheckDistance = 1.5f;
 
     [Tooltip("Layer mask used when raycasting for the floor.")]
     public LayerMask groundLayers = ~0;
@@ -243,7 +243,7 @@ public class EnemyTeefAI : MonoBehaviour
         Vector3 direction = GetPlanarDirection(currentTargetPosition);
         if (direction.sqrMagnitude > 0.001f)
         {
-            ApplyRollingForces(direction);
+            ApplyThrusterMovement(direction);
         }
 
         biteIntervalTimer -= Time.fixedDeltaTime;
@@ -330,18 +330,71 @@ public class EnemyTeefAI : MonoBehaviour
         }
     }
 
-    private void ApplyRollingForces(Vector3 direction)
+    private void ApplyThrusterMovement(Vector3 direction)
     {
-        float force = enemyData.moveSpeed * rollForceMultiplier;
-        rb.AddForce(direction * force, ForceMode.Force);
-
-        Vector3 rotationAxis = Vector3.Cross(Vector3.up, direction);
-        // Reduce torque application so it rolls visually instead of spinning like a top
-        rb.AddTorque(rotationAxis * (force * 0.2f), ForceMode.Force);
-
-        if (rb.linearVelocity.magnitude > enemyData.moveSpeed)
+        // Thruster-based movement: Hover + Tilt + Propel
+        float moveSpeed = enemyData.moveSpeed;
+        
+        // 1. Hover Height Control (PID)
+        float targetHeight = 1.2f;
+        float currentHeight = 10f;
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 10f, groundLayers))
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * enemyData.moveSpeed;
+            currentHeight = hit.distance;
+        }
+
+        float heightError = targetHeight - currentHeight;
+        float gravity = 9.81f * rb.mass;
+        // Strong spring to keep it floating
+        float springForce = heightError * 30f * rb.mass; 
+        float dampingForce = -rb.linearVelocity.y * 4f * rb.mass;
+        float verticalThrust = gravity + springForce + dampingForce;
+
+        // 2. Orientation & Tilt
+        // Tilt forward when moving
+        float tiltAngle = 20f;
+        if (direction.sqrMagnitude < 0.01f) tiltAngle = 0f;
+
+        Quaternion targetFacing = Quaternion.LookRotation(direction.sqrMagnitude > 0.01f ? direction : transform.forward, Vector3.up);
+        // Tilt forward (positive X rotation in local space of targetFacing)
+        Quaternion tilt = Quaternion.Euler(tiltAngle, 0, 0);
+        Quaternion targetRot = targetFacing * tilt;
+
+        // Apply Torque for rotation
+        Quaternion deltaRot = targetRot * Quaternion.Inverse(transform.rotation);
+        deltaRot.ToAngleAxis(out float angle, out Vector3 axis);
+        if (angle > 180f) angle -= 360f;
+        
+        float kp = 12f; // Stiffness
+        float kd = 1.5f; // Damping
+        Vector3 torque = axis.normalized * (angle * kp) - rb.angularVelocity * kd;
+        rb.AddTorque(torque, ForceMode.Acceleration);
+
+        // 3. Apply Main Thrust
+        // We apply force along the local UP vector (thruster direction)
+        // We scale it so the vertical component matches 'verticalThrust'
+        // This naturally creates forward force due to the tilt.
+        
+        float upDot = Vector3.Dot(transform.up, Vector3.up);
+        if (upDot < 0.2f) upDot = 0.2f; // Prevent divide by zero/instability if flipped
+        
+        float totalThrust = verticalThrust / upDot;
+        
+        // Add a little extra forward kick if we are really lagging behind speed
+        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
+        if (flatVel.magnitude < moveSpeed * 0.5f)
+        {
+            totalThrust *= 1.2f;
+        }
+
+        rb.AddForce(transform.up * totalThrust, ForceMode.Force);
+
+        // 4. Horizontal Drag (Air Resistance) to cap speed
+        if (flatVel.magnitude > 0)
+        {
+            // Simple linear drag for horizontal movement
+            rb.AddForce(-flatVel.normalized * (flatVel.magnitude * 2f), ForceMode.Force);
         }
     }
 
