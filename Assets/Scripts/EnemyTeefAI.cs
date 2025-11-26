@@ -95,6 +95,10 @@ public class EnemyTeefAI : MonoBehaviour
         {
             defaultDrag = rb.linearDamping;
             defaultAngularDrag = rb.angularDamping;
+
+            // Fix for low framerate look on high refresh displays
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.maxAngularVelocity = 20f; // Cap rotation speed so it doesn't look ridiculous
         }
         enemyPooler = FindFirstObjectByType<ObjectPooler>();
         path = new NavMeshPath();
@@ -332,7 +336,8 @@ public class EnemyTeefAI : MonoBehaviour
         rb.AddForce(direction * force, ForceMode.Force);
 
         Vector3 rotationAxis = Vector3.Cross(Vector3.up, direction);
-        rb.AddTorque(rotationAxis * force, ForceMode.Force);
+        // Reduce torque application so it rolls visually instead of spinning like a top
+        rb.AddTorque(rotationAxis * (force * 0.2f), ForceMode.Force);
 
         if (rb.linearVelocity.magnitude > enemyData.moveSpeed)
         {
