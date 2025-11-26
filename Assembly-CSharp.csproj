@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Audio\DynamicEchoSystem.cs" />
     <Compile Include="Assets\Scripts\VFX\ProceduralBloodVFX.cs" />
     <Compile Include="Assets\Scripts\Health.cs" />
+    <Compile Include="Assets\Scripts\Camera\PlayerDamageShake.cs" />
     <Compile Include="Assets\Scripts\GameplayLogger.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
+    <Compile Include="Assets\Scripts\Camera\ScreenShakeManager.cs" />
     <Compile Include="Assets\Scripts\LevelData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_PhoneNumberValidator.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Assets\Scripts\UIElement.cs" />
     <Compile Include="Assets\Scripts\AnimationEventProxy.cs" />
     <Compile Include="Assets\Scripts\UITextElement.cs" />
+    <Compile Include="Assets\Scripts\Camera\ScreenShakeSettings.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
     <Compile Include="Assets\Scripts\DataDrivenUIManager.cs" />
     <Compile Include="Assets\Scripts\ExampleThreatSource.cs" />

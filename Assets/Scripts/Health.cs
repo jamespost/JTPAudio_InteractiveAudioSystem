@@ -21,7 +21,7 @@ public class Health : MonoBehaviour
     public bool debugMode = false;
 
     // --- Public Events ---
-    public event Action<float> OnDamaged;
+    public event Action<float, float> OnDamaged; // currentHealth, damageAmount
     public event Action OnDied;
     
     // --- Static Events for Player ---
@@ -115,7 +115,7 @@ public class Health : MonoBehaviour
 
         currentHealth -= amount;
         Debug.Log($"Current health after damage: {currentHealth}"); // Added debug log
-        OnDamaged?.Invoke(currentHealth);
+        OnDamaged?.Invoke(currentHealth, amount);
 
         // Fire static player health event if this is the player
         if (isPlayer && entityData != null)

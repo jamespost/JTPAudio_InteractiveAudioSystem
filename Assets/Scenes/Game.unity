@@ -925,6 +925,51 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1310662972}
   m_SourcePrefab: {fileID: 100100000, guid: 7c69bbe462f65ef49a8a0d3e96001837, type: 3}
+--- !u!1 &824757548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 824757550}
+  - component: {fileID: 824757549}
+  m_Layer: 0
+  m_Name: _ScreenShakeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &824757549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824757548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32ef61da5b9c524fa7f17a9544dbb41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenShakeManager
+  cameraTransform: {fileID: 0}
+--- !u!4 &824757550
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824757548}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.28114, y: 0.1968, z: 0.28114}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &846164077
 GameObject:
   m_ObjectHideFlags: 0
@@ -1470,6 +1515,7 @@ GameObject:
   - component: {fileID: 1541701951}
   - component: {fileID: 1541701950}
   - component: {fileID: 1541701952}
+  - component: {fileID: 1541701953}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1639,6 +1685,22 @@ MonoBehaviour:
   entityData: {fileID: 11400000, guid: 883b1be0e0ee9bf468e871e4dd06ad7e, type: 2}
   isPlayer: 1
   debugMode: 1
+--- !u!114 &1541701953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541701945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7635e81b08d06347b739e27c6acec73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDamageShake
+  damageShakeSettings: {fileID: 11400000, guid: 2c6fa066c55b9104c8c8a19f84c32d21, type: 2}
+  damageToShakeMultiplier: 0.1
+  minDamageThreshold: 1
+  maxShakeMultiplier: 2
 --- !u!1 &1552604526
 GameObject:
   m_ObjectHideFlags: 0
@@ -2601,3 +2663,4 @@ SceneRoots:
   - {fileID: 3995624103242084031}
   - {fileID: 5898533304903866301}
   - {fileID: 3991849223351802599}
+  - {fileID: 824757550}
