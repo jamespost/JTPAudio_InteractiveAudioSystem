@@ -56,6 +56,7 @@
     <Compile Include="Assets\Scripts\Audio\GameSwitch.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\EnvMapAnimator.cs" />
     <Compile Include="Assets\Scripts\UIElementData.cs" />
+    <Compile Include="Assets\Scripts\GAS\FireWeaponAbility.cs" />
     <Compile Include="Assets\Scripts\Data\WeaponData.cs" />
     <Compile Include="Assets\Scripts\Camera\RecoilController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />

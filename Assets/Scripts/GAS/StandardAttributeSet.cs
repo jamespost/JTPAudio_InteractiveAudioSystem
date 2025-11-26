@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace GAS
 {
+    [AddComponentMenu("GAS/Standard Attribute Set")]
     public class StandardAttributeSet : AttributeSet
     {
         public GameplayAttribute Health;

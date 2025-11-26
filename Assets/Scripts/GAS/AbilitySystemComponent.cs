@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace GAS
 {
+    [AddComponentMenu("GAS/Ability System Component")]
     public class AbilitySystemComponent : MonoBehaviour
     {
         [SerializeField] private AttributeSet attributeSet;

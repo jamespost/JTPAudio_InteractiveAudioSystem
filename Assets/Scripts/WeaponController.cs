@@ -135,8 +135,15 @@ public class WeaponController : MonoBehaviour
 
     private const string BLOOD_VFX_TAG = "BloodSplatter";
 
+    // GAS Integration
+    private GAS.AbilitySystemComponent abilitySystemComponent;
+    [Header("GAS")]
+    public GAS.GameplayAbility FireAbility;
+
     private void Awake()
     {
+        abilitySystemComponent = GetComponent<GAS.AbilitySystemComponent>();
+
         // Initialize Object Pooler for VFX
         vfxPooler = FindFirstObjectByType<ObjectPooler>();
         if (vfxPooler == null)
@@ -292,7 +299,20 @@ public class WeaponController : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime && !isReloading)
+        // GAS Path
+        if (abilitySystemComponent != null && FireAbility != null)
+        {
+            if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime && !isReloading)
+            {
+                // We still handle rate limiting here for now, or move it to Ability Cooldown
+                if (abilitySystemComponent.TryActivateAbility(FireAbility))
+                {
+                    nextFireTime = Time.time + weaponData.fireRate;
+                }
+            }
+        }
+        // Legacy Path
+        else if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime && !isReloading)
         {
             Fire();
         }
@@ -301,6 +321,45 @@ public class WeaponController : MonoBehaviour
         {
             StartCoroutine(Reload());
         }
+    }
+
+    // Helper for GAS Ability to consume ammo
+    public bool TryConsumeAmmo(int amount)
+    {
+        if (currentAmmo >= amount)
+        {
+            currentAmmo -= amount;
+            OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+            
+            // Trigger effects that usually happen on fire
+            EventManager.TriggerWeaponFired();
+            
+            // Apply Bloom
+            currentBloom += weaponData.bloomGrowthRate;
+            currentBloom = Mathf.Clamp(currentBloom, weaponData.minBloomAngle, weaponData.maxBloomAngle);
+            
+            // Apply Recoil
+            if (recoilController != null)
+            {
+                recoilController.RecoilFire(
+                    weaponData.recoilX, 
+                    weaponData.recoilY, 
+                    weaponData.recoilZ, 
+                    weaponData.snappiness, 
+                    weaponData.returnSpeed
+                );
+            }
+            
+            return true;
+        }
+        
+        // Out of ammo feedback
+        Debug.Log("Out of ammo!");
+        if (pulseFeedbackCoroutine != null) StopCoroutine(pulseFeedbackCoroutine);
+        pulseFeedbackCoroutine = StartCoroutine(PulseAmmoUI());
+        if (weaponData.outOfAmmoSound != null) AudioManager.Instance.PostEvent(weaponData.outOfAmmoSound.eventID, this.gameObject);
+        
+        return false;
     }
 
     private void Fire()
