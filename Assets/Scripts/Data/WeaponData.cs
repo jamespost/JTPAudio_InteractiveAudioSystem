@@ -55,9 +55,6 @@ public class WeaponData : ScriptableObject
     [Tooltip("How much bloom is added per shot.")]
     public float bloomGrowthRate = 1f;
 
-    [Tooltip("How fast bloom recovers per second.")]
-    public float bloomRecoveryRate = 10f;
-
     [Tooltip("Multiplier for bloom when moving.")]
     public float movementBloomMultiplier = 2f;
 
