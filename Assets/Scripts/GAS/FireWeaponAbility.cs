@@ -52,40 +52,51 @@ namespace GAS
             Transform firePoint = controller.firePoint;
             if (firePoint == null) return;
 
-            // Calculate Spread (Simplified)
-            Vector3 spreadDirection = firePoint.forward;
-            
-            // Raycast
-            RaycastHit hit;
-            if (Physics.Raycast(firePoint.position, spreadDirection, out hit, data.range, controller.hitLayers))
+            // Play Fire Sound (Once)
+            if (data.fireSound != null)
             {
-                // Apply Damage
-                // Priority 1: Legacy Health Component
-                Health health = hit.collider.GetComponent<Health>();
-                if (health != null)
-                {
-                    health.TakeDamage(data.damage);
-                }
-                
-                // Priority 2: GAS Attribute (Future proofing)
-                var targetASC = hit.collider.GetComponent<AbilitySystemComponent>();
-                if (targetASC != null)
-                {
-                    // In the future, we would apply a GameplayEffect here.
-                    // For now, we can manually decrement health if we wanted to support pure GAS entities.
-                    // var healthAttr = targetASC.AttributeSet.GetAttribute("Health");
-                    // if (healthAttr != null) healthAttr.CurrentValue -= data.damage;
-                }
+                AudioManager.Instance.PostEvent(data.fireSound.eventID, controller.gameObject);
+            }
 
-                // Visuals & Audio
-                if (data.fireSound != null)
+            for (int i = 0; i < data.projectilesPerShot; i++)
+            {
+                // Calculate Spread
+                float currentBloom = controller.GetCurrentBloom();
+                Vector3 spreadDirection = firePoint.forward;
+                if (currentBloom > 0)
                 {
-                    AudioManager.Instance.PostEvent(data.fireSound.eventID, controller.gameObject);
+                    spreadDirection = Quaternion.AngleAxis(Random.Range(0f, 360f), firePoint.forward) * 
+                                      Quaternion.AngleAxis(Random.Range(0f, currentBloom), Vector3.up) * 
+                                      firePoint.forward;
                 }
                 
-                if (data.impactSound != null)
+                // Raycast
+                RaycastHit hit;
+                if (Physics.Raycast(firePoint.position, spreadDirection, out hit, data.range, controller.hitLayers))
                 {
-                    AudioManager.Instance.PostEvent(data.impactSound.eventID, hit.collider.gameObject);
+                    // Apply Damage
+                    // Priority 1: Legacy Health Component
+                    Health health = hit.collider.GetComponent<Health>();
+                    if (health != null)
+                    {
+                        health.TakeDamage(data.damage);
+                    }
+                    
+                    // Priority 2: GAS Attribute (Future proofing)
+                    var targetASC = hit.collider.GetComponent<AbilitySystemComponent>();
+                    if (targetASC != null)
+                    {
+                        // In the future, we would apply a GameplayEffect here.
+                        // For now, we can manually decrement health if we wanted to support pure GAS entities.
+                        // var healthAttr = targetASC.AttributeSet.GetAttribute("Health");
+                        // if (healthAttr != null) healthAttr.CurrentValue -= data.damage;
+                    }
+
+                    // Visuals & Audio
+                    if (data.impactSound != null)
+                    {
+                        AudioManager.Instance.PostEvent(data.impactSound.eventID, hit.collider.gameObject);
+                    }
                 }
             }
         }

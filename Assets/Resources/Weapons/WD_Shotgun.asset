@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba8a9b979a9812c46b31910b8e2b4f1a, type: 3}
+  m_Name: WD_Shotgun
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  damage: 10
+  fireRate: 0.75
+  isAutomatic: 0
+  projectilesPerShot: 8
+  clipSize: 8
+  reloadSpeed: 1.5
+  range: 30
+  fireSound: {fileID: 0}
+  reloadSound: {fileID: 0}
+  hitEnemySound: {fileID: 0}
+  hitOtherSound: {fileID: 0}
+  outOfAmmoSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  minBloomAngle: 1
+  maxBloomAngle: 6
+  bloomGrowthRate: 1
+  bloomRecoveryRate: 5
+  movementBloomMultiplier: 2
+  crouchBloomMultiplier: 0.5
+  recoilX: 10
+  recoilY: 0.5
+  recoilZ: 0.1
+  snappiness: 12
+  returnSpeed: 2

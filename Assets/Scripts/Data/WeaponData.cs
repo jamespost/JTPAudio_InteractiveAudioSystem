@@ -14,6 +14,9 @@ public class WeaponData : ScriptableObject
     [Tooltip("Is the weapon automatic?")]
     public bool isAutomatic = false;
 
+    [Tooltip("Number of projectiles fired per shot (e.g. 1 for rifle, 8 for shotgun).")]
+    public int projectilesPerShot = 1;
+
     [Tooltip("Number of bullets in a clip.")]
     public int clipSize = 30;
 

@@ -414,97 +414,100 @@ public class WeaponController : MonoBehaviour
             );
         }
 
-        // Calculate spread direction
-        Vector3 spreadDirection = firePoint.forward;
-        if (currentBloom > 0)
-        {
-            spreadDirection = Quaternion.AngleAxis(Random.Range(0f, 360f), firePoint.forward) * 
-                              Quaternion.AngleAxis(Random.Range(0f, currentBloom), Vector3.up) * 
-                              firePoint.forward;
-        }
-
         // Play fire sound
         if (weaponData.fireSound != null)
         {
             AudioManager.Instance.PostEvent(weaponData.fireSound.eventID, this.gameObject);
         }
 
-        // Raycast for hit detection
-        RaycastHit hit;
-        if (Physics.Raycast(firePoint.position, spreadDirection, out hit, weaponData.range, hitLayers))
+        for (int i = 0; i < weaponData.projectilesPerShot; i++)
         {
-            // Log hit information
-            if (debugMode)
+            // Calculate spread direction
+            Vector3 spreadDirection = firePoint.forward;
+            if (currentBloom > 0)
             {
-                Debug.Log($"[WeaponController] Hit object: {hit.collider.name} at position: {hit.point}");
+                spreadDirection = Quaternion.AngleAxis(Random.Range(0f, 360f), firePoint.forward) * 
+                                  Quaternion.AngleAxis(Random.Range(0f, currentBloom), Vector3.up) * 
+                                  firePoint.forward;
             }
 
-            // Apply damage if the hit object has a Health component
-            Health health = hit.collider.GetComponent<Health>();
-            bool isEnemy = health != null;
-
-            if (isEnemy)
+            // Raycast for hit detection
+            RaycastHit hit;
+            if (Physics.Raycast(firePoint.position, spreadDirection, out hit, weaponData.range, hitLayers))
             {
-                health.TakeDamage(weaponData.damage);
-                
-                // Spawn Blood VFX for enemies
-                if (vfxPooler != null)
+                // Log hit information
+                if (debugMode)
                 {
-                    // Offset to prevent immediate self-collision with the enemy mesh
-                    Vector3 spawnPos = hit.point + (hit.normal * 0.1f);
+                    Debug.Log($"[WeaponController] Hit object: {hit.collider.name} at position: {hit.point}");
+                }
+
+                // Apply damage if the hit object has a Health component
+                Health health = hit.collider.GetComponent<Health>();
+                bool isEnemy = health != null;
+
+                if (isEnemy)
+                {
+                    health.TakeDamage(weaponData.damage);
                     
-                    // Calculate direction: mostly normal (splash back) but influenced by projectile velocity (momentum)
-                    // We use reflection to simulate the "glance" or momentum transfer
-                    Vector3 reflectDir = Vector3.Reflect(spreadDirection, hit.normal);
-                    // Blend between pure splash back (normal) and the reflection
-                    Vector3 finalDir = Vector3.Lerp(hit.normal, reflectDir, 0.4f);
-                    
-                    GameObject bloodObj = vfxPooler.SpawnFromPool(BLOOD_VFX_TAG, spawnPos, Quaternion.LookRotation(finalDir));
-                    if (bloodObj != null)
+                    // Spawn Blood VFX for enemies
+                    if (vfxPooler != null)
                     {
-                        ProceduralBloodVFX bloodVFX = bloodObj.GetComponent<ProceduralBloodVFX>();
-                        if (bloodVFX != null)
+                        // Offset to prevent immediate self-collision with the enemy mesh
+                        Vector3 spawnPos = hit.point + (hit.normal * 0.1f);
+                        
+                        // Calculate direction: mostly normal (splash back) but influenced by projectile velocity (momentum)
+                        // We use reflection to simulate the "glance" or momentum transfer
+                        Vector3 reflectDir = Vector3.Reflect(spreadDirection, hit.normal);
+                        // Blend between pure splash back (normal) and the reflection
+                        Vector3 finalDir = Vector3.Lerp(hit.normal, reflectDir, 0.4f);
+                        
+                        GameObject bloodObj = vfxPooler.SpawnFromPool(BLOOD_VFX_TAG, spawnPos, Quaternion.LookRotation(finalDir));
+                        if (bloodObj != null)
                         {
-                            bloodVFX.ScaleEffect(weaponData.damage);
+                            ProceduralBloodVFX bloodVFX = bloodObj.GetComponent<ProceduralBloodVFX>();
+                            if (bloodVFX != null)
+                            {
+                                bloodVFX.ScaleEffect(weaponData.damage);
+                            }
                         }
                     }
                 }
-            }
 
-            // Spawn impact VFX (only if not an enemy, or if we want both? Usually just blood for enemies)
-            if (!isEnemy && impactVFX != null && vfxPooler != null)
-            {
-                GameObject vfx = vfxPooler.GetPooledObject(impactVFX);
-                if (vfx != null)
+                // Spawn impact VFX (only if not an enemy, or if we want both? Usually just blood for enemies)
+                if (!isEnemy && impactVFX != null && vfxPooler != null)
                 {
-                    vfx.transform.position = hit.point;
-                    vfx.transform.rotation = Quaternion.LookRotation(hit.normal);
-                    vfx.SetActive(true);
+                    GameObject vfx = vfxPooler.GetPooledObject(impactVFX);
+                    if (vfx != null)
+                    {
+                        vfx.transform.position = hit.point;
+                        vfx.transform.rotation = Quaternion.LookRotation(hit.normal);
+                        vfx.SetActive(true);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[WeaponController] No pooled object available for impact VFX. Check ObjectPooler configuration.");
+                    }
                 }
-                else
+                else if (!isEnemy && impactVFX == null)
                 {
-                    Debug.LogWarning("[WeaponController] No pooled object available for impact VFX. Check ObjectPooler configuration.");
+                    Debug.LogWarning("[WeaponController] Impact VFX prefab is not assigned. Visual feedback will not be shown.");
                 }
-            }
-            else if (!isEnemy && impactVFX == null)
-            {
-                Debug.LogWarning("[WeaponController] Impact VFX prefab is not assigned. Visual feedback will not be shown.");
-            }
-            else if (!isEnemy && vfxPooler == null)
-            {
-                Debug.LogWarning("[WeaponController] ObjectPooler is not initialized. VFX pooling will not work.");
-            }
+                else if (!isEnemy && vfxPooler == null)
+                {
+                    Debug.LogWarning("[WeaponController] ObjectPooler is not initialized. VFX pooling will not work.");
+                }
 
-            // Play impact sound
-            if (weaponData.impactSound != null)
-            {
-                AudioManager.Instance.PostEvent(weaponData.impactSound.eventID, hit.collider.gameObject);
-            }
+                // Play impact sound
+                if (weaponData.impactSound != null)
+                {
+                    AudioManager.Instance.PostEvent(weaponData.impactSound.eventID, hit.collider.gameObject);
+                }
 
-            // Draw debug gizmo if debug mode is enabled
-            if (debugMode)
-            {
-                DebugDrawHitPoint(hit.point);
+                // Draw debug gizmo if debug mode is enabled
+                if (debugMode)
+                {
+                    DebugDrawHitPoint(hit.point);
+                }
             }
         }
     }
@@ -798,8 +801,13 @@ private IEnumerator AnimateReloadRotation()
     isRotatingForReload = false;
 }
 
-public void TriggerInitialAmmoUpdate()
-{
-    OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
-}
+    public void TriggerInitialAmmoUpdate()
+    {
+        OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+    }
+
+    public float GetCurrentBloom()
+    {
+        return currentBloom;
+    }
 }
