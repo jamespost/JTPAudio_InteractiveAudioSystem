@@ -285,8 +285,11 @@ public class WeaponController : MonoBehaviour
         // Recover bloom
         if (currentBloom > targetBloom)
         {
-            currentBloom -= weaponData.bloomRecoveryRate * Time.deltaTime;
-            if (currentBloom < targetBloom) currentBloom = targetBloom;
+            // Use Lerp with returnSpeed to match recoil recovery (1:1 link)
+            currentBloom = Mathf.Lerp(currentBloom, targetBloom, weaponData.returnSpeed * Time.deltaTime);
+            
+            // Snap to target if very close
+            if (Mathf.Abs(currentBloom - targetBloom) < 0.01f) currentBloom = targetBloom;
         }
         else if (currentBloom < targetBloom)
         {
