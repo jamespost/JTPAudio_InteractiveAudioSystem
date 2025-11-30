@@ -1015,7 +1015,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc05a102dcc36b849943ea1aef87eb00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponData: {fileID: 11400000, guid: 00df03fd1fde46e45b29e71c62a2bb6f, type: 2}
+  weaponData: {fileID: 11400000, guid: a3a53a31ad1a18e4a9f4a964d0132fcc, type: 2}
   firePoint: {fileID: 0}
   impactVFX: {fileID: 1430549394993017824, guid: 8989a721cf60da24d9199bd688b8a492, type: 3}
   hitLayers:
@@ -1039,7 +1039,7 @@ MonoBehaviour:
   ammoColorChangeAudioEvent: AmmoColorChange
   debugMode: 0
   reloadRotationTransform: {fileID: 370332372}
-  FireAbility: {fileID: 0}
+  FireAbility: {fileID: 11400000, guid: c50f51b2ebf391d4f9e8f6dd8905e36f, type: 2}
 --- !u!1001 &969104198
 PrefabInstance:
   m_ObjectHideFlags: 0

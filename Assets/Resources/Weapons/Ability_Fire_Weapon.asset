@@ -20,5 +20,5 @@ MonoBehaviour:
     tags: []
   ActivationBlockedTags:
     tags: []
-  OverrideWeaponData: {fileID: 0}
+  OverrideWeaponData: {fileID: 11400000, guid: 00df03fd1fde46e45b29e71c62a2bb6f, type: 2}
   DamageEffect: {fileID: 0}

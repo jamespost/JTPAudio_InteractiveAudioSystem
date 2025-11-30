@@ -11,6 +11,9 @@ public class WeaponData : ScriptableObject
     [Tooltip("Time between shots.")]
     public float fireRate = 0.1f;
 
+    [Tooltip("Is the weapon automatic?")]
+    public bool isAutomatic = false;
+
     [Tooltip("Number of bullets in a clip.")]
     public int clipSize = 30;
 

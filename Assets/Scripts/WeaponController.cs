@@ -299,10 +299,12 @@ public class WeaponController : MonoBehaviour
 
     private void HandleInput()
     {
+        bool fireInput = weaponData.isAutomatic ? Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
+
         // GAS Path
         if (abilitySystemComponent != null && FireAbility != null)
         {
-            if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime && !isReloading)
+            if (fireInput && Time.time >= nextFireTime && !isReloading)
             {
                 // We still handle rate limiting here for now, or move it to Ability Cooldown
                 if (abilitySystemComponent.TryActivateAbility(FireAbility))
@@ -312,7 +314,7 @@ public class WeaponController : MonoBehaviour
             }
         }
         // Legacy Path
-        else if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime && !isReloading)
+        else if (fireInput && Time.time >= nextFireTime && !isReloading)
         {
             Fire();
         }

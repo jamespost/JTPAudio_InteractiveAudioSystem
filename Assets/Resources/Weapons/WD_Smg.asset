@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba8a9b979a9812c46b31910b8e2b4f1a, type: 3}
-  m_Name: WD_Pistol
-  m_EditorClassIdentifier: 
+  m_Name: WD_Smg
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   damage: 10
   fireRate: 0.1
-  isAutomatic: 0
-  clipSize: 12
+  isAutomatic: 1
+  clipSize: 30
   reloadSpeed: 1.5
-  range: 150
-  fireSound: {fileID: 11400000, guid: 27a1ea62798ea9c44b43b96f2f4a90c2, type: 2}
-  reloadSound: {fileID: 11400000, guid: e9bb2d4fbe40adb4c81afda767fbcb34, type: 2}
+  range: 50
+  fireSound: {fileID: 0}
+  reloadSound: {fileID: 0}
   hitEnemySound: {fileID: 0}
   hitOtherSound: {fileID: 0}
-  outOfAmmoSound: {fileID: 11400000, guid: e50fdcb447168034881add7aa4875d44, type: 2}
+  outOfAmmoSound: {fileID: 0}
   impactSound: {fileID: 0}
   minBloomAngle: 0.1
   maxBloomAngle: 5
@@ -34,4 +34,4 @@ MonoBehaviour:
   recoilY: 0.5
   recoilZ: 0.1
   snappiness: 6
-  returnSpeed: 10
+  returnSpeed: 2
