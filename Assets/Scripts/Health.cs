@@ -127,6 +127,14 @@ public class Health : MonoBehaviour
 
     private void HandleAttributeChanged(GameplayAttribute attr)
     {
+        // 1. Clamp the Attribute if it's negative (Two-way sync)
+        // This ensures we never have negative health in the system.
+        if (attr.CurrentValue < 0)
+        {
+            attr.CurrentValue = 0; 
+            return; // The setter will trigger this event again with 0, so we exit to avoid processing the negative value
+        }
+
         float previousHealth = currentHealth;
         currentHealth = attr.CurrentValue;
         
@@ -142,9 +150,9 @@ public class Health : MonoBehaviour
             OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
         }
         
-        if (currentHealth <= 0)
+        // Check for death transition (only fire if we weren't already dead)
+        if (currentHealth <= 0 && previousHealth > 0)
         {
-            currentHealth = 0;
             OnDied?.Invoke();
         }
     }

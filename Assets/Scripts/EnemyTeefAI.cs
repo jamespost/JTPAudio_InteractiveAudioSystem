@@ -547,14 +547,15 @@ public class EnemyTeefAI : MonoBehaviour
         {
             abilitySystemComponent.TryActivateAbility(AttackAbility);
         }
-        // Legacy Path
+        // Legacy Path - REMOVED to ensure only Hitboxes deal damage
         else
         {
-            Health targetHealth = target.GetComponent<Health>();
-            if (targetHealth != null)
-            {
-                targetHealth.TakeDamage(enemyData.attackDamage);
-            }
+            // Health targetHealth = target.GetComponent<Health>();
+            // if (targetHealth != null)
+            // {
+            //     targetHealth.TakeDamage(enemyData.attackDamage);
+            // }
+            Debug.LogWarning($"[EnemyTeefAI] Attack triggered but no AttackAbility assigned on {name}. Legacy damage path is disabled.");
         }
     }
 

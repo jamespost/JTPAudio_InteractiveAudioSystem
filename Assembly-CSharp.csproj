@@ -95,6 +95,7 @@
     <Compile Include="Assets\Scripts\ObjectPooler.cs" />
     <Compile Include="Assets\Scripts\ParticleSystemPooler.cs" />
     <Compile Include="Assets\Scripts\Audio\SequenceContainer.cs" />
+    <Compile Include="Assets\Scripts\Combat\MeleeCombatManager.cs" />
     <Compile Include="Assets\Scripts\EventManager.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioEventTester.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ShaderPropAnimator.cs" />
+    <Compile Include="Assets\Scripts\Combat\HitboxComponent.cs" />
     <Compile Include="Assets\Scripts\Audio\ActiveSound.cs" />
     <Compile Include="Assets\Scripts\GAS\MeleeAttackAbility.cs" />
     <Compile Include="Assets\Scripts\UIElement.cs" />

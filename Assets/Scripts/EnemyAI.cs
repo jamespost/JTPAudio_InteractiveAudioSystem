@@ -198,20 +198,21 @@ public class EnemyAI : MonoBehaviour
         {
             abilitySystemComponent.TryActivateAbility(AttackAbility);
         }
-        // Legacy Path
+        // Legacy Path - REMOVED to ensure only Hitboxes deal damage
         else
         {
             // Attempt to damage the player if they have a Health component.
-            Health playerHealth = player.GetComponent<Health>();
-            if (playerHealth != null)
-            {
-                //Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
-                playerHealth.TakeDamage(enemyData.attackDamage); // Deal damage to the player.
-            }
-            else
-            {
-                //Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
-            }
+            // Health playerHealth = player.GetComponent<Health>();
+            // if (playerHealth != null)
+            // {
+            //     //Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
+            //     playerHealth.TakeDamage(enemyData.attackDamage); // Deal damage to the player.
+            // }
+            // else
+            // {
+            //     //Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
+            // }
+            Debug.LogWarning($"[EnemyAI] Attack triggered but no AttackAbility assigned on {name}. Legacy damage path is disabled.");
         }
 
         // Log the attack and trigger any related animations or sounds.

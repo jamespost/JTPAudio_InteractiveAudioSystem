@@ -21,5 +21,9 @@ MonoBehaviour:
   ActivationBlockedTags:
     tags: []
   DefaultDamage: 10
-  Range: 3
-  DamageEffect: {fileID: 0}
+  UseAnimation: 0
+  AnimationTriggerName: Attack
+  HitboxName: Teeth Hitbox
+  HitboxStartDelay: 0
+  HitboxActiveDuration: 0.25
+  DamageEffect: {fileID: 11400000, guid: bbda8c3af506abf45af6819f82d8733d, type: 2}
