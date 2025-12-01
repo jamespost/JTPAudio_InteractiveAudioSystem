@@ -66,7 +66,7 @@ This document outlines a phased approach to implementing an Unreal Engine-style 
     *   Create `GameplayCue` (MonoBehaviour) that listens for Tag additions/removals or specific Events.
     *   **Integration:** Hook into `JTPAudio` system. For example, a `State.LowHealth` tag could trigger a specific audio loop or filter.
 
-### 4.2 Migration & Refactor
+### 4.2 Migration & Refactor [COMPLETED]
 *   **Tasks:**
     *   Refactor `WeaponController` to trigger `FireAbility` instead of direct logic.
     *   Refactor `EnemyAI` to use Abilities for attacks.

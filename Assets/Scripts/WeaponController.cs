@@ -485,6 +485,13 @@ public class WeaponController : MonoBehaviour
                         vfx.transform.position = hit.point;
                         vfx.transform.rotation = Quaternion.LookRotation(hit.normal);
                         vfx.SetActive(true);
+
+                        // Scale the ballistic effect based on damage
+                        BallisticImpactVFX ballisticVFX = vfx.GetComponent<BallisticImpactVFX>();
+                        if (ballisticVFX != null)
+                        {
+                            ballisticVFX.ScaleEffect(weaponData.damage);
+                        }
                     }
                     else
                     {

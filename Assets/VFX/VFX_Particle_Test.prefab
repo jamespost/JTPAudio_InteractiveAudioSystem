@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8766617145791648126}
   - component: {fileID: 8113952596476507559}
   - component: {fileID: 5967974892148633511}
+  - component: {fileID: 8063641847099721405}
   m_Layer: 0
   m_Name: VFX_Particle_Test
   m_TagString: VFX
@@ -4833,6 +4834,11 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4854,6 +4860,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -4901,3 +4908,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02d043d0b9352064bb96aacaf5c5bc26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDebugLogs: 0
+--- !u!114 &8063641847099721405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430549394993017824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a94c371cdda018340918fa173f4b1aa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JTPAudio.VFX.BallisticImpactVFX
+  baseLifetime: 2
+  usePhysicsForDebris: 1
+  minDamageRef: 10
+  maxDamageRef: 100
+  minScaleMultiplier: 0.5
+  maxScaleMultiplier: 2
+  debrisMaterial: {fileID: 0}
+  dustMaterial: {fileID: 0}
+  sparkMaterial: {fileID: 0}
+  flashMaterial: {fileID: 0}
