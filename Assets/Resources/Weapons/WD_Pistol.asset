@@ -15,6 +15,7 @@ MonoBehaviour:
   damage: 10
   fireRate: 0.1
   isAutomatic: 0
+  projectilesPerShot: 1
   clipSize: 12
   reloadSpeed: 1.5
   range: 150
@@ -27,7 +28,6 @@ MonoBehaviour:
   minBloomAngle: 0.1
   maxBloomAngle: 5
   bloomGrowthRate: 1
-  bloomRecoveryRate: 10
   movementBloomMultiplier: 2
   crouchBloomMultiplier: 0.5
   recoilX: 2

@@ -40,9 +40,38 @@ namespace JTPAudio.VFX
         private List<ParticleSystem> allSystems = new List<ParticleSystem>();
         private float currentDamageScale = 1.0f;
 
+        private class SystemState
+        {
+            public float startSizeMultiplier;
+            public float startSpeedMultiplier;
+            public ParticleSystem.Burst[] bursts;
+        }
+
+        private Dictionary<ParticleSystem, SystemState> initialStates = new Dictionary<ParticleSystem, SystemState>();
+
         private void Awake()
         {
             InitializeSystems();
+            CaptureInitialState();
+        }
+
+        private void CaptureInitialState()
+        {
+            foreach (var ps in allSystems)
+            {
+                if (ps == null) continue;
+
+                var state = new SystemState();
+                var main = ps.main;
+                state.startSizeMultiplier = main.startSizeMultiplier;
+                state.startSpeedMultiplier = main.startSpeedMultiplier;
+
+                var emission = ps.emission;
+                state.bursts = new ParticleSystem.Burst[emission.burstCount];
+                emission.GetBursts(state.bursts);
+
+                initialStates[ps] = state;
+            }
         }
 
         private void InitializeSystems()
@@ -105,21 +134,44 @@ namespace JTPAudio.VFX
             var main = ps.main;
             main.duration = 0.2f;
             main.loop = false;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, 0.6f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 8f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.1f, 0.4f);
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(5f, 12f); // Faster initial burst
+            main.startSize = new ParticleSystem.MinMaxCurve(0.1f, 0.3f);
             main.gravityModifier = 0.1f;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.startColor = new Color(0.8f, 0.8f, 0.8f, 0.5f);
+            main.startColor = new Color(0.7f, 0.7f, 0.7f, 0.4f);
 
             var emission = ps.emission;
             emission.rateOverTime = 0;
-            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 10, 20) });
+            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 15, 25) });
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 10f; // Narrow angle for "jet"
+            shape.angle = 15f;
             shape.radius = 0.05f;
+
+            // Add drag to make it "puff" out and stop
+            var limitVelocity = ps.limitVelocityOverLifetime;
+            limitVelocity.enabled = true;
+            limitVelocity.dampen = 0.15f;
+            limitVelocity.limit = 2f;
+
+            // Fade out and grow
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            Gradient grad = new Gradient();
+            grad.SetKeys(
+                new GradientColorKey[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                new GradientAlphaKey[] { new GradientAlphaKey(0.5f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
+            );
+            colorOverLifetime.color = grad;
+
+            var sizeOverLifetime = ps.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            AnimationCurve curve = new AnimationCurve();
+            curve.AddKey(0.0f, 0.5f);
+            curve.AddKey(1.0f, 1.5f);
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1.0f, curve);
 
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.renderMode = ParticleSystemRenderMode.Billboard;
@@ -133,19 +185,24 @@ namespace JTPAudio.VFX
             main.duration = 0.1f;
             main.loop = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 1.5f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(5f, 15f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.2f);
-            main.gravityModifier = 1.0f;
+            main.startSpeed = new ParticleSystem.MinMaxCurve(4f, 10f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
+            main.gravityModifier = 1.5f; // Heavier feel
             main.simulationSpace = ParticleSystemSimulationSpace.World;
 
             var emission = ps.emission;
             emission.rateOverTime = 0;
-            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 5, 10) });
+            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 4, 8) });
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 25f;
+            shape.angle = 35f; // Wider spread
             shape.radius = 0.1f;
+
+            // Add tumbling rotation
+            var rotationOverLifetime = ps.rotationOverLifetime;
+            rotationOverLifetime.enabled = true;
+            rotationOverLifetime.z = new ParticleSystem.MinMaxCurve(-180f, 180f);
 
             if (usePhysicsForDebris)
             {
@@ -153,23 +210,29 @@ namespace JTPAudio.VFX
                 collision.enabled = true;
                 collision.type = ParticleSystemCollisionType.World;
                 collision.mode = ParticleSystemCollisionMode.Collision3D;
-                collision.dampen = 0.5f;
-                collision.bounce = 0.3f;
+                collision.dampen = 0.6f;
+                collision.bounce = 0.4f;
                 collision.quality = ParticleSystemCollisionQuality.Medium;
             }
 
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.renderMode = ParticleSystemRenderMode.Mesh;
-            // We would ideally assign a mesh and material here. 
-            // For now, we'll rely on the default or what's set in the inspector if the user modifies the prefab.
-            // If purely procedural, we'd need to load resources.
-            // renderer.mesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx"); // This often fails in runtime if not careful
-            // Instead, let's default to billboard if no mesh is set, or assume the user will set it.
-            // But for "chunky particles", we really want meshes.
-            // Let's try to create a primitive cube mesh if we can, or just leave it as billboard if no mesh is assigned.
             
-            if (debrisMaterial != null) renderer.material = debrisMaterial;
-            else renderer.material = new Material(Shader.Find("Standard")); 
+            // Try to create a primitive cube mesh if we can, or just leave it as billboard if no mesh is assigned.
+            // Since we can't easily load default resources without knowing the path or GUID, we'll rely on the user assigning a mesh in the inspector
+            // OR we can fallback to billboard if no mesh is assigned, but set it to a small square.
+            // Ideally, we'd use GameObject.CreatePrimitive to get a mesh, but that creates a GO in the scene.
+            // For now, let's stick to billboard if no material/mesh is provided, but make them look like small chunks.
+            
+            if (debrisMaterial != null) 
+            {
+                renderer.material = debrisMaterial;
+            }
+            else 
+            {
+                renderer.material = new Material(Shader.Find("Standard")); 
+                renderer.renderMode = ParticleSystemRenderMode.Billboard; // Fallback
+            }
         }
 
         private void SetupSparksSystem(ParticleSystem ps)
@@ -177,30 +240,31 @@ namespace JTPAudio.VFX
             var main = ps.main;
             main.duration = 0.1f;
             main.loop = false;
-            main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.4f);
-            main.startSpeed = new ParticleSystem.MinMaxCurve(10f, 25f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.05f);
-            main.gravityModifier = 0.5f;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.1f, 0.3f); // Shorter life
+            main.startSpeed = new ParticleSystem.MinMaxCurve(15f, 30f); // Faster
+            main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.06f);
+            main.gravityModifier = 0.8f;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
 
             var emission = ps.emission;
             emission.rateOverTime = 0;
-            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 5, 15) });
+            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0f, 8, 20) });
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Cone;
-            shape.angle = 40f;
+            shape.angle = 45f;
             shape.radius = 0.05f;
 
             var renderer = ps.GetComponent<ParticleSystemRenderer>();
             renderer.renderMode = ParticleSystemRenderMode.Stretch;
-            renderer.lengthScale = 5f;
+            renderer.lengthScale = 10f; // Longer streaks
+            renderer.velocityScale = 0.1f;
             
             if (sparkMaterial != null) renderer.material = sparkMaterial;
             else 
             {
                 renderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
-                main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.8f, 0.4f), new Color(1f, 0.5f, 0.1f));
+                main.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.9f, 0.6f), new Color(1f, 0.5f, 0.1f));
             }
         }
 
@@ -209,10 +273,10 @@ namespace JTPAudio.VFX
             var main = ps.main;
             main.duration = 0.05f;
             main.loop = false;
-            main.startLifetime = 0.1f;
+            main.startLifetime = 0.05f; // Very short
             main.startSpeed = 0f;
-            main.startSize = new ParticleSystem.MinMaxCurve(0.2f, 0.5f);
-            main.startColor = new Color(1f, 0.9f, 0.7f, 0.5f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.3f, 0.6f);
+            main.startColor = new Color(1f, 0.95f, 0.8f, 0.8f); // Brighter
 
             var emission = ps.emission;
             emission.rateOverTime = 0;
@@ -229,30 +293,38 @@ namespace JTPAudio.VFX
             // Calculate scale factor based on damage
             float t = Mathf.InverseLerp(minDamageRef, maxDamageRef, damage);
             currentDamageScale = Mathf.Lerp(minScaleMultiplier, maxScaleMultiplier, t);
+            float speedScale = Mathf.Lerp(1f, 1.5f, t);
 
             // Apply to all systems
             foreach (var ps in allSystems)
             {
                 if (ps == null) continue;
+                
+                // Ensure we have initial state
+                if (!initialStates.ContainsKey(ps)) continue;
+                var state = initialStates[ps];
 
                 var main = ps.main;
                 
-                // Scale size
-                // Note: This is a simplification. Ideally we'd scale the curve values.
-                main.startSizeMultiplier *= currentDamageScale;
-                
-                // Scale speed (more damage = more kinetic energy)
-                main.startSpeedMultiplier *= Mathf.Lerp(1f, 1.5f, t);
+                // Reset to initial then scale
+                main.startSizeMultiplier = state.startSizeMultiplier * currentDamageScale;
+                main.startSpeedMultiplier = state.startSpeedMultiplier * speedScale;
 
                 // Scale emission count
                 var emission = ps.emission;
-                ParticleSystem.Burst[] bursts = new ParticleSystem.Burst[emission.burstCount];
-                emission.GetBursts(bursts);
-                for (int i = 0; i < bursts.Length; i++)
+                ParticleSystem.Burst[] bursts = new ParticleSystem.Burst[state.bursts.Length];
+                
+                for (int i = 0; i < state.bursts.Length; i++)
                 {
+                    bursts[i] = state.bursts[i]; // Copy original burst settings
+                    
+                    // Scale the counts
+                    float min = state.bursts[i].count.constantMin;
+                    float max = state.bursts[i].count.constantMax;
+                    
                     bursts[i].count = new ParticleSystem.MinMaxCurve(
-                        bursts[i].count.constantMin * currentDamageScale,
-                        bursts[i].count.constantMax * currentDamageScale
+                        min * currentDamageScale,
+                        max * currentDamageScale
                     );
                 }
                 emission.SetBursts(bursts);
