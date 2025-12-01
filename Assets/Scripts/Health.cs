@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using GAS;
 
 /// <summary>
 /// A universal health component for both players and enemies.
@@ -36,11 +37,17 @@ public class Health : MonoBehaviour
     private GameObject debugTextObject;
     private Text debugTextMesh;
 
+    // GAS Integration
+    private AbilitySystemComponent abilitySystemComponent;
+    private GameplayAttribute healthAttribute;
+
     /// <summary>
     /// Initializes the health component.
     /// </summary>
     private void Awake()
     {
+        abilitySystemComponent = GetComponent<AbilitySystemComponent>();
+
         if (entityData != null)
         {
             currentHealth = entityData.maxHealth;
@@ -53,6 +60,20 @@ public class Health : MonoBehaviour
 
     private void Start()
     {
+        // GAS Integration: Sync with Attribute
+        if (abilitySystemComponent != null && abilitySystemComponent.AttributeSet != null)
+        {
+            healthAttribute = abilitySystemComponent.AttributeSet.GetAttribute("Health");
+            if (healthAttribute != null)
+            {
+                // Initialize Attribute from EntityData
+                healthAttribute.SetBaseValue(entityData.maxHealth);
+                healthAttribute.CurrentValue = entityData.maxHealth;
+                
+                healthAttribute.OnAttributeChanged += HandleAttributeChanged;
+            }
+        }
+
         if (isPlayer)
         {
             currentHealth = entityData.maxHealth;
@@ -104,6 +125,30 @@ public class Health : MonoBehaviour
         }
     }
 
+    private void HandleAttributeChanged(GameplayAttribute attr)
+    {
+        float previousHealth = currentHealth;
+        currentHealth = attr.CurrentValue;
+        
+        // Calculate damage taken (if health decreased)
+        if (currentHealth < previousHealth)
+        {
+            float damage = previousHealth - currentHealth;
+            OnDamaged?.Invoke(currentHealth, damage);
+        }
+        
+        if (isPlayer && entityData != null)
+        {
+            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+        }
+        
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            OnDied?.Invoke();
+        }
+    }
+
     /// <summary>
     /// Reduces the entity's health and invokes the appropriate events.
     /// </summary>
@@ -113,22 +158,32 @@ public class Health : MonoBehaviour
         Debug.Log($"TakeDamage called with amount: {amount}"); // Added debug log
         if (currentHealth <= 0 && amount > 0) return; // Already dead and taking damage
 
-        currentHealth -= amount;
-        Debug.Log($"Current health after damage: {currentHealth}"); // Added debug log
-        OnDamaged?.Invoke(currentHealth, amount);
-
-        // Fire static player health event if this is the player
-        if (isPlayer && entityData != null)
+        if (healthAttribute != null)
         {
-            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+            // Modify attribute directly (GAS Integration)
+            healthAttribute.CurrentValue -= amount;
+            // HandleAttributeChanged will be called automatically
         }
-
-        if (currentHealth <= 0)
+        else
         {
-            currentHealth = 0;
-            Debug.Log("OnDied event invoked"); // Added debug log
-            OnDied?.Invoke();
-            // Optionally, you can add logic here to disable the GameObject or trigger a death animation.
+            // Legacy Logic
+            currentHealth -= amount;
+            Debug.Log($"Current health after damage: {currentHealth}"); // Added debug log
+            OnDamaged?.Invoke(currentHealth, amount);
+
+            // Fire static player health event if this is the player
+            if (isPlayer && entityData != null)
+            {
+                OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+            }
+
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
+                Debug.Log("OnDied event invoked"); // Added debug log
+                OnDied?.Invoke();
+                // Optionally, you can add logic here to disable the GameObject or trigger a death animation.
+            }
         }
     }
 
@@ -138,16 +193,27 @@ public class Health : MonoBehaviour
     /// <param name="amount">The amount to heal.</param>
     public void Heal(float amount)
     {
-        currentHealth += amount;
-        if (currentHealth > entityData.maxHealth)
+        if (healthAttribute != null)
         {
-            currentHealth = entityData.maxHealth;
+            healthAttribute.CurrentValue += amount;
+            if (healthAttribute.CurrentValue > entityData.maxHealth)
+            {
+                healthAttribute.CurrentValue = entityData.maxHealth;
+            }
         }
-        
-        // Fire static player health event if this is the player
-        if (isPlayer && entityData != null)
+        else
         {
-            OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+            currentHealth += amount;
+            if (currentHealth > entityData.maxHealth)
+            {
+                currentHealth = entityData.maxHealth;
+            }
+            
+            // Fire static player health event if this is the player
+            if (isPlayer && entityData != null)
+            {
+                OnPlayerHealthChanged?.Invoke(currentHealth, entityData.maxHealth);
+            }
         }
     }
 
@@ -167,7 +233,14 @@ public class Health : MonoBehaviour
     {
         if (entityData != null)
         {
-            currentHealth = entityData.maxHealth;
+            if (healthAttribute != null)
+            {
+                healthAttribute.CurrentValue = entityData.maxHealth;
+            }
+            else
+            {
+                currentHealth = entityData.maxHealth;
+            }
         }
         else
         {

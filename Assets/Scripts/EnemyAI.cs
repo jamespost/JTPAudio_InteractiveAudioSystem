@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using GAS;
 
 /// <summary>
 /// EnemyAI Script
@@ -36,6 +37,11 @@ public class EnemyAI : MonoBehaviour
     // Reference to the Health component for damage handling and death events.
     private Health healthComponent;
 
+    // GAS Integration
+    private AbilitySystemComponent abilitySystemComponent;
+    [Header("GAS")]
+    public GameplayAbility AttackAbility;
+
     // Add an enum for the state machine
     private enum EnemyState
     {
@@ -51,6 +57,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
+        abilitySystemComponent = GetComponent<AbilitySystemComponent>();
+
         // Initialize the ObjectPooler for enemies
         enemyPooler = FindObjectOfType<ObjectPooler>();
         if (enemyPooler == null)
@@ -185,16 +193,25 @@ public class EnemyAI : MonoBehaviour
 
     private void Attack()
     {
-        // Attempt to damage the player if they have a Health component.
-        Health playerHealth = player.GetComponent<Health>();
-        if (playerHealth != null)
+        // GAS Path
+        if (abilitySystemComponent != null && AttackAbility != null)
         {
-            //Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
-            playerHealth.TakeDamage(enemyData.attackDamage); // Deal damage to the player.
+            abilitySystemComponent.TryActivateAbility(AttackAbility);
         }
+        // Legacy Path
         else
         {
-            //Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
+            // Attempt to damage the player if they have a Health component.
+            Health playerHealth = player.GetComponent<Health>();
+            if (playerHealth != null)
+            {
+                //Debug.Log("Player has Health component. Applying damage: " + enemyData.attackDamage);
+                playerHealth.TakeDamage(enemyData.attackDamage); // Deal damage to the player.
+            }
+            else
+            {
+                //Debug.LogWarning("Player does not have a Health component. Cannot apply damage.");
+            }
         }
 
         // Log the attack and trigger any related animations or sounds.

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using GAS;
 
 /// <summary>
 /// EnemyTeefAI Script
@@ -22,6 +23,12 @@ public class EnemyTeefAI : MonoBehaviour
     private Rigidbody rb;
     private Rigidbody playerRb;
     private Health healthComponent;
+
+    // GAS Integration
+    private AbilitySystemComponent abilitySystemComponent;
+    [Header("GAS")]
+    public GameplayAbility AttackAbility;
+
     private float attackCooldownTimer;
     private ObjectPooler enemyPooler;
 
@@ -90,6 +97,8 @@ public class EnemyTeefAI : MonoBehaviour
 
     private void Awake()
     {
+        abilitySystemComponent = GetComponent<AbilitySystemComponent>();
+
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -113,6 +122,9 @@ public class EnemyTeefAI : MonoBehaviour
 
     private void Start()
     {
+        // GAS Initialization
+        InitializeAttributes();
+
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -133,6 +145,28 @@ public class EnemyTeefAI : MonoBehaviour
         }
 
         ScheduleNextBite();
+    }
+
+    private void InitializeAttributes()
+    {
+        if (abilitySystemComponent != null && abilitySystemComponent.AttributeSet != null && enemyData != null)
+        {
+            // Sync Speed
+            var speedAttr = abilitySystemComponent.AttributeSet.GetAttribute("Speed");
+            if (speedAttr != null)
+            {
+                speedAttr.SetBaseValue(enemyData.moveSpeed);
+            }
+
+            // Sync Damage
+            var damageAttr = abilitySystemComponent.AttributeSet.GetAttribute("Damage");
+            if (damageAttr != null)
+            {
+                damageAttr.SetBaseValue(enemyData.attackDamage);
+            }
+            
+            // Note: Health is handled by the Health component's GAS integration
+        }
     }
 
     private void OnEnable()
@@ -508,10 +542,19 @@ public class EnemyTeefAI : MonoBehaviour
 
     private void Attack(GameObject target)
     {
-        Health targetHealth = target.GetComponent<Health>();
-        if (targetHealth != null)
+        // GAS Path
+        if (abilitySystemComponent != null && AttackAbility != null)
         {
-            targetHealth.TakeDamage(enemyData.attackDamage);
+            abilitySystemComponent.TryActivateAbility(AttackAbility);
+        }
+        // Legacy Path
+        else
+        {
+            Health targetHealth = target.GetComponent<Health>();
+            if (targetHealth != null)
+            {
+                targetHealth.TakeDamage(enemyData.attackDamage);
+            }
         }
     }
 

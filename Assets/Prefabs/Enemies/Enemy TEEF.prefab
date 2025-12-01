@@ -90,6 +90,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 318800907028632135}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7515604356599460798}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2326901860163381367}
   m_SourcePrefab: {fileID: 100100000, guid: 259094752e7b92d4e8184803b1b25ac1, type: 3}
 --- !u!1 &4178664317351453656 stripped
 GameObject:
@@ -152,6 +158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyData: {fileID: 11400000, guid: 30bdcbd6474e34a479cab31e58777144, type: 2}
+  AttackAbility: {fileID: 0}
 --- !u!114 &3505383189724863631
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,3 +215,67 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTeefAI
   enemyData: {fileID: 11400000, guid: 30bdcbd6474e34a479cab31e58777144, type: 2}
   rollForceMultiplier: 10
+  AttackAbility: {fileID: 11400000, guid: e1947d25283e06b4cb4a29938055e487, type: 2}
+  biteIntervalRange: {x: 1.5, y: 3}
+  biteBraceDuration: 0.35
+  biteAnchorDrag: 4
+  biteDownForce: 30
+  requireLineOfSight: 0
+  biteForceTriggerDelay: 0.75
+  flingForce: 20
+  flingUpwardForce: 6
+  flingTorqueMultiplier: 12
+  flingHangTime: 0.2
+  flingRecoverTime: 0.45
+  pathLookAheadDistance: 3
+  groundCheckDistance: 1.5
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &7515604356599460798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4178664317351453656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3330bd02ad9e18c46bc3a8065360858d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GAS.AbilitySystemComponent
+  attributeSet: {fileID: 0}
+  tagContainer:
+    tags: []
+  grantedAbilities:
+  - {fileID: 11400000, guid: e1947d25283e06b4cb4a29938055e487, type: 2}
+--- !u!114 &2326901860163381367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4178664317351453656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54773b87f40a5b840b9865c3c9e98420, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GAS.StandardAttributeSet
+  Health:
+    baseValue: 0
+    currentValue: 0
+  MaxHealth:
+    baseValue: 0
+    currentValue: 0
+  Mana:
+    baseValue: 0
+    currentValue: 0
+  MaxMana:
+    baseValue: 0
+    currentValue: 0
+  Speed:
+    baseValue: 0
+    currentValue: 0
+  Damage:
+    baseValue: 0
+    currentValue: 0

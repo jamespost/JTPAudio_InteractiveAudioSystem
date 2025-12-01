@@ -75,21 +75,20 @@ namespace GAS
                 if (Physics.Raycast(firePoint.position, spreadDirection, out hit, data.range, controller.hitLayers))
                 {
                     // Apply Damage
-                    // Priority 1: Legacy Health Component
-                    Health health = hit.collider.GetComponent<Health>();
-                    if (health != null)
-                    {
-                        health.TakeDamage(data.damage);
-                    }
-                    
-                    // Priority 2: GAS Attribute (Future proofing)
+                    // Priority 1: GAS Attribute (Preferred)
                     var targetASC = hit.collider.GetComponent<AbilitySystemComponent>();
-                    if (targetASC != null)
+                    if (targetASC != null && DamageEffect != null)
                     {
-                        // In the future, we would apply a GameplayEffect here.
-                        // For now, we can manually decrement health if we wanted to support pure GAS entities.
-                        // var healthAttr = targetASC.AttributeSet.GetAttribute("Health");
-                        // if (healthAttr != null) healthAttr.CurrentValue -= data.damage;
+                        asc.ApplyGameplayEffectToTarget(DamageEffect, targetASC);
+                    }
+                    // Priority 2: Legacy Health Component (Fallback)
+                    else
+                    {
+                        Health health = hit.collider.GetComponent<Health>();
+                        if (health != null)
+                        {
+                            health.TakeDamage(data.damage);
+                        }
                     }
 
                     // Visuals & Audio
