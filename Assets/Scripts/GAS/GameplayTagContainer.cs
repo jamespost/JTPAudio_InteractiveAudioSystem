@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace GAS
 {
@@ -10,11 +11,15 @@ namespace GAS
 
         public List<GameplayTag> Tags => tags;
 
+        public event Action<GameplayTag> OnTagAdded;
+        public event Action<GameplayTag> OnTagRemoved;
+
         public void AddTag(GameplayTag tag)
         {
             if (tag != null && !tags.Contains(tag))
             {
                 tags.Add(tag);
+                OnTagAdded?.Invoke(tag);
             }
         }
 
@@ -23,6 +28,7 @@ namespace GAS
             if (tags.Contains(tag))
             {
                 tags.Remove(tag);
+                OnTagRemoved?.Invoke(tag);
             }
         }
 

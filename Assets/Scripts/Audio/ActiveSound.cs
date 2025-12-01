@@ -13,6 +13,9 @@ public class ActiveSound : MonoBehaviour
     [Tooltip("The final priority of the sound, calculated by combining the event's base priority with any dynamic threat value.")]
     public int finalPriority;
 
+    public string currentEventID;
+    public GameObject sourceObject;
+
     private void Awake()
     {
         // Null reference check for the source component

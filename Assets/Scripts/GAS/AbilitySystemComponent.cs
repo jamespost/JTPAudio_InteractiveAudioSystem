@@ -97,6 +97,16 @@ namespace GAS
             return tagContainer.HasTag(tag);
         }
 
+        public void AddTag(GameplayTag tag)
+        {
+            tagContainer.AddTag(tag);
+        }
+
+        public void RemoveTag(GameplayTag tag)
+        {
+            tagContainer.RemoveTag(tag);
+        }
+
         public void GrantAbility(GameplayAbility ability)
         {
             if (ability != null && !grantedAbilities.Contains(ability))

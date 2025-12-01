@@ -60,7 +60,7 @@ This document outlines a phased approach to implementing an Unreal Engine-style 
 ## Phase 4: Feedback & Integration (Cues & Audio)
 **Goal:** Connect the logic to the visual and audio systems.
 
-### 4.1 Gameplay Cues
+### 4.1 Gameplay Cues [COMPLETED]
 *   **Concept:** Visual and Audio feedback decoupled from logic.
 *   **Implementation:**
     *   Create `GameplayCue` (MonoBehaviour) that listens for Tag additions/removals or specific Events.

@@ -177,6 +177,8 @@ public class AudioManager : MonoBehaviour
         if (sound == null) return;
 
         sound.finalPriority = finalPriority; // Store the final calculated priority on the ActiveSound component.
+        sound.currentEventID = eventName;
+        sound.sourceObject = sourceObject;
 
         float volumeMultiplier = 1.0f;
         if (audioEvent.enableReflectionSystem)
@@ -201,6 +203,23 @@ public class AudioManager : MonoBehaviour
         else
         {
             ConfigureAndPlay(sound, audioEvent, sourceObject, volumeMultiplier);
+        }
+    }
+
+    public void StopEvent(string eventName, GameObject sourceObject)
+    {
+        if (string.IsNullOrEmpty(eventName) || sourceObject == null) return;
+
+        // Iterate through the pool to find the sound playing this event on this object
+        foreach (var sound in sourcePool)
+        {
+            if (sound != null && sound.source.isPlaying && sound.currentEventID == eventName && sound.sourceObject == sourceObject)
+            {
+                // Fade out would be nicer, but for now just stop
+                sound.source.Stop();
+                sound.currentEventID = null;
+                sound.sourceObject = null;
+            }
         }
     }
 

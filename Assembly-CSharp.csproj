@@ -142,6 +142,7 @@
     <Compile Include="Assets\Scripts\Audio\AudioEvent.cs" />
     <Compile Include="Assets\Scripts\DataDrivenUIManager.cs" />
     <Compile Include="Assets\Scripts\ExampleThreatSource.cs" />
+    <Compile Include="Assets\Scripts\GAS\GameplayCue.cs" />
     <Compile Include="Assets\Scripts\GameplayLogUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
   </ItemGroup>
