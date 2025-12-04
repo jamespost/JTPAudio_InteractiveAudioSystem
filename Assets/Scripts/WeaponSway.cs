@@ -14,6 +14,11 @@ public class WeaponSway : MonoBehaviour
     private float movementX;
     private float movementY;
 
+    // Vertical Sway State
+    private Vector3 currentVerticalSwayPos;
+    private Vector3 currentVerticalSwayRot;
+    private PlayerController playerController;
+
     private bool isInitialized = false;
 
     private void Start()
@@ -24,6 +29,41 @@ public class WeaponSway : MonoBehaviour
         }
         initialPosition = swayTransform.localPosition;
         initialRotation = swayTransform.localRotation;
+
+        // Find PlayerController
+        playerController = GetComponentInParent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.OnJump += OnJump;
+            playerController.OnLand += OnLand;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (playerController != null)
+        {
+            playerController.OnJump -= OnJump;
+            playerController.OnLand -= OnLand;
+        }
+    }
+
+    private void OnJump()
+    {
+        if (weaponData == null) return;
+        currentVerticalSwayPos += weaponData.jumpSwayPosition;
+        currentVerticalSwayRot += weaponData.jumpSwayRotation;
+    }
+
+    private void OnLand(float verticalVelocity)
+    {
+        if (weaponData == null) return;
+        
+        // Scale impact by velocity (velocity is negative on impact)
+        float impactFactor = Mathf.Clamp01(Mathf.Abs(verticalVelocity) * weaponData.landSwayMultiplier);
+        
+        currentVerticalSwayPos += weaponData.landSwayPosition * impactFactor;
+        currentVerticalSwayRot += weaponData.landSwayRotation * impactFactor;
     }
 
     public void Initialize(WeaponData data)
@@ -66,10 +106,14 @@ public class WeaponSway : MonoBehaviour
         
         Vector3 finalMovementSway = new Vector3(moveSwayX, 0, moveSwayY);
 
+        // Recover Vertical Sway
+        currentVerticalSwayPos = Vector3.Lerp(currentVerticalSwayPos, Vector3.zero, Time.deltaTime * weaponData.verticalSwayRecoverySpeed);
+        currentVerticalSwayRot = Vector3.Lerp(currentVerticalSwayRot, Vector3.zero, Time.deltaTime * weaponData.verticalSwayRecoverySpeed);
+
         // Apply Position Sway
-        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway, Time.deltaTime * weaponData.swaySmoothness);
+        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos, Time.deltaTime * weaponData.swaySmoothness);
 
         // Apply Rotation Sway
-        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation, Time.deltaTime * weaponData.swayRotationSmoothness);
+        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot), Time.deltaTime * weaponData.swayRotationSmoothness);
     }
 }

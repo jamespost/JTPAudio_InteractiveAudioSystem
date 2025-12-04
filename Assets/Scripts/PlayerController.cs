@@ -114,6 +114,10 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public Vector3 recoilOffsetRotation = Vector3.zero;
 
+    // --- Events ---
+    public event System.Action OnJump;
+    public event System.Action<float> OnLand;
+
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
     /// </summary>
@@ -197,7 +201,14 @@ public class PlayerController : MonoBehaviour
     private void HandleMovementAndJump()
     {
         // Check grounded state FIRST, before any movement
+        bool wasGrounded = isGrounded;
         isGrounded = controller.isGrounded;
+
+        // Detect Landing
+        if (!wasGrounded && isGrounded)
+        {
+            OnLand?.Invoke(playerVelocity.y);
+        }
 
         // Reset jump count if grounded
         if (isGrounded)
@@ -227,6 +238,8 @@ public class PlayerController : MonoBehaviour
             playerVelocity.y = CalculateJumpVelocity(jumpHeight, gravity, fallMultiplier);
             jumpBufferCounter = 0; // Consume the buffered jump
             currentJumpCount++; // Increment jump count
+            
+            OnJump?.Invoke();
         }
 
         // Apply custom gravity curves

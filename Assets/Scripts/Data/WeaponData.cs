@@ -118,4 +118,23 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Smoothing value for movement sway.")]
     public float movementSwaySmoothness = 6f;
+
+    [Header("Vertical Sway (Jump/Land)")]
+    [Tooltip("Positional sway when jumping.")]
+    public Vector3 jumpSwayPosition = new Vector3(0, -0.1f, 0);
+
+    [Tooltip("Rotational sway when jumping.")]
+    public Vector3 jumpSwayRotation = new Vector3(5f, 0, 0);
+
+    [Tooltip("Positional sway when landing.")]
+    public Vector3 landSwayPosition = new Vector3(0, -0.2f, 0);
+
+    [Tooltip("Rotational sway when landing.")]
+    public Vector3 landSwayRotation = new Vector3(10f, 0, 0);
+
+    [Tooltip("How fast the vertical sway recovers.")]
+    public float verticalSwayRecoverySpeed = 4f;
+
+    [Tooltip("Multiplier for landing sway based on impact velocity.")]
+    public float landSwayMultiplier = 0.1f;
 }
