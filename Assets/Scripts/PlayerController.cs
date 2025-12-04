@@ -117,6 +117,10 @@ public class PlayerController : MonoBehaviour
     // --- Events ---
     public event System.Action OnJump;
     public event System.Action<float> OnLand;
+    public event System.Action OnSprintStart;
+    public event System.Action OnSprintEnd;
+
+    public bool IsSprinting { get; private set; }
 
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.
@@ -176,6 +180,23 @@ public class PlayerController : MonoBehaviour
         verticalInput = Input.GetAxis("Vertical"); // Forward/Backward movement
         jumpPressed = Input.GetButtonDown("Jump"); // Jump button press
         sprintPressed = Input.GetKey(KeyCode.LeftShift); // Sprint key hold
+
+        // Handle Sprint State
+        bool isMoving = Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f;
+        bool shouldSprint = sprintPressed && isMoving;
+
+        if (shouldSprint != IsSprinting)
+        {
+            IsSprinting = shouldSprint;
+            if (IsSprinting)
+            {
+                OnSprintStart?.Invoke();
+            }
+            else
+            {
+                OnSprintEnd?.Invoke();
+            }
+        }
     }
 
     /// <summary>

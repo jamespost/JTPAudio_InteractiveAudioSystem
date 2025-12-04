@@ -17,6 +17,11 @@ public class WeaponSway : MonoBehaviour
     // Vertical Sway State
     private Vector3 currentVerticalSwayPos;
     private Vector3 currentVerticalSwayRot;
+    
+    // Sprint Sway State
+    private Vector3 currentSprintSwayPos;
+    private Vector3 currentSprintSwayRot;
+    
     private PlayerController playerController;
 
     private bool isInitialized = false;
@@ -36,6 +41,8 @@ public class WeaponSway : MonoBehaviour
         {
             playerController.OnJump += OnJump;
             playerController.OnLand += OnLand;
+            playerController.OnSprintStart += OnSprintStart;
+            playerController.OnSprintEnd += OnSprintEnd;
         }
     }
 
@@ -45,6 +52,8 @@ public class WeaponSway : MonoBehaviour
         {
             playerController.OnJump -= OnJump;
             playerController.OnLand -= OnLand;
+            playerController.OnSprintStart -= OnSprintStart;
+            playerController.OnSprintEnd -= OnSprintEnd;
         }
     }
 
@@ -64,6 +73,20 @@ public class WeaponSway : MonoBehaviour
         
         currentVerticalSwayPos += weaponData.landSwayPosition * impactFactor;
         currentVerticalSwayRot += weaponData.landSwayRotation * impactFactor;
+    }
+
+    private void OnSprintStart()
+    {
+        if (weaponData == null) return;
+        currentSprintSwayPos += weaponData.sprintStartSwayPosition;
+        currentSprintSwayRot += weaponData.sprintStartSwayRotation;
+    }
+
+    private void OnSprintEnd()
+    {
+        if (weaponData == null) return;
+        currentSprintSwayPos += weaponData.sprintEndSwayPosition;
+        currentSprintSwayRot += weaponData.sprintEndSwayRotation;
     }
 
     public void Initialize(WeaponData data)
@@ -104,16 +127,27 @@ public class WeaponSway : MonoBehaviour
         float moveSwayX = Mathf.Clamp(movementX * weaponData.movementSwayX, -weaponData.movementSwayX, weaponData.movementSwayX);
         float moveSwayY = Mathf.Clamp(movementY * weaponData.movementSwayY, -weaponData.movementSwayY, weaponData.movementSwayY);
         
+        // Apply Sprint Multiplier
+        if (playerController != null && playerController.IsSprinting)
+        {
+            moveSwayX *= weaponData.sprintSwayMultiplier;
+            moveSwayY *= weaponData.sprintSwayMultiplier;
+        }
+
         Vector3 finalMovementSway = new Vector3(moveSwayX, 0, moveSwayY);
 
         // Recover Vertical Sway
         currentVerticalSwayPos = Vector3.Lerp(currentVerticalSwayPos, Vector3.zero, Time.deltaTime * weaponData.verticalSwayRecoverySpeed);
         currentVerticalSwayRot = Vector3.Lerp(currentVerticalSwayRot, Vector3.zero, Time.deltaTime * weaponData.verticalSwayRecoverySpeed);
 
+        // Recover Sprint Sway
+        currentSprintSwayPos = Vector3.Lerp(currentSprintSwayPos, Vector3.zero, Time.deltaTime * weaponData.sprintSwayRecoverySpeed);
+        currentSprintSwayRot = Vector3.Lerp(currentSprintSwayRot, Vector3.zero, Time.deltaTime * weaponData.sprintSwayRecoverySpeed);
+
         // Apply Position Sway
-        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos, Time.deltaTime * weaponData.swaySmoothness);
+        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos + currentSprintSwayPos, Time.deltaTime * weaponData.swaySmoothness);
 
         // Apply Rotation Sway
-        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot), Time.deltaTime * weaponData.swayRotationSmoothness);
+        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot) * Quaternion.Euler(currentSprintSwayRot), Time.deltaTime * weaponData.swayRotationSmoothness);
     }
 }

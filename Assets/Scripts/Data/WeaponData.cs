@@ -137,4 +137,23 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("Multiplier for landing sway based on impact velocity.")]
     public float landSwayMultiplier = 0.1f;
+
+    [Header("Sprint Sway")]
+    [Tooltip("Multiplier for movement sway when sprinting.")]
+    public float sprintSwayMultiplier = 2f;
+
+    [Tooltip("Positional sway when starting to sprint.")]
+    public Vector3 sprintStartSwayPosition = new Vector3(0, -0.05f, -0.05f);
+
+    [Tooltip("Rotational sway when starting to sprint.")]
+    public Vector3 sprintStartSwayRotation = new Vector3(5f, 0, 0);
+
+    [Tooltip("Positional sway when stopping sprint.")]
+    public Vector3 sprintEndSwayPosition = new Vector3(0, 0.05f, 0.05f);
+
+    [Tooltip("Rotational sway when stopping sprint.")]
+    public Vector3 sprintEndSwayRotation = new Vector3(-5f, 0, 0);
+
+    [Tooltip("How fast the sprint sway recovers.")]
+    public float sprintSwayRecoverySpeed = 5f;
 }
