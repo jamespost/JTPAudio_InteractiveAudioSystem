@@ -121,6 +121,8 @@ public class PlayerController : MonoBehaviour
     public event System.Action OnSprintEnd;
 
     public bool IsSprinting { get; private set; }
+    public bool IsGrounded => isGrounded;
+    public Vector3 Velocity => controller.velocity;
 
     /// <summary>
     /// Initializes the CharacterController component and locks the cursor.

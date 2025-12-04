@@ -79,10 +79,10 @@ public class WeaponData : ScriptableObject
 
     [Header("Weapon Model Recoil")]
     [Tooltip("Positional kickback for the weapon model (Local Position).")]
-    public Vector3 weaponKickback = new Vector3(0, 0, -0.1f);
+    public Vector3 weaponKickback = new Vector3(0, 0, -0.05f);
 
     [Tooltip("Rotational recoil for the weapon model (Local Rotation).")]
-    public Vector3 weaponRecoilRotation = new Vector3(-10f, 0, 0);
+    public Vector3 weaponRecoilRotation = new Vector3(-5f, 0, 0);
 
     [Tooltip("How fast the weapon model moves to the recoil target.")]
     public float weaponSnappiness = 10f;
@@ -92,68 +92,81 @@ public class WeaponData : ScriptableObject
 
     [Header("Weapon Sway")]
     [Tooltip("Amount of sway when looking around.")]
-    public float swayAmount = 0.02f;
+    public float swayAmount = 0.01f;
 
     [Tooltip("Maximum amount of sway.")]
-    public float maxSwayAmount = 0.06f;
+    public float maxSwayAmount = 0.03f;
 
     [Tooltip("Smoothing value for sway movement.")]
     public float swaySmoothness = 4f;
 
     [Tooltip("Amount of sway rotation when looking around.")]
-    public float swayRotationAmount = 4f;
+    public float swayRotationAmount = 2f;
 
     [Tooltip("Maximum amount of sway rotation.")]
-    public float maxSwayRotation = 10f;
+    public float maxSwayRotation = 5f;
 
     [Tooltip("Smoothing value for sway rotation.")]
     public float swayRotationSmoothness = 12f;
 
     [Header("Weapon Movement Sway")]
     [Tooltip("Amount of positional sway from movement.")]
-    public float movementSwayX = 0.05f;
+    public float movementSwayX = 0.02f;
 
     [Tooltip("Amount of positional sway from movement.")]
-    public float movementSwayY = 0.05f;
+    public float movementSwayY = 0.02f;
 
     [Tooltip("Smoothing value for movement sway.")]
     public float movementSwaySmoothness = 6f;
 
     [Header("Vertical Sway (Jump/Land)")]
     [Tooltip("Positional sway when jumping.")]
-    public Vector3 jumpSwayPosition = new Vector3(0, -0.1f, 0);
+    public Vector3 jumpSwayPosition = new Vector3(0, -0.02f, 0);
 
     [Tooltip("Rotational sway when jumping.")]
-    public Vector3 jumpSwayRotation = new Vector3(5f, 0, 0);
+    public Vector3 jumpSwayRotation = new Vector3(2f, 0, 0);
 
     [Tooltip("Positional sway when landing.")]
-    public Vector3 landSwayPosition = new Vector3(0, -0.2f, 0);
+    public Vector3 landSwayPosition = new Vector3(0, -0.05f, 0);
 
     [Tooltip("Rotational sway when landing.")]
-    public Vector3 landSwayRotation = new Vector3(10f, 0, 0);
+    public Vector3 landSwayRotation = new Vector3(5f, 0, 0);
 
     [Tooltip("How fast the vertical sway recovers.")]
     public float verticalSwayRecoverySpeed = 4f;
 
     [Tooltip("Multiplier for landing sway based on impact velocity.")]
-    public float landSwayMultiplier = 0.1f;
+    public float landSwayMultiplier = 0.05f;
 
     [Header("Sprint Sway")]
     [Tooltip("Multiplier for movement sway when sprinting.")]
-    public float sprintSwayMultiplier = 2f;
+    public float sprintSwayMultiplier = 1.5f;
 
     [Tooltip("Positional sway when starting to sprint.")]
-    public Vector3 sprintStartSwayPosition = new Vector3(0, -0.05f, -0.05f);
+    public Vector3 sprintStartSwayPosition = new Vector3(0, -0.02f, -0.02f);
 
     [Tooltip("Rotational sway when starting to sprint.")]
-    public Vector3 sprintStartSwayRotation = new Vector3(5f, 0, 0);
+    public Vector3 sprintStartSwayRotation = new Vector3(2f, 0, 0);
 
     [Tooltip("Positional sway when stopping sprint.")]
-    public Vector3 sprintEndSwayPosition = new Vector3(0, 0.05f, 0.05f);
+    public Vector3 sprintEndSwayPosition = new Vector3(0, 0.02f, 0.02f);
 
     [Tooltip("Rotational sway when stopping sprint.")]
-    public Vector3 sprintEndSwayRotation = new Vector3(-5f, 0, 0);
+    public Vector3 sprintEndSwayRotation = new Vector3(-2f, 0, 0);
 
     [Tooltip("How fast the sprint sway recovers.")]
     public float sprintSwayRecoverySpeed = 5f;
+
+    [Header("Weapon Bob (Walk Cycle)")]
+    [Tooltip("Multiplier for the bob frequency.")]
+    public float bobFrequencyMultiplier = 1f;
+
+    [Tooltip("Positional bob amplitude.")]
+    public Vector3 bobPositionAmount = new Vector3(0.005f, 0.005f, 0);
+
+    [Tooltip("Rotational bob amplitude.")]
+    public Vector3 bobRotationAmount = new Vector3(0.5f, 0.5f, 1f);
+
+    [Tooltip("Multiplier for bob when sprinting.")]
+    public float sprintBobMultiplier = 1.5f;
 }

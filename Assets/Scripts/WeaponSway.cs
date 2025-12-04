@@ -23,6 +23,7 @@ public class WeaponSway : MonoBehaviour
     private Vector3 currentSprintSwayRot;
     
     private PlayerController playerController;
+    private PlayerMovementFeedback movementFeedback;
 
     private bool isInitialized = false;
 
@@ -43,6 +44,9 @@ public class WeaponSway : MonoBehaviour
             playerController.OnLand += OnLand;
             playerController.OnSprintStart += OnSprintStart;
             playerController.OnSprintEnd += OnSprintEnd;
+            
+            // Find Feedback
+            movementFeedback = playerController.GetComponent<PlayerMovementFeedback>();
         }
     }
 
@@ -144,10 +148,39 @@ public class WeaponSway : MonoBehaviour
         currentSprintSwayPos = Vector3.Lerp(currentSprintSwayPos, Vector3.zero, Time.deltaTime * weaponData.sprintSwayRecoverySpeed);
         currentSprintSwayRot = Vector3.Lerp(currentSprintSwayRot, Vector3.zero, Time.deltaTime * weaponData.sprintSwayRecoverySpeed);
 
+        // Calculate Weapon Bob
+        Vector3 bobPosition = Vector3.zero;
+        Quaternion bobRotation = Quaternion.identity;
+
+        if (movementFeedback != null && movementFeedback.CurrentCycle > 0)
+        {
+            float cycle = movementFeedback.CurrentCycle * weaponData.bobFrequencyMultiplier;
+            float bobFactor = 1f;
+            
+            if (playerController != null && playerController.IsSprinting)
+            {
+                bobFactor = weaponData.sprintBobMultiplier;
+            }
+
+            // Figure-8 pattern
+            // X = Cos(t), Y = Sin(2t)
+            float xBob = Mathf.Cos(cycle) * weaponData.bobPositionAmount.x * bobFactor;
+            float yBob = Mathf.Sin(cycle * 2) * weaponData.bobPositionAmount.y * bobFactor;
+            
+            bobPosition = new Vector3(xBob, yBob, 0);
+
+            // Rotation Bob
+            float xRotBob = Mathf.Sin(cycle * 2) * weaponData.bobRotationAmount.x * bobFactor;
+            float yRotBob = Mathf.Cos(cycle) * weaponData.bobRotationAmount.y * bobFactor;
+            float zRotBob = Mathf.Cos(cycle) * weaponData.bobRotationAmount.z * bobFactor;
+
+            bobRotation = Quaternion.Euler(xRotBob, yRotBob, zRotBob);
+        }
+
         // Apply Position Sway
-        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos + currentSprintSwayPos, Time.deltaTime * weaponData.swaySmoothness);
+        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos + currentSprintSwayPos + bobPosition, Time.deltaTime * weaponData.swaySmoothness);
 
         // Apply Rotation Sway
-        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot) * Quaternion.Euler(currentSprintSwayRot), Time.deltaTime * weaponData.swayRotationSmoothness);
+        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot) * Quaternion.Euler(currentSprintSwayRot) * bobRotation, Time.deltaTime * weaponData.swayRotationSmoothness);
     }
 }
