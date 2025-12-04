@@ -25,6 +25,15 @@ public class WeaponSway : MonoBehaviour
     private PlayerController playerController;
     private PlayerMovementFeedback movementFeedback;
 
+    // ADS State
+    private bool isAiming = false;
+    private Vector3 currentBasePosition;
+    private Quaternion currentBaseRotation;
+
+    // Smoothed Sway State
+    private Vector3 currentSwayPosition;
+    private Quaternion currentSwayRotation;
+
     private bool isInitialized = false;
 
     private void Start()
@@ -35,6 +44,11 @@ public class WeaponSway : MonoBehaviour
         }
         initialPosition = swayTransform.localPosition;
         initialRotation = swayTransform.localRotation;
+        
+        currentBasePosition = initialPosition;
+        currentBaseRotation = initialRotation;
+        
+        currentSwayRotation = Quaternion.identity;
 
         // Find PlayerController
         playerController = GetComponentInParent<PlayerController>();
@@ -99,6 +113,11 @@ public class WeaponSway : MonoBehaviour
         isInitialized = true;
     }
 
+    public void SetAiming(bool aiming)
+    {
+        isAiming = aiming;
+    }
+
     private void Update()
     {
         if (!isInitialized || weaponData == null) return;
@@ -108,6 +127,13 @@ public class WeaponSway : MonoBehaviour
 
     private void CalculateSway()
     {
+        // Handle ADS Transition
+        Vector3 targetPos = isAiming ? weaponData.adsPosition : initialPosition;
+        Quaternion targetRot = isAiming ? Quaternion.Euler(weaponData.adsRotation) : initialRotation;
+        
+        currentBasePosition = Vector3.Lerp(currentBasePosition, targetPos, Time.deltaTime * weaponData.adsSpeed);
+        currentBaseRotation = Quaternion.Slerp(currentBaseRotation, targetRot, Time.deltaTime * weaponData.adsSpeed);
+
         // Get Input
         inputX = -Input.GetAxis("Mouse X");
         inputY = -Input.GetAxis("Mouse Y");
@@ -115,21 +141,24 @@ public class WeaponSway : MonoBehaviour
         movementX = -Input.GetAxis("Horizontal");
         movementY = -Input.GetAxis("Vertical");
 
+        // Calculate Multipliers
+        float swayMult = isAiming ? weaponData.adsSwayMultiplier : 1f;
+
         // Calculate Look Sway (Position)
-        float moveX = Mathf.Clamp(inputX * weaponData.swayAmount, -weaponData.maxSwayAmount, weaponData.maxSwayAmount);
-        float moveY = Mathf.Clamp(inputY * weaponData.swayAmount, -weaponData.maxSwayAmount, weaponData.maxSwayAmount);
+        float moveX = Mathf.Clamp(inputX * weaponData.swayAmount * swayMult, -weaponData.maxSwayAmount, weaponData.maxSwayAmount);
+        float moveY = Mathf.Clamp(inputY * weaponData.swayAmount * swayMult, -weaponData.maxSwayAmount, weaponData.maxSwayAmount);
 
         Vector3 finalSwayPosition = new Vector3(moveX, moveY, 0);
 
         // Calculate Look Sway (Rotation)
-        float rotX = Mathf.Clamp(inputY * weaponData.swayRotationAmount, -weaponData.maxSwayRotation, weaponData.maxSwayRotation);
-        float rotY = Mathf.Clamp(inputX * weaponData.swayRotationAmount, -weaponData.maxSwayRotation, weaponData.maxSwayRotation);
+        float rotX = Mathf.Clamp(inputY * weaponData.swayRotationAmount * swayMult, -weaponData.maxSwayRotation, weaponData.maxSwayRotation);
+        float rotY = Mathf.Clamp(inputX * weaponData.swayRotationAmount * swayMult, -weaponData.maxSwayRotation, weaponData.maxSwayRotation);
 
         Quaternion finalSwayRotation = Quaternion.Euler(new Vector3(rotX, rotY, rotY)); // Adding Z rotation for tilt
 
         // Calculate Movement Sway (Inertia)
-        float moveSwayX = Mathf.Clamp(movementX * weaponData.movementSwayX, -weaponData.movementSwayX, weaponData.movementSwayX);
-        float moveSwayY = Mathf.Clamp(movementY * weaponData.movementSwayY, -weaponData.movementSwayY, weaponData.movementSwayY);
+        float moveSwayX = Mathf.Clamp(movementX * weaponData.movementSwayX * swayMult, -weaponData.movementSwayX, weaponData.movementSwayX);
+        float moveSwayY = Mathf.Clamp(movementY * weaponData.movementSwayY * swayMult, -weaponData.movementSwayY, weaponData.movementSwayY);
         
         // Apply Sprint Multiplier
         if (playerController != null && playerController.IsSprinting)
@@ -161,6 +190,9 @@ public class WeaponSway : MonoBehaviour
             {
                 bobFactor = weaponData.sprintBobMultiplier;
             }
+            
+            // Reduce bob when aiming
+            if (isAiming) bobFactor *= 0.1f;
 
             // Figure-8 pattern
             // X = Cos(t), Y = Sin(2t)
@@ -177,10 +209,15 @@ public class WeaponSway : MonoBehaviour
             bobRotation = Quaternion.Euler(xRotBob, yRotBob, zRotBob);
         }
 
-        // Apply Position Sway
-        swayTransform.localPosition = Vector3.Lerp(swayTransform.localPosition, initialPosition + finalSwayPosition + finalMovementSway + currentVerticalSwayPos + currentSprintSwayPos + bobPosition, Time.deltaTime * weaponData.swaySmoothness);
+        // Smooth the Sway independently
+        Vector3 targetSwayPos = finalSwayPosition + finalMovementSway + currentVerticalSwayPos + currentSprintSwayPos + bobPosition;
+        Quaternion targetSwayRot = finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot) * Quaternion.Euler(currentSprintSwayRot) * bobRotation;
 
-        // Apply Rotation Sway
-        swayTransform.localRotation = Quaternion.Slerp(swayTransform.localRotation, initialRotation * finalSwayRotation * Quaternion.Euler(currentVerticalSwayRot) * Quaternion.Euler(currentSprintSwayRot) * bobRotation, Time.deltaTime * weaponData.swayRotationSmoothness);
+        currentSwayPosition = Vector3.Lerp(currentSwayPosition, targetSwayPos, Time.deltaTime * weaponData.swaySmoothness);
+        currentSwayRotation = Quaternion.Slerp(currentSwayRotation, targetSwayRot, Time.deltaTime * weaponData.swayRotationSmoothness);
+
+        // Apply Final Position (Base + Sway)
+        swayTransform.localPosition = currentBasePosition + currentSwayPosition;
+        swayTransform.localRotation = currentBaseRotation * currentSwayRotation;
     }
 }

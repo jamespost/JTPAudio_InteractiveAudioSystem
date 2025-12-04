@@ -15,6 +15,7 @@ MonoBehaviour:
   damage: 10
   fireRate: 0.1
   isAutomatic: 1
+  projectilesPerShot: 1
   clipSize: 30
   reloadSpeed: 1.5
   range: 50
@@ -27,7 +28,6 @@ MonoBehaviour:
   minBloomAngle: 0.1
   maxBloomAngle: 5
   bloomGrowthRate: 1
-  bloomRecoveryRate: 10
   movementBloomMultiplier: 2
   crouchBloomMultiplier: 0.5
   recoilX: 2
@@ -35,3 +35,40 @@ MonoBehaviour:
   recoilZ: 0.1
   snappiness: 6
   returnSpeed: 2
+  weaponKickback: {x: 0, y: 0, z: -0.05}
+  weaponRecoilRotation: {x: -5, y: 0, z: 0}
+  weaponSnappiness: 10
+  weaponReturnSpeed: 10
+  swayAmount: 0.01
+  maxSwayAmount: 0.03
+  swaySmoothness: 4
+  swayRotationAmount: 2
+  maxSwayRotation: 5
+  swayRotationSmoothness: 12
+  movementSwayX: 0.02
+  movementSwayY: 0.02
+  movementSwaySmoothness: 6
+  jumpSwayPosition: {x: 0, y: -0.02, z: 0}
+  jumpSwayRotation: {x: 2, y: 0, z: 0}
+  landSwayPosition: {x: 0, y: -0.05, z: 0}
+  landSwayRotation: {x: 5, y: 0, z: 0}
+  verticalSwayRecoverySpeed: 4
+  landSwayMultiplier: 0.05
+  sprintSwayMultiplier: 1.5
+  sprintStartSwayPosition: {x: 0, y: -0.02, z: -0.02}
+  sprintStartSwayRotation: {x: 2, y: 0, z: 0}
+  sprintEndSwayPosition: {x: 0, y: 0.02, z: 0.02}
+  sprintEndSwayRotation: {x: -2, y: 0, z: 0}
+  sprintSwayRecoverySpeed: 5
+  bobFrequencyMultiplier: 1
+  bobPositionAmount: {x: 0.005, y: 0.005, z: 0}
+  bobRotationAmount: {x: 0.5, y: 0.5, z: 1}
+  sprintBobMultiplier: 2
+  adsPosition: {x: -0.096, y: -0.935, z: 0.04}
+  adsRotation: {x: 0, y: 0, z: 0}
+  adsFov: 40
+  adsSpeed: 20
+  adsBloomMultiplier: 0.5
+  adsRecoilMultiplier: 0.8
+  adsSwayMultiplier: 0.1
+  adsMovementSpeedMultiplier: 0.6

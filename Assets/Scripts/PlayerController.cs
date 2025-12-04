@@ -79,6 +79,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity; // Tracks the player's velocity for gravity and jumping
     private bool isGrounded; // Checks if the player is on the ground
     private float verticalRotation = 0.0f; // Tracks the vertical rotation of the camera
+    private float baseFov;
+    private float targetFov;
+    private float fovChangeSpeed;
+    private float speedMultiplier = 1f;
 
     // --- Input Variables ---
     private float horizontalInput; // Horizontal movement input (A/D or Left/Right arrows)
@@ -136,6 +140,9 @@ public class PlayerController : MonoBehaviour
         currentMouseVelocity = Vector2.zero;
         verticalRotation = 0.0f;
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+        
+        baseFov = Camera.main.fieldOfView;
+        targetFov = baseFov;
 
         // Start the delay timer to enable controls
         StartCoroutine(EnableControlsAfterDelay());
@@ -170,7 +177,33 @@ public class PlayerController : MonoBehaviour
         HandleInput(); // Polls player input
         HandleMovementAndJump(); // Handles all movement in one integrated method
         HandleMouseLook(); // Handles mouse look
+        HandleFOV();
         HandleAudio(); // Placeholder for audio logic
+    }
+
+    private void HandleFOV()
+    {
+        if (Mathf.Abs(Camera.main.fieldOfView - targetFov) > 0.1f)
+        {
+            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, targetFov, Time.deltaTime * fovChangeSpeed);
+        }
+    }
+
+    public void SetTargetFOV(float fov, float speed)
+    {
+        targetFov = fov;
+        fovChangeSpeed = speed;
+    }
+
+    public void ResetFOV(float speed)
+    {
+        targetFov = baseFov;
+        fovChangeSpeed = speed;
+    }
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
     }
 
     /// <summary>
@@ -290,7 +323,7 @@ public class PlayerController : MonoBehaviour
         Vector3 horizontalMove = transform.right * horizontalInput + transform.forward * verticalInput;
 
         // Determine movement speed (sprint or walk)
-        float currentSpeed = sprintPressed ? sprintSpeed : walkSpeed;
+        float currentSpeed = (sprintPressed ? sprintSpeed : walkSpeed) * speedMultiplier;
 
         // Combine horizontal and vertical movement
         Vector3 totalMovement = (horizontalMove * currentSpeed * Time.deltaTime) + (playerVelocity * Time.deltaTime);

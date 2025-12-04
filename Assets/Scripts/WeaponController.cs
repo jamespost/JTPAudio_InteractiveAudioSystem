@@ -130,6 +130,7 @@ public class WeaponController : MonoBehaviour
     private Vector3 originalAmmoUIScale;
     private Color lastAmmoColor;
     private int lastAmmoThreshold = -1;
+    private bool isAiming = false;
 
     [Header("Reload Animation")]
     [Tooltip("Transform to rotate during reload (e.g., gun model).")]
@@ -343,6 +344,34 @@ public class WeaponController : MonoBehaviour
     private void HandleInput()
     {
         bool fireInput = weaponData.isAutomatic ? Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
+        bool aimInput = Input.GetButton("Fire2");
+
+        // Handle ADS
+        if (aimInput != isAiming)
+        {
+            isAiming = aimInput;
+            
+            // Update WeaponSway
+            if (weaponSway != null)
+            {
+                weaponSway.SetAiming(isAiming);
+            }
+
+            // Update PlayerController (FOV and Speed)
+            if (playerController != null)
+            {
+                if (isAiming)
+                {
+                    playerController.SetTargetFOV(weaponData.adsFov, weaponData.adsSpeed);
+                    playerController.SetSpeedMultiplier(weaponData.adsMovementSpeedMultiplier);
+                }
+                else
+                {
+                    playerController.ResetFOV(weaponData.adsSpeed);
+                    playerController.SetSpeedMultiplier(1f);
+                }
+            }
+        }
 
         // GAS Path
         if (abilitySystemComponent != null && FireAbility != null)
@@ -380,16 +409,17 @@ public class WeaponController : MonoBehaviour
             EventManager.TriggerWeaponFired();
             
             // Apply Bloom
-            currentBloom += weaponData.bloomGrowthRate;
+            currentBloom += weaponData.bloomGrowthRate * (isAiming ? weaponData.adsBloomMultiplier : 1f);
             currentBloom = Mathf.Clamp(currentBloom, weaponData.minBloomAngle, weaponData.maxBloomAngle);
             
             // Apply Recoil
             if (recoilController != null)
             {
+                float recoilMult = isAiming ? weaponData.adsRecoilMultiplier : 1f;
                 recoilController.RecoilFire(
-                    weaponData.recoilX, 
-                    weaponData.recoilY, 
-                    weaponData.recoilZ, 
+                    weaponData.recoilX * recoilMult, 
+                    weaponData.recoilY * recoilMult, 
+                    weaponData.recoilZ * recoilMult, 
                     weaponData.snappiness, 
                     weaponData.returnSpeed
                 );
@@ -453,16 +483,17 @@ public class WeaponController : MonoBehaviour
         EventManager.TriggerWeaponFired();
 
         // Apply Bloom
-        currentBloom += weaponData.bloomGrowthRate;
+        currentBloom += weaponData.bloomGrowthRate * (isAiming ? weaponData.adsBloomMultiplier : 1f);
         currentBloom = Mathf.Clamp(currentBloom, weaponData.minBloomAngle, weaponData.maxBloomAngle);
 
         // Apply Recoil
         if (recoilController != null)
         {
+            float recoilMult = isAiming ? weaponData.adsRecoilMultiplier : 1f;
             recoilController.RecoilFire(
-                weaponData.recoilX, 
-                weaponData.recoilY, 
-                weaponData.recoilZ, 
+                weaponData.recoilX * recoilMult, 
+                weaponData.recoilY * recoilMult, 
+                weaponData.recoilZ * recoilMult, 
                 weaponData.snappiness, 
                 weaponData.returnSpeed
             );

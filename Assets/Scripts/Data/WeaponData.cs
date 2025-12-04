@@ -168,5 +168,30 @@ public class WeaponData : ScriptableObject
     public Vector3 bobRotationAmount = new Vector3(0.5f, 0.5f, 1f);
 
     [Tooltip("Multiplier for bob when sprinting.")]
-    public float sprintBobMultiplier = 1.5f;
+    public float sprintBobMultiplier = 2f;
+
+    [Header("ADS Settings")]
+    [Tooltip("Position of the weapon when aiming down sights. Tune this in Play Mode!")]
+    public Vector3 adsPosition = new Vector3(0, -0.25f, 0.4f);
+
+    [Tooltip("Rotation of the weapon when aiming down sights.")]
+    public Vector3 adsRotation = Vector3.zero;
+
+    [Tooltip("Field of View when aiming.")]
+    public float adsFov = 40f;
+
+    [Tooltip("Speed of aiming transition.")]
+    public float adsSpeed = 10f;
+
+    [Tooltip("Multiplier for bloom when aiming.")]
+    public float adsBloomMultiplier = 0.5f;
+
+    [Tooltip("Multiplier for recoil when aiming.")]
+    public float adsRecoilMultiplier = 0.8f;
+
+    [Tooltip("Multiplier for sway when aiming.")]
+    public float adsSwayMultiplier = 0.1f;
+
+    [Tooltip("Multiplier for movement speed when aiming.")]
+    public float adsMovementSpeedMultiplier = 0.6f;
 }
