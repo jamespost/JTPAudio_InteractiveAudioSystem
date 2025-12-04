@@ -541,6 +541,13 @@ public class WeaponController : MonoBehaviour
                 Health health = hit.collider.GetComponent<Health>();
                 bool isEnemy = health != null;
 
+                // Apply impact ripple effect if the object has an ImpactReceiver
+                ImpactReceiver impactReceiver = hit.collider.GetComponent<ImpactReceiver>();
+                if (impactReceiver != null)
+                {
+                    impactReceiver.AddImpact(hit.point, weaponData.damage);
+                }
+
                 if (isEnemy)
                 {
                     health.TakeDamage(weaponData.damage);

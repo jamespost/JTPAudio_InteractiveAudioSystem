@@ -111,6 +111,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
     <Compile Include="Assets\Scripts\GAS\AttributeSet.cs" />
+    <Compile Include="Assets\Scripts\VFX\ImpactReceiver.cs" />
     <Compile Include="Assets\Scripts\Camera\ScreenShakeManager.cs" />
     <Compile Include="Assets\Scripts\GAS\AbilitySystemComponent.cs" />
     <Compile Include="Assets\Scripts\LevelData.cs" />
@@ -179,6 +180,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\Shaders\ImpactRipple.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
