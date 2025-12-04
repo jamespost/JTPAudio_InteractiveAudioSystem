@@ -116,6 +116,7 @@ public class WeaponController : MonoBehaviour
     private PlayerController playerController;
     private CharacterController characterController;
     private RecoilController recoilController;
+    private WeaponRecoil weaponRecoil;
 
     private GameObject ammoDebugTextObject;
     private Text ammoDebugTextMesh;
@@ -188,6 +189,32 @@ public class WeaponController : MonoBehaviour
         {
             // Try to find it on the camera if not found globally (though FindFirstObjectByType should find it)
             recoilController = mainCamera.GetComponent<RecoilController>();
+        }
+
+        // Get WeaponRecoil reference
+        weaponRecoil = GetComponent<WeaponRecoil>();
+        if (weaponRecoil == null && reloadRotationTransform != null)
+        {
+            weaponRecoil = reloadRotationTransform.GetComponent<WeaponRecoil>();
+        }
+        
+        // If still null, try to add it if we have a transform to recoil
+        if (weaponRecoil == null && reloadRotationTransform != null)
+        {
+            // Optional: Add it automatically? Or just warn?
+            // Let's warn for now, or assume the user will add it.
+            // But to be helpful, let's try to find it in children generally
+            weaponRecoil = GetComponentInChildren<WeaponRecoil>();
+        }
+
+        if (weaponRecoil != null)
+        {
+            // Ensure it targets the correct transform if not set
+            if (weaponRecoil.recoilTransform == null)
+            {
+                weaponRecoil.recoilTransform = reloadRotationTransform != null ? reloadRotationTransform : transform;
+                weaponRecoil.Initialize();
+            }
         }
 
         // Fire initial ammo event
@@ -354,6 +381,17 @@ public class WeaponController : MonoBehaviour
                     weaponData.returnSpeed
                 );
             }
+
+            // Apply Weapon Model Recoil
+            if (weaponRecoil != null)
+            {
+                weaponRecoil.Fire(
+                    weaponData.weaponKickback,
+                    weaponData.weaponRecoilRotation,
+                    weaponData.weaponSnappiness,
+                    weaponData.weaponReturnSpeed
+                );
+            }
             
             return true;
         }
@@ -414,6 +452,17 @@ public class WeaponController : MonoBehaviour
                 weaponData.recoilZ, 
                 weaponData.snappiness, 
                 weaponData.returnSpeed
+            );
+        }
+
+        // Apply Weapon Model Recoil
+        if (weaponRecoil != null)
+        {
+            weaponRecoil.Fire(
+                weaponData.weaponKickback,
+                weaponData.weaponRecoilRotation,
+                weaponData.weaponSnappiness,
+                weaponData.weaponReturnSpeed
             );
         }
 
@@ -626,6 +675,12 @@ private System.Collections.IEnumerator ReinitializeWeapon()
     transform.eulerAngles = originalWeaponRotation;
     isRotatingForReload = false;
 
+    if (weaponRecoil != null)
+    {
+        weaponRecoil.ResetRecoil();
+        weaponRecoil.enableRecoil = true;
+    }
+
     // Reset bloom
     currentBloom = weaponData.minBloomAngle;
 
@@ -774,6 +829,9 @@ private IEnumerator AnimateReloadRotation()
 
     isRotatingForReload = true;
 
+    // Disable weapon recoil during reload animation to prevent conflict
+    if (weaponRecoil != null) weaponRecoil.enableRecoil = false;
+
     // Cache the original local rotation
     Quaternion originalLocalRotation = reloadRotationTransform.localRotation;
     Quaternion targetLocalRotation = Quaternion.Euler(originalLocalRotation.eulerAngles + new Vector3(reloadRotationAngle, 0, 0));
@@ -809,6 +867,13 @@ private IEnumerator AnimateReloadRotation()
     // Ensure we end at the original rotation
     reloadRotationTransform.localRotation = originalLocalRotation;
     isRotatingForReload = false;
+
+    // Re-enable weapon recoil
+    if (weaponRecoil != null)
+    {
+        weaponRecoil.ResetRecoil();
+        weaponRecoil.enableRecoil = true;
+    }
 }
 
     public void TriggerInitialAmmoUpdate()

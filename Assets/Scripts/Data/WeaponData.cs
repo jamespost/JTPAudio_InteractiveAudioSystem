@@ -76,4 +76,17 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("How fast the recoil returns to zero.")]
     public float returnSpeed = 2f;
+
+    [Header("Weapon Model Recoil")]
+    [Tooltip("Positional kickback for the weapon model (Local Position).")]
+    public Vector3 weaponKickback = new Vector3(0, 0, -0.1f);
+
+    [Tooltip("Rotational recoil for the weapon model (Local Rotation).")]
+    public Vector3 weaponRecoilRotation = new Vector3(-10f, 0, 0);
+
+    [Tooltip("How fast the weapon model moves to the recoil target.")]
+    public float weaponSnappiness = 10f;
+
+    [Tooltip("How fast the weapon model returns to original position.")]
+    public float weaponReturnSpeed = 10f;
 }

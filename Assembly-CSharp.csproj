@@ -81,6 +81,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\Scripts\Audio\DynamicEchoSystem.cs" />
     <Compile Include="Assets\Scripts\VFX\ProceduralBloodVFX.cs" />
+    <Compile Include="Assets\Scripts\WeaponRecoil.cs" />
     <Compile Include="Assets\Scripts\GAS\GameplayEffect.cs" />
     <Compile Include="Assets\Scripts\Health.cs" />
     <Compile Include="Assets\Scripts\Camera\PlayerDamageShake.cs" />
