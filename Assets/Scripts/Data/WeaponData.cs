@@ -89,4 +89,33 @@ public class WeaponData : ScriptableObject
 
     [Tooltip("How fast the weapon model returns to original position.")]
     public float weaponReturnSpeed = 10f;
+
+    [Header("Weapon Sway")]
+    [Tooltip("Amount of sway when looking around.")]
+    public float swayAmount = 0.02f;
+
+    [Tooltip("Maximum amount of sway.")]
+    public float maxSwayAmount = 0.06f;
+
+    [Tooltip("Smoothing value for sway movement.")]
+    public float swaySmoothness = 4f;
+
+    [Tooltip("Amount of sway rotation when looking around.")]
+    public float swayRotationAmount = 4f;
+
+    [Tooltip("Maximum amount of sway rotation.")]
+    public float maxSwayRotation = 10f;
+
+    [Tooltip("Smoothing value for sway rotation.")]
+    public float swayRotationSmoothness = 12f;
+
+    [Header("Weapon Movement Sway")]
+    [Tooltip("Amount of positional sway from movement.")]
+    public float movementSwayX = 0.05f;
+
+    [Tooltip("Amount of positional sway from movement.")]
+    public float movementSwayY = 0.05f;
+
+    [Tooltip("Smoothing value for movement sway.")]
+    public float movementSwaySmoothness = 6f;
 }

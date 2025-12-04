@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Health.cs" />
     <Compile Include="Assets\Scripts\Camera\PlayerDamageShake.cs" />
     <Compile Include="Assets\Scripts\GameplayLogger.cs" />
+    <Compile Include="Assets\Scripts\WeaponSway.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioManager.cs" />

@@ -117,6 +117,7 @@ public class WeaponController : MonoBehaviour
     private CharacterController characterController;
     private RecoilController recoilController;
     private WeaponRecoil weaponRecoil;
+    private WeaponSway weaponSway;
 
     private GameObject ammoDebugTextObject;
     private Text ammoDebugTextMesh;
@@ -215,6 +216,18 @@ public class WeaponController : MonoBehaviour
                 weaponRecoil.recoilTransform = reloadRotationTransform != null ? reloadRotationTransform : transform;
                 weaponRecoil.Initialize();
             }
+        }
+
+        // Get WeaponSway reference
+        weaponSway = GetComponent<WeaponSway>();
+        if (weaponSway == null)
+        {
+            weaponSway = GetComponentInChildren<WeaponSway>();
+        }
+
+        if (weaponSway != null)
+        {
+            weaponSway.Initialize(weaponData);
         }
 
         // Fire initial ammo event
