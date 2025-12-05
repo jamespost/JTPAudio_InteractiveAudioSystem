@@ -16,21 +16,22 @@ MonoBehaviour:
   fireRate: 0.1
   isAutomatic: 1
   projectilesPerShot: 1
-  clipSize: 30
+  clipSize: 27
   reloadSpeed: 1.5
-  range: 50
+  range: 150
   fireSound: {fileID: 0}
   reloadSound: {fileID: 0}
   hitEnemySound: {fileID: 0}
   hitOtherSound: {fileID: 0}
   outOfAmmoSound: {fileID: 0}
   impactSound: {fileID: 0}
+  weaponModelPrefab: {fileID: 4624443055664802215, guid: cd669aea55be033418c8e0b3ef3e957a, type: 3}
   minBloomAngle: 0.1
   maxBloomAngle: 5
   bloomGrowthRate: 1
   movementBloomMultiplier: 2
   crouchBloomMultiplier: 0.5
-  recoilX: 2
+  recoilX: 4
   recoilY: 0.5
   recoilZ: 0.1
   snappiness: 6
@@ -39,7 +40,7 @@ MonoBehaviour:
   weaponRecoilRotation: {x: -5, y: 0, z: 0}
   weaponSnappiness: 10
   weaponReturnSpeed: 10
-  swayAmount: 0.01
+  swayAmount: 0.02
   maxSwayAmount: 0.03
   swaySmoothness: 4
   swayRotationAmount: 2

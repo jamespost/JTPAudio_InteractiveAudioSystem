@@ -25,6 +25,7 @@ MonoBehaviour:
   hitOtherSound: {fileID: 0}
   outOfAmmoSound: {fileID: 11400000, guid: e50fdcb447168034881add7aa4875d44, type: 2}
   impactSound: {fileID: 0}
+  weaponModelPrefab: {fileID: 6810256224638554915, guid: 8ac87cecedc728647bb9e783576c9e3c, type: 3}
   minBloomAngle: 0.1
   maxBloomAngle: 5
   bloomGrowthRate: 1
