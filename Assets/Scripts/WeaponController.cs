@@ -24,6 +24,9 @@ public class WeaponController : MonoBehaviour
     [Tooltip("The transform where bullets or effects originate.")]
     public Transform firePoint;
 
+    [Tooltip("The parent transform where the weapon model will be instantiated.")]
+    public Transform weaponHolder;
+
     [Header("Feedback Settings")]
     [Tooltip("Impact VFX prefab for visual feedback.")]
     public GameObject impactVFX;
@@ -136,6 +139,8 @@ public class WeaponController : MonoBehaviour
     [Tooltip("Transform to rotate during reload (e.g., gun model).")]
     public Transform reloadRotationTransform;
 
+    private Transform defaultAmmoUITransform;
+
     private const string BLOOD_VFX_TAG = "BloodSplatter";
 
     // GAS Integration
@@ -160,6 +165,9 @@ public class WeaponController : MonoBehaviour
         // Store original weapon rotation
         originalWeaponRotation = transform.eulerAngles;
 
+        // Store default ammo UI transform (from inspector)
+        defaultAmmoUITransform = ammoUITransform;
+
         // Default firePoint to the position of the camera if not assigned
         if (firePoint == null)
         {
@@ -170,11 +178,102 @@ public class WeaponController : MonoBehaviour
         }
     }
 
-    private void Start()
+    /// <summary>
+    /// Equips a new weapon defined by the given WeaponData.
+    /// Instantiates the weapon model and sets up references.
+    /// </summary>
+    /// <param name="newWeaponData">The data for the new weapon.</param>
+    public void EquipWeapon(WeaponData newWeaponData)
     {
+        if (newWeaponData == null) return;
+
+        weaponData = newWeaponData;
         currentAmmo = weaponData.clipSize;
         currentBloom = weaponData.minBloomAngle;
 
+        // Instantiate Weapon Model
+        if (weaponHolder != null && weaponData.weaponModelPrefab != null)
+        {
+            // Destroy existing weapon model
+            foreach (Transform child in weaponHolder)
+            {
+                Destroy(child.gameObject);
+            }
+
+            // Instantiate new model
+            GameObject weaponModel = Instantiate(weaponData.weaponModelPrefab, weaponHolder);
+            weaponModel.transform.localPosition = Vector3.zero;
+            weaponModel.transform.localRotation = Quaternion.identity;
+
+            // Update reloadRotationTransform to the new model
+            reloadRotationTransform = weaponModel.transform;
+
+            // Try to find FirePoint in the new model
+            Transform newFirePoint = FindDeepChild(weaponModel.transform, "FirePoint");
+            if (newFirePoint != null)
+            {
+                firePoint = newFirePoint;
+            }
+            else
+            {
+                 Debug.LogError($"[WeaponController] CRITICAL: 'FirePoint' child object missing in weapon model prefab '{weaponData.weaponModelPrefab.name}'! \n" +
+                                "Please create an empty child GameObject named 'FirePoint' and position it at the muzzle.");
+            }
+
+            // Try to find AmmoUITransform in the new model
+            Transform newAmmoUITransform = FindDeepChild(weaponModel.transform, "AmmoUITransform");
+            if (newAmmoUITransform != null)
+            {
+                ammoUITransform = newAmmoUITransform;
+            }
+            else
+            {
+                ammoUITransform = defaultAmmoUITransform;
+                if (enableAmmoUIDisplay)
+                {
+                    Debug.LogWarning($"[WeaponController] 'AmmoUITransform' child object missing in weapon model prefab '{weaponData.weaponModelPrefab.name}'. \n" +
+                                     "Ammo UI will default to the weapon root or inspector setting. \n" +
+                                     "To fix: Create an empty child GameObject named 'AmmoUITransform' where you want the UI to appear.");
+                }
+            }
+        }
+        
+        // Reset UI
+        if (enableAmmoUIDisplay)
+        {
+             // If UI object exists, re-parent it
+             if (ammoDebugTextObject != null)
+             {
+                Transform parentTransform = ammoUITransform != null ? ammoUITransform : transform;
+                ammoDebugTextObject.transform.SetParent(parentTransform);
+                
+                if (ammoUITransform != null)
+                    ammoDebugTextObject.transform.localPosition = Vector3.zero;
+                else
+                    ammoDebugTextObject.transform.localPosition = new Vector3(0, 2, 0);
+
+                ammoDebugTextObject.transform.localRotation = Quaternion.identity;
+                ammoDebugTextObject.transform.localScale = Vector3.one * ammoUISize;
+             }
+
+             OnAmmoChanged?.Invoke(currentAmmo, weaponData.clipSize);
+        }
+    }
+
+    // Helper for finding child recursively
+    private Transform FindDeepChild(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name) return child;
+            Transform result = FindDeepChild(child, name);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    private void Start()
+    {
         // Initialize Blood VFX Pool
         InitializeBloodVFX();
 
@@ -191,6 +290,17 @@ public class WeaponController : MonoBehaviour
         {
             // Try to find it on the camera if not found globally (though FindFirstObjectByType should find it)
             recoilController = mainCamera.GetComponent<RecoilController>();
+        }
+
+        // Equip the initial weapon
+        if (weaponData != null)
+        {
+            EquipWeapon(weaponData);
+        }
+        else
+        {
+            currentAmmo = 0;
+            currentBloom = 0;
         }
 
         // Get WeaponRecoil reference
@@ -243,7 +353,11 @@ public class WeaponController : MonoBehaviour
             // Use the specified transform or default to the weapon's transform
             Transform parentTransform = ammoUITransform != null ? ammoUITransform : transform;
             ammoDebugTextObject.transform.SetParent(parentTransform);
-            ammoDebugTextObject.transform.localPosition = new Vector3(0, 2, 0); // Position above the weapon
+            
+            if (ammoUITransform != null)
+                ammoDebugTextObject.transform.localPosition = Vector3.zero;
+            else
+                ammoDebugTextObject.transform.localPosition = new Vector3(0, 2, 0); // Position above the weapon
 
             // Add a Canvas component for UI rendering
             Canvas canvas = ammoDebugTextObject.AddComponent<Canvas>();

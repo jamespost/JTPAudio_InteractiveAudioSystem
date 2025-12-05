@@ -45,6 +45,10 @@ public class WeaponData : ScriptableObject
     [Tooltip("Sound played on impact.")]
     public AudioEvent impactSound;
 
+    [Header("Visuals")]
+    [Tooltip("The prefab for the weapon model.")]
+    public GameObject weaponModelPrefab;
+
     [Header("Bloom Settings")]
     [Tooltip("Minimum spread angle in degrees when standing still.")]
     public float minBloomAngle = 0.1f;
