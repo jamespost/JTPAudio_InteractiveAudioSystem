@@ -28,7 +28,7 @@ MonoBehaviour:
   weaponModelPrefab: {fileID: 4624443055664802215, guid: cd669aea55be033418c8e0b3ef3e957a, type: 3}
   minBloomAngle: 0.1
   maxBloomAngle: 5
-  bloomGrowthRate: 1
+  bloomGrowthRate: 0.25
   movementBloomMultiplier: 2
   crouchBloomMultiplier: 0.5
   recoilX: 4
@@ -40,8 +40,8 @@ MonoBehaviour:
   weaponRecoilRotation: {x: -5, y: 0, z: 0}
   weaponSnappiness: 10
   weaponReturnSpeed: 10
-  swayAmount: 0.02
-  maxSwayAmount: 0.03
+  swayAmount: 0.1
+  maxSwayAmount: 0.1
   swaySmoothness: 4
   swayRotationAmount: 2
   maxSwayRotation: 5
