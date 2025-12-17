@@ -59,10 +59,194 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9102119092031826842}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7791461270005641617}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5685288306389066316}
+    - targetCorrespondingSourceObject: {fileID: 9117278372954091883, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1994495538409092379}
   m_SourcePrefab: {fileID: 100100000, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+--- !u!4 &984754104219237821 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1472862208470534507, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1076089890911022082 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1672294298965530836, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1520894039072606599 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!195 &9102119092031826842
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520894039072606599}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &7791461270005641617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520894039072606599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49131a05ca3dbac49afa145f83cffbf8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TentacleHeadController
+  moveSpeed: 3.5
+  rotationSpeed: 120
+  acceleration: 8
+  stoppingDistance: 2
+  targetTag: Player
+  detectionRange: 20
+--- !u!114 &5685288306389066316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520894039072606599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecb2abda472bdb44c9c6cb632371fc22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TentacleLocomotion
+  tentacles:
+  - name: tentacle A R
+    ikTarget: {fileID: 7430078507594739605}
+    raycastOrigin: {fileID: 2069640247305854964}
+    defaultOffset: {x: 0, y: 0, z: 0}
+    currentGroundedPosition: {x: 0, y: 0, z: 0}
+    isMoving: 0
+    lastStepTime: 0
+  - name: tentacle B R
+    ikTarget: {fileID: 984754104219237821}
+    raycastOrigin: {fileID: 5141699637805037355}
+    defaultOffset: {x: 0, y: 0, z: 0}
+    currentGroundedPosition: {x: 0, y: 0, z: 0}
+    isMoving: 0
+    lastStepTime: 0
+  - name: tentacle A L
+    ikTarget: {fileID: 2260900417965349208}
+    raycastOrigin: {fileID: 8051540561902979970}
+    defaultOffset: {x: 0, y: 0, z: 0}
+    currentGroundedPosition: {x: 0, y: 0, z: 0}
+    isMoving: 0
+    lastStepTime: 0
+  - name: tentacle B L
+    ikTarget: {fileID: 1076089890911022082}
+    raycastOrigin: {fileID: 3542083539141857269}
+    defaultOffset: {x: 0, y: 0, z: 0}
+    currentGroundedPosition: {x: 0, y: 0, z: 0}
+    isMoving: 0
+    lastStepTime: 0
+  stepDistance: 1.5
+  stepHeight: 0.5
+  stepDuration: 0.3
+  stepOvershootFraction: 0.5
+  groundTipOffset: 0.05
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  maxSimultaneousSteps: 2
+  minTimeBetweenSteps: 0.05
+  visualBody: {fileID: 0}
+  adjustBodyHeight: 1
+  bodyHeightOffset: 1
+  bodySmoothTime: 0.1
+  showDebugGizmos: 1
+  idealPosColor: {r: 0, g: 1, b: 0, a: 1}
+  targetPosColor: {r: 1, g: 0, b: 0, a: 1}
+  pathColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!4 &2069640247305854964 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8835233346831783134, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2260900417965349208 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 484823263012777358, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3542083539141857269 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6272908494502053085, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3752767362651855441 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3300758969469415047, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5141699637805037355 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2413691528691317763, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6225596396689165045 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5746564759562468899, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7430078507594739605 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -88148075946615997, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7448162805810988477 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9117278372954091883, guid: bef68db7d43c5994ab8c626645426028, type: 3}
+  m_PrefabInstance: {fileID: 1862841819833021654}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1994495538409092379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7448162805810988477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edf2f728086d2c34cbf28cf782f4d7ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleTentacleIK
+  chainLength: 10
+  target: {fileID: 2260900417965349208}
+  pole: {fileID: 3752767362651855441}
+  iterations: 10
+  tolerance: 0.001
+  weight: 1
+--- !u!4 &8051540561902979970 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8531776716887293780, guid: bef68db7d43c5994ab8c626645426028, type: 3}
   m_PrefabInstance: {fileID: 1862841819833021654}
   m_PrefabAsset: {fileID: 0}

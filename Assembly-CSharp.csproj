@@ -65,6 +65,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
+    <Compile Include="Assets\Scripts\TentacleLocomotion.cs" />
     <Compile Include="Assets\Scripts\Data\WaveData.cs" />
     <Compile Include="Assets\Scripts\PauseMenuController.cs" />
     <Compile Include="Assets\Scripts\Audio\BaseContainer.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Assets\Scripts\WeaponController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
+    <Compile Include="Assets\Scripts\TentacleHeadController.cs" />
     <Compile Include="Assets\Scripts\Audio\AudioReflector.cs" />
     <Compile Include="Assets\Scripts\GAS\AttributeSet.cs" />
     <Compile Include="Assets\Scripts\VFX\ImpactReceiver.cs" />
